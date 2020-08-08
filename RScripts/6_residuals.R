@@ -1,31 +1,18 @@
-library(rgdal)
-library(sf)
-library(tidyverse)
-library(readxl)
-library(tmap)
-library(fabricatr)
-library(raster)
-library(ggplot2)
-library(rgeos)
-library(mapview)
-library(leaflet)
-library(broom)
-library(RColorBrewer)
-library(sp)
-library(ggthemes)
-library(viridis)
-library(readstata13)
-library(lubridate)
-library(plm)
+
+# Set Working Directory
+setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts")
+
+#Load packaages
+source("./0_load_packages.R")
 
 
 options(stringsAsFactors = FALSE)
 memory.limit(size=50000)
 set.seed(42)
 
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/R Codes/master_thesis")
 
 
+# Read Stata file containing the residuals of the Bartik instrument partialing out for municipality and year fixed effects
 data <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/Stata Codes/com_municip.dta")
 
 

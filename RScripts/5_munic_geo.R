@@ -1,19 +1,9 @@
-library(rgdal) #estes dois são os mais usados
-library(sf)
-library(tidyverse)
-library(readxl)
-library(tmap)
-library(fabricatr)
-library(raster)
-library(ggplot2)
-library(rgeos)
-library(mapview)
-library(leaflet)
-library(broom)
-library(RColorBrewer)
-library(sp)
-library(ggthemes)
-library(viridis)
+
+# Set Working Directory
+setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts")
+
+#Load packaages
+source("./0_load_packages.R")
 options(stringsAsFactors = FALSE)
 
 

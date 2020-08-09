@@ -220,7 +220,7 @@ pink_prices_final <- pink_prices_avg %>%
 # Using CPI to deflate the series
 cpi_prices <- (pink_prices_final[-1]/(cpi$Index/100))
 
-cpi_prices <- add_column(cpi_prices, Years = pink_prices3_avg[[1]], .before = "Banana") %>%
+cpi_prices <- add_column(cpi_prices, Years = pink_prices_avg[[1]], .before = "Banana") %>%
   as_tibble()
 
 # Creates an index for cpi_prices
@@ -231,16 +231,16 @@ index_cpi_prices <- lmap(cpi_prices[-1], ~{.x/ .x[[1]][1]*100}) %>%
 
 # Convert prices to BRL(R$)
 br_prices <- cambio$Cambio * pink_prices_final[-1]
-br_prices <- add_column(br_prices, Years = pink_prices3_avg[[1]], .before = "Banana")
+br_prices <- add_column(br_prices, Years = pink_prices_avg[[1]], .before = "Banana")
 
 # Deflate the BR prices series using IPCA
 real_br_prices <- (br_prices[-1]/ipca$Index/100)
-real_br_prices <- add_column(real_br_prices, Years = pink_prices3_avg[[1]], .before = "Banana") %>%
+real_br_prices <- add_column(real_br_prices, Years = pink_prices_avg[[1]], .before = "Banana") %>%
   as_tibble()
 
 # Creating an index of the real_br_prices
 index_real_br_prices <- lmap(real_br_prices[-1], ~{.x/ .x[[1]][1]*100}) %>%
-  add_column(Years = pink_prices3_avg[[1]], .before = "Banana") %>%
+  add_column(Years = pink_prices_avg[[1]], .before = "Banana") %>%
   gather(Commodity, Index, Banana:`Wheat S`)
 
 
@@ -268,5 +268,11 @@ graph_6 <- ggplot(index_cpi_prices, aes(x=Years)) +
   ggtitle("Individual Commodity Prices")
 
 graph_6
+
+#Saving prices dataset
+save(pink_prices_final, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/prices_nominal_bartik.Rdata")
+save(cpi_prices, file ="C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/prices_real_bartik.Rdata")
+
+
 
 

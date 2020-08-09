@@ -5,7 +5,7 @@ setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts")
 #Load packaages
 source("./0_load_packages.R")
 
-########## 1- Builds the Commodity Index, i.e, Bartik (shift-share) instrument ############################################################################
+########## 1. Builds the Commodity Index, i.e, Bartik (shift-share) instrument ############################################################################
 
 
 # Subset prices to 2000 forward
@@ -14,12 +14,6 @@ prices <- pink_prices_final %>% filter (Years >= 2000)
 # Sum up the two types of cotton
 quantities_cotton_sum <- mutate(quantities, cotton = rowSums(select(quantities, quant_cotton1, quant_cotton2))) %>%
   select(-c(quant_cotton1, quant_cotton2))
-
-
-##### mais sucinto
-
-names_quant <- colnames(quantities[-c(1,2)])
-names_prices <- colnames(prices[-1])
 
 
 ########## Multiplies the average quantity of each crop between 1995-1999 by its prices from 2000-2015 ##############################################
@@ -362,7 +356,7 @@ pq_final_wider <- pq_final %>% pivot_wider(names_from = "year", values_from = "s
 
 
 
-# Doing it again for CPI deflated prices
+########################### 2. Doing it again for CPI deflated prices #####################################################
 
 # Set up the datasets
 prices <- cpi_prices %>% filter (Years >= 2000)
@@ -674,7 +668,7 @@ pq_rice_a1 <- pq_rice_a1 %>% as_tibble(.name_repair = "unique") %>%
   as_tibble()
 
 
-#unindo tudo
+# Tidying it up
 pq_banana <- pq_banana %>% pivot_longer(-municip, names_to = "year", values_to = "banana")
 pq_barley <- pq_barley %>% pivot_longer(-municip, names_to = "year", values_to = "barley")
 pq_cocoa <- pq_cocoa %>% pivot_longer(-municip, names_to = "year", values_to = "cocoa")
@@ -693,12 +687,11 @@ pq_wheat_soft <- pq_wheat_soft %>% pivot_longer(-municip, names_to = "year", val
 pq_yerbamate <- pq_yerbamate %>% pivot_longer(-municip, names_to = "year", values_to = "yerbamate")
 
 
-
-
+# Joining all in one dataset
 pq_aux <- Reduce(inner_join, list(pq_banana, pq_barley, pq_cocoa, pq_coffee_arabic, pq_cotton, pq_indiantea, pq_maize, pq_orange, pq_rice_05,
                                   pq_rubber, pq_sorghum, pq_soy, pq_sugarcane, pq_tobacco, pq_wheat_soft, pq_yerbamate))
 
-
+# Summing all the values for each crop for all municipality
 pq_final <- pq_aux %>% mutate(sum_pq = dplyr::select(., banana:yerbamate) %>% 
                                 rowSums(na.rm = TRUE)) %>%
   dplyr::select(municip, year, sum_pq)
@@ -708,7 +701,9 @@ pq_final_wider <- pq_final %>% pivot_wider(names_from = "year", values_from = "s
   add_column(cod = quantities$cod, .before = "municip")
 
 #Saving the dataset
+save(pq_final, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/pq_bartik.Rdata")
 write_xlsx(pq_final_wider, 'C:/Users/Andrei/Desktop/Dissertation/Dados\\pq_deflate.xlsx')
+
 
 # Passing to longer format
 pq_final_longer <- pq_final_wider %>% pivot_longer(-c("cod", "municip"), names_to = "year", values_to = "pq")
@@ -717,7 +712,7 @@ pq_final_longer <- pq_final_wider %>% pivot_longer(-c("cod", "municip"), names_t
 pq_final_longer_log <- transform(pq_final_longer, pq = log(pq))
 pq_final_longer_log <- as_tibble(pq_final_longer_log)
 
-# Saving the dataset
+# Saving the dataset in Excel format
 write_xlsx(pq_final_longer, 'C:/Users/Andrei/Desktop/Dissertation/Dados\\pq_deflate_longer.xlsx')
 write_xlsx(pq_final_longer_log, 'C:/Users/Andrei/Desktop/Dissertation/Dados\\pq_deflate_longer_log.xlsx')
 

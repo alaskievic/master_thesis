@@ -65,7 +65,8 @@ quantities <- quantities_map %>% setNames(c("cod", "municip", crops_names)) %>%
   dplyr::select(-oatmeal) %>%
   filter(cod >1)
 
-
+#Save the quantities dataset
+save(quantities, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/quantities_bartik.Rdata")
 
 
 

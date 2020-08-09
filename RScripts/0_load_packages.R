@@ -1,6 +1,9 @@
-# options
+# Options
 options(digits=10)   # number of digits to show
 options(scipen=999) # disable scientific notation
+options(stringsAsFactors = FALSE)
+memory.limit(size=50000) # allocate more RAM
+set.seed(42) # set seed for replications
 
 
 # Install packages

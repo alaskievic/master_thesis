@@ -42,9 +42,9 @@ pink_prices <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Prices/CMO
                           #sheet = "Monthly Prices", col_names = TRUE, na = "..", skip = 6) %>%
   #select(1, 12, 13, 14, 15, 16, 17, 18, 25, 30, 31, 32, 33, 34, 35, 36, 37, 38 ,39, 40, 41, 46, 47, 48, 49, 56, 57, 58)
 
-#colnames(pink_prices2)
 
-#vamos checar
+
+# Let's check
 #all.equal(pink_prices, pink_prices2)
 
 # Doing some renaming, formatting and filtering
@@ -225,7 +225,7 @@ cpi_prices <- add_column(cpi_prices, Years = pink_prices_avg[[1]], .before = "Ba
 
 # Creates an index for cpi_prices
 index_cpi_prices <- lmap(cpi_prices[-1], ~{.x/ .x[[1]][1]*100}) %>%
-  add_column(Years = pink_prices3_avg[[1]], .before = "Banana") %>%
+  add_column(Years = pink_prices_avg[[1]], .before = "Banana") %>%
   gather(Commodity, Index, Banana:`Wheat S`)
 
 

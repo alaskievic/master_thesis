@@ -36,16 +36,16 @@ library(ggthemes)
 library(viridis)
 library(readstata13)
 library(lubridate)
-library(plm)
 library(data.table)
 library(haven)
-library(xlsx)
 library(foreign)
 library(writexl)
 library(ineq)
 library(knitr)
 library(stargazer)
-library(glue) #will try this later
+library(glue)
+library(plm)
+library(xlsx)
 
 
 

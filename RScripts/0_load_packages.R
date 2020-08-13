@@ -11,13 +11,12 @@ list.of.packages <- c("rgdal", "sf", "ggplot2", "data.table", "tidyverse", "read
                       "tmap", "fabricatr", "raster", "rgeos", "mapview", "leaflet",
                       "RColorBrewer", "broom", "sp", "ggthemes", "viridis", "grid", "broom",
                       "viridis", "readstata13", "lubridate", "plm", "haven", "RColorBrewer",
-                      "ineq", "writexl", "xlsx", "foreign", "knitr", "stargazer", "glue")
+                      "ineq", "writexl", "xlsx", "foreign", "knitr", "stargazer", "glue", "zoo")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 
 
 # Load packaages
-
 library(rgdal)
 library(sf)
 library(tidyverse)
@@ -46,7 +45,7 @@ library(stargazer)
 library(glue)
 library(plm)
 library(xlsx)
-
+library(zoo)
 
 
 

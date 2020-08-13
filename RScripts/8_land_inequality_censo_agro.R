@@ -85,19 +85,37 @@ area_1995 <- area_1995 %>% rename(municip = "Município, em ordem de código de UF
 
 
 
-######### 2. Constructs land inequality measures ################################################################################################################
+######### 2. Sets up the data to be used in Stata ############################################################################################################
+
+num_2006 <- num_2006 %>% mutate(num = as.numeric(num))
+area_2006 <- area_2006 %>% mutate(area = as.numeric(area))
+
+
+for(i in 1:length(num_2006$num)){if(is.na(num_2006$num[i])){num_2006$num[i]=0}}
+for(i in 1:length(area_2006$area)){if(is.na(area_2006$area[i])){area_2006$area[i]=0}}
+
+num_2006 <- num_2006 %>% as.numeric(num)
 
 
 
+mean_2006 <- mean_2006 %>% mutate(mean = area_2006$area/num_2006$num) %>%
+  dplyr::select(-num)
+
+for(i in 1:length(mean_2006$mean)){if(is.nan(mean_2006$mean[i])){mean_2006$mean[i]=0}}
 
 
 
+# Saving the dataset in Stata format
+write.dta(num_2006, "num_2006_agro.dta")
+write.dta(area_2006, "area_2006_agro.dta")
 
 
+num_2006 <- num_2006 %>% filter(group != "Total")
+area_2006 <- area_2006 %>% filter(group != "Total")
+agro_2006 <- full_join(num_2006, area_2006, by = c("cod", "group", "municip"))
 
 
-
-
+write.dta(agro_2006, "agro_2006.dta")
 
 
 

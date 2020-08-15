@@ -112,7 +112,6 @@ itr <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/I
                      skip = 8, sheet = "Plan1", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 # Reads municipalities codes from IBGE
-
 mun_codes <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Código Municípios/cod_ibge/RELATORIO_DTB_BRASIL_MUNICIPIO.xls",
                         col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
@@ -174,15 +173,69 @@ rev_real <- mutate_all(rev_nominal[4:15], deflate) %>%
 
 
 
+######### 4. Reads some municipality data that will be used as controls ##################################################################################### 
+
+# Altitude measured in meters
+altitude <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/Controles/altitude.xls",
+                        col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
+# Geographic area in km2
+geo_area <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/Controles/area_geografica.xls",
+                       col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
+# Distance from state capital using 2000 municipality division
+dist_state <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/Controles/dist_capital_estadual.xls",
+                         col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
+# Distance from federal capital
+dist_federal <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/Controles/dist_capital_federal.xls",
+                           col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
+# Latitude in degrees
+latitude <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/Controles/latitude.xls",
+             col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
+# Longitude
+longitude <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/Controles/longitude.xls",
+                        col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
+# Just changing some names and arraging
+altitude <- altitude %>% rename(altitude = "1998", cod = "Codigo", municip = "Município") %>%
+  dplyr::select(-"Sigla") %>%
+  arrange(cod)
 
+dist_federal <- dist_federal %>% rename(dist_federal = "1998", cod = "Codigo", municip = "Município") %>%
+  dplyr::select(-"Sigla") %>%
+  arrange(cod)
 
+dist_state <- dist_state %>% rename(dist_state = "1998", cod = "Codigo", municip = "Município") %>%
+  dplyr::select(-"Sigla") %>%
+  arrange(cod)
+
+geo_area <- geo_area %>% rename(geo_area_2000 = "2000", geo_area_2010 = "2010", cod = "Codigo", municip = "Município") %>%
+  dplyr::select(c("cod", "municip", "geo_area_2000", "geo_area_2010")) %>%
+  arrange(cod)
+
+latitude <- latitude %>% rename(latitude= "1998", cod = "Codigo", municip = "Município") %>%
+  dplyr::select(-"Sigla") %>%
+  arrange(cod)
+
+longitude <- longitude %>% rename(longitude = "1998", cod = "Codigo", municip = "Município") %>%
+  dplyr::select(-"Sigla") %>%
+  arrange(cod)
+
+# Joining all controls in one dataframe
+list_controls <- list(altitude, dist_federal, dist_state, geo_area, latitude, longitude)
+
+controls <- purrr::reduce(list_controls, inner_join, by = c("cod", "municip"))
+
+# Creating a dummy if it is a state capital
+controls$capital_dummy[controls$dist_state == 0] <- 1
+controls$capital_dummy[controls$dist_state != 0] <- 0
+
+# Transform it in a facotr variable
+controls <- controls %>% mutate(capital_dummy = as_factor(capital_dummy))
 
 
 

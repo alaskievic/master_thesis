@@ -4,14 +4,223 @@ setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts")
 #Load packaages
 source("./0_load_packages.R")
 
+######### 1. Reads and plots Land Gini Inequality data calculated in Stata ###################################################################################
 
-data_gini_land_stata <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/agro_2006.dta")
+# Reads IBGE's 2019 shapefile containing 5570 municipalities
+shp_ibge <-  readOGR("C:/Users/Andrei/Desktop/Dissertation/Dados/Shapefiles/br_municipios_2019", "BR_Municipios_2019", stringsAsFactors = F)
+
+# Reads shapefiles for state borders
+shp_ufs <- readOGR("C:/Users/Andrei/Desktop/Dissertation/Dados/Shapefiles/uf_2019", "BR_UF_2019", stringsAsFactors = F)
+
+# 1995
+# Reads from Stata
+stata_agro_1995 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/agro_1995.dta")
+
+# Get unique values for each municipality
+gini_land_1995 <- dplyr::select(stata_agro_1995, c("cod", "municip", "gini_1995_corr")) %>%
+  distinct(gini_1995_corr, .keep_all = TRUE) %>%
+  rename(gini_1995 = "gini_1995_corr")
+
+# Restrain 1 negative value
+gini_land_1995 <- gini_land_1995 %>% mutate(gini_1995 = if_else(gini_1995 < 0, 0, gini_1995))
+
+# Merging with IBGE data
+names(shp_ibge@data)[1] = "cod"
+shp_ibge_gini_1995 <- merge(shp_ibge, gini_land_1995, all.x = TRUE)
+
+# Just to analyze the average
+mean(gini_land_1995$gini_1995)
+
+# Plotting
+gini_land_1995 <- tm_shape(shp_ibge_gini_1995) +
+  tm_polygons(col = "gini_1995",  style = "fisher", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Land Gini in 1995") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.position = c("left", "bottom"), 
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom")) 
+
+gini_land_1995
+
+# Saving
+tmap_save(gini_land_1995, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_land_1995.png")
+
+
+
+# 2006
+# Reads from Stata
+stata_agro_2006 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/agro_2006.dta")
+
+# Get unique values for each municipality
+gini_land_2006 <- dplyr::select(stata_agro_2006, c("cod", "municip", "gini_2006_corr")) %>%
+  distinct(gini_2006_corr, .keep_all = TRUE) %>%
+  rename(gini_2006 = "gini_2006_corr")
+
+# Take out possible negative values
+gini_land_2006 <- gini_land_2006 %>% mutate(gini_2006 = if_else(gini_2006 < 0, 0, gini_2006))
+
+# Merging with IBGE data
+names(shp_ibge@data)[1] = "cod"
+shp_ibge_gini_2006 <- merge(shp_ibge, gini_land_2006, all.x = TRUE)
+
+# Just to analyze the average
+mean(gini_land_2006$gini_2006)
+
+# Plotting
+gini_land_2006 <- tm_shape(shp_ibge_gini_2006) +
+  tm_polygons(col = "gini_2006",  style = "fisher", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Land Gini in 2006") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.position = c("left", "bottom"), 
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom")) 
+
+gini_land_2006
+
+# Saving
+tmap_save(gini_land_2006, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_land_2006.png")
 
 
 
 
-data_gini_land <- pivot_wider(data_gini_land_stata, -c("cod", "group", "num", "area", "mun_group", "num_tot"), values_from = "gini", names_from = "municip")
+# 2017
+# Reads from Stata
+stata_agro_2017 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/agro_2017.dta")
+
+# Get unique values for each municipality
+gini_land_2017 <- dplyr::select(stata_agro_2017, c("cod", "municip", "gini_2017_corr")) %>%
+  distinct(gini_2017_corr, .keep_all = TRUE) %>%
+  rename(gini_2017 = "gini_2017_corr")
+
+# Take out possible negative values
+gini_land_2017 <- gini_land_2017 %>% mutate(gini_2017 = if_else(gini_2017 < 0, 0, gini_2017))
+
+# Merging with IBGE data
+names(shp_ibge@data)[1] = "cod"
+shp_ibge_gini_2017 <- merge(shp_ibge, gini_land_2017, all.x = TRUE)
+
+# Just to analyze the average
+mean(gini_land_2017$gini_2017)
+
+# Plotting
+gini_land_2017 <- tm_shape(shp_ibge_gini_2017) +
+  tm_polygons(col = "gini_2017",  style = "fisher", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Land Gini in 2017") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.position = c("left", "bottom"), 
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom")) 
+
+gini_land_2017
+
+# Saving
+tmap_save(gini_land_2017, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_land_2017.png")
 
 
 
-shp_ibge_gini_land <- merge(shp_ibge@data, data_gini_land, all.x = TRUE)
+
+
+######### 2. Make maps for Income Gini #####################################################################################################################
+
+###### 1991
+# Sets up Gini data for each year
+gini_censo_1991 <- dplyr::select(atlas_mun, c("ANO", "Codmun7", "Município", "GINI")) %>%
+  filter(ANO == 1991) %>%
+  rename(cod = "Codmun7") %>%
+  arrange(cod)
+
+# Merge with IBGE shapefile
+names(shp_ibge@data)[1] = "cod"
+shp_ibge_gini_1991 <- merge(shp_ibge, gini_censo_1991, all.x = TRUE)
+
+
+# Plotting
+gini_income_1991 <- tm_shape(shp_ibge_gini_1991) +
+  tm_polygons(col = "GINI",  style = "fisher", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Income Gini in 1991") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.position = c("left", "bottom"), 
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom")) 
+
+gini_income_1991
+
+# Saving
+tmap_save(gini_income_1991, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_income_1991.png")
+
+
+
+##### 2000
+# Sets up Gini data for each year
+gini_censo_2000 <- dplyr::select(atlas_mun, c("ANO", "Codmun7", "Município", "GINI")) %>%
+  filter(ANO == 2000) %>%
+  rename(cod = "Codmun7") %>%
+  arrange(cod)
+
+# Merge with IBGE shapefile
+names(shp_ibge@data)[1] = "cod"
+shp_ibge_gini_2000 <- merge(shp_ibge, gini_censo_2000, all.x = TRUE)
+
+
+# Plotting
+gini_income_2000 <- tm_shape(shp_ibge_gini_2000) +
+  tm_polygons(col = "GINI",  style = "fisher", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Income Gini in 2000") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.position = c("left", "bottom"), 
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom")) 
+
+gini_income_2000
+
+# Saving
+tmap_save(gini_income_2000, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_income_2000.png")
+
+
+
+
+
+# 2010
+# Sets up Gini data for each year
+gini_censo_2010 <- dplyr::select(atlas_mun, c("ANO", "Codmun7", "Município", "GINI")) %>%
+  filter(ANO == 2010) %>%
+  rename(cod = "Codmun7") %>%
+  arrange(cod)
+
+# Merge with IBGE shapefile
+names(shp_ibge@data)[1] = "cod"
+shp_ibge_gini_2010 <- merge(shp_ibge, gini_censo_2010, all.x = TRUE)
+
+
+# Plotting
+gini_income_2010 <- tm_shape(shp_ibge_gini_2010) +
+  tm_polygons(col = "GINI",  style = "fisher", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Income Gini in 2010") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.position = c("left", "bottom"), 
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom")) 
+
+gini_income_2010
+
+# Saving
+tmap_save(gini_income_2010, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_income_2010.png")
+

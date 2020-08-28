@@ -14,7 +14,7 @@ shp_ufs <- readOGR("C:/Users/Andrei/Desktop/Dissertation/Dados/Shapefiles/uf_201
 
 # 1995
 # Reads from Stata
-stata_agro_1995 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/agro_1995.dta")
+stata_agro_1995 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/agro_1995.dta")
 
 # Get unique values for each municipality
 gini_land_1995 <- dplyr::select(stata_agro_1995, c("cod", "municip", "gini_1995_corr")) %>%
@@ -32,27 +32,26 @@ shp_ibge_gini_1995 <- merge(shp_ibge, gini_land_1995, all.x = TRUE)
 mean(gini_land_1995$gini_1995)
 
 # Plotting
-gini_land_1995 <- tm_shape(shp_ibge_gini_1995) +
+map_land_1995 <- tm_shape(shp_ibge_gini_1995) +
   tm_polygons(col = "gini_1995",  style = "fisher", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
               textNA="No Data",
               title = "Land Gini in 1995") +
   tm_shape(shp_ufs) +
   tm_borders(lwd = 1.5, col = "black", alpha = .5) +
-  tm_layout(legend.position = c("left", "bottom"), 
-            frame = FALSE) +
+  tm_layout(legend.position = c("BOTTOM", "LEFT"), 
+            frame = FALSE, legend.outside = TRUE) +
   tm_compass(position = c("right", "bottom")) +
   tm_scale_bar(position = c("right", "bottom")) 
 
-gini_land_1995
+map_land_1995
 
 # Saving
-tmap_save(gini_land_1995, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_land_1995.png")
+tmap_save(map_land_1995, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_land_1995.png")
 
 
-
-# 2006
+################## 2006
 # Reads from Stata
-stata_agro_2006 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/agro_2006.dta")
+stata_agro_2006 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/agro_2006.dta")
 
 # Get unique values for each municipality
 gini_land_2006 <- dplyr::select(stata_agro_2006, c("cod", "municip", "gini_2006_corr")) %>%
@@ -70,7 +69,7 @@ shp_ibge_gini_2006 <- merge(shp_ibge, gini_land_2006, all.x = TRUE)
 mean(gini_land_2006$gini_2006)
 
 # Plotting
-gini_land_2006 <- tm_shape(shp_ibge_gini_2006) +
+map_land_2006 <- tm_shape(shp_ibge_gini_2006) +
   tm_polygons(col = "gini_2006",  style = "fisher", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
               textNA="No Data",
               title = "Land Gini in 2006") +
@@ -81,17 +80,18 @@ gini_land_2006 <- tm_shape(shp_ibge_gini_2006) +
   tm_compass(position = c("right", "bottom")) +
   tm_scale_bar(position = c("right", "bottom")) 
 
-gini_land_2006
+map_land_2006
 
 # Saving
-tmap_save(gini_land_2006, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_land_2006.png")
+tmap_save(map_land_2006, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_land_2006.png")
 
 
 
 
-# 2017
+################## 2017
+
 # Reads from Stata
-stata_agro_2017 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/agro_2017.dta")
+stata_agro_2017 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/agro_2017.dta")
 
 # Get unique values for each municipality
 gini_land_2017 <- dplyr::select(stata_agro_2017, c("cod", "municip", "gini_2017_corr")) %>%
@@ -109,7 +109,7 @@ shp_ibge_gini_2017 <- merge(shp_ibge, gini_land_2017, all.x = TRUE)
 mean(gini_land_2017$gini_2017)
 
 # Plotting
-gini_land_2017 <- tm_shape(shp_ibge_gini_2017) +
+map_land_2017 <- tm_shape(shp_ibge_gini_2017) +
   tm_polygons(col = "gini_2017",  style = "fisher", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
               textNA="No Data",
               title = "Land Gini in 2017") +
@@ -120,12 +120,19 @@ gini_land_2017 <- tm_shape(shp_ibge_gini_2017) +
   tm_compass(position = c("right", "bottom")) +
   tm_scale_bar(position = c("right", "bottom")) 
 
-gini_land_2017
+map_land_2017
 
 # Saving
-tmap_save(gini_land_2017, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_land_2017.png")
+tmap_save(map_land_2017, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_land_2017.png")
 
 
+
+# Saving merged dataset
+tmp <- full_join(gini_land_1995, gini_land_2006, by = "cod")
+land_gini <- full_join(tmp, gini_land_2017, by = "cod")
+
+#Saving
+save(land_gini, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/land_gini.RData")
 
 
 
@@ -192,9 +199,6 @@ gini_income_2000
 tmap_save(gini_income_2000, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_income_2000.png")
 
 
-
-
-
 # 2010
 # Sets up Gini data for each year
 gini_censo_2010 <- dplyr::select(atlas_mun, c("ANO", "Codmun7", "Município", "GINI")) %>%
@@ -223,4 +227,66 @@ gini_income_2010
 
 # Saving
 tmap_save(gini_income_2010, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_income_2010.png")
+
+
+######### 3. Plotting Income Gini with equal bracket sizes #################################################################################################
+
+# Plotting
+gini_income_1991_brack <- tm_shape(shp_ibge_gini_1991) +
+  tm_polygons(col = "GINI",  style = "fixed", breaks = c(0.27, 0.35, 0.5, 0.65, 0.8, 0.92), palette = "YlOrRd", border.col = "black", 
+              border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Income Gini in 1991") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.position = c("left", "bottom"), 
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom")) 
+
+gini_income_1991_brack
+
+# Saving
+tmap_save(gini_income_1991_brack, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_income_1991_brack.png")
+
+
+#2000
+gini_income_2000_brack <- tm_shape(shp_ibge_gini_2000) +
+  tm_polygons(col = "GINI",  style = "fixed", breaks = c(0.30, 0.35, 0.5, 0.65, 0.8, 0.87), palette = "YlOrRd", border.col = "black", 
+              border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Income Gini in 2000") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.position = c("left", "bottom"), 
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom")) 
+
+gini_income_2000_brack
+
+tmap_save(gini_income_1991_brack, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_income_1991_brack.png")
+
+
+gini_income_2010_brack <- tm_shape(shp_ibge_gini_2010) +
+  tm_polygons(col = "GINI",  style = "fixed", breaks = c(0.28, 0.35, 0.5, 0.65, 0.8, 0.8), palette = "YlOrRd", border.col = "black", 
+              border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Income Gini in 2010") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.position = c("left", "bottom"), 
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom")) 
+
+gini_income_2010_brack
+
+
+
+
+
+
+
+
 

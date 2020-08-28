@@ -1,0 +1,165 @@
+----------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\exp_bartik.log
+  log type:  text
+ opened on:  20 Aug 2020, 14:27:33
+
+. 
+. eststo clear
+
+. 
+. eststo: qui xtreg log_rev_impost_tot dummy_10  i.year, fe vce(cluster cod)
+(est1 stored)
+
+. eststo: qui xtreg log_rev_impost_tot dummy_25  i.year, fe vce(cluster cod)
+(est2 stored)
+
+. eststo: qui xtreg log_rev_impost_tot pq_log  i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. esttab, se ar2 keep(dummy_10 dummy_25 pq_log)
+
+------------------------------------------------------------
+                      (1)             (2)             (3)   
+             log_rev_im~t    log_rev_im~t    log_rev_im~t   
+------------------------------------------------------------
+dummy_10          -0.0198                                   
+                 (0.0327)                                   
+
+dummy_25                           0.0112                   
+                                 (0.0297)                   
+
+pq_log                                           -0.00773   
+                                                 (0.0302)   
+------------------------------------------------------------
+N                   60137           60137           60137   
+adj. R-sq           0.288           0.288           0.288   
+------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. eststo clear
+
+. 
+. eststo: qui xtreg log_exp_func_total dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.l
+> atitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est1 stored)
+
+. eststo: qui xtreg log_exp_func_total dummy_25  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.l
+> atitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. eststo: qui xtreg log_exp_func_total pq_log  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.lat
+> itude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. esttab, se ar2 keep(dummy_10 dummy_25 pq_log)
+
+------------------------------------------------------------
+                      (1)             (2)             (3)   
+             log_exp_fu~l    log_exp_fu~l    log_exp_fu~l   
+------------------------------------------------------------
+dummy_10          -0.0305                                   
+                 (0.0546)                                   
+
+dummy_25                          -0.0224                   
+                                 (0.0512)                   
+
+pq_log                                            -0.0268   
+                                                 (0.0528)   
+------------------------------------------------------------
+N                   60137           60137           60137   
+adj. R-sq           0.057           0.057           0.057   
+------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. eststo clear
+
+. 
+. eststo: qui xtreg log_exp_educ dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitud
+> e#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est1 stored)
+
+. eststo: qui xtreg log_exp_educ dummy_25  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitud
+> e#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. eststo: qui xtreg log_exp_educ pq_log  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitude#
+> i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. esttab, se ar2 keep(dummy_10 dummy_25 pq_log)
+
+------------------------------------------------------------
+                      (1)             (2)             (3)   
+             log_exp_educ    log_exp_educ    log_exp_educ   
+------------------------------------------------------------
+dummy_10          -0.0328                                   
+                 (0.0484)                                   
+
+dummy_25                         -0.00149                   
+                                 (0.0458)                   
+
+pq_log                                            -0.0177   
+                                                 (0.0480)   
+------------------------------------------------------------
+N                   60137           60137           60137   
+adj. R-sq           0.063           0.063           0.063   
+------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. eststo clear
+
+. 
+. eststo: qui xtreg log_rev_itr dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitude
+> #i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est1 stored)
+
+. eststo: qui xtreg log_rev_itr dummy_25  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitude
+> #i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. eststo: qui xtreg log_rev_itr pq_log  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitude#i
+> .year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. esttab, se ar2 keep(dummy_10 dummy_25 pq_log)
+
+------------------------------------------------------------
+                      (1)             (2)             (3)   
+              log_rev_itr     log_rev_itr     log_rev_itr   
+------------------------------------------------------------
+dummy_10           0.0541                                   
+                 (0.0320)                                   
+
+dummy_25                          0.00722                   
+                                 (0.0216)                   
+
+pq_log                                            -0.0890***
+                                                 (0.0215)   
+------------------------------------------------------------
+N                   60137           60137           60137   
+adj. R-sq           0.308           0.308           0.309   
+------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. log close
+      name:  <unnamed>
+       log:  C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\exp_bartik.log
+  log type:  text
+ closed on:  20 Aug 2020, 14:27:44
+----------------------------------------------------------------------------------------------------------------------

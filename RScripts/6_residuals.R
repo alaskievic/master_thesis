@@ -9,7 +9,7 @@ source("./0_load_packages.R")
 ######### 1. Uses the residuals from the Bartik instrument regression to make maps ######################################################################
 
 # Read Stata file containing the residuals of the Bartik instrument partialing out for municipality and year fixed effects
-data <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/Stata Codes/com_municip.dta")
+data <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/com_municip.dta")
 
 
 # Ranks the residuals in quintiles
@@ -163,7 +163,6 @@ tmap_save(map_resid_2015, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_the
 
 model <- plm(pq_log, data = data, index =c("municip", "year"), model = "within", effect = "twoways")
 
-#oi :)
 
 
 #########

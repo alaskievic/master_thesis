@@ -53,11 +53,12 @@ exp_nominal_long <- tmp %>% setNames(c("cod", "municip", "year", glue("exp_{exp_
 deflate <- function(x) x/(ipca$Index_2/100)
 
 ##### na.rm???
-
 exp_real_long <- mutate_all(exp_nominal_long[4:12], deflate) %>%
   add_column(cod = exp_nominal_long$cod, municip = exp_nominal_long$municip, year = exp_nominal_long$year, .before = "exp_corrente") %>%
   replace(is.na(.), 0)
 
+# Saving
+save(exp_real_long, file = "exp_real_long.RData")
 
 ######### 2. Reads and cleans up revenues data from IPEA #####################################################################################################
 
@@ -105,6 +106,9 @@ rev_real <- mutate_all(rev_nominal[4:15], deflate) %>%
   add_column(cod = rev_nominal$cod, municip = rev_nominal$municip, year = rev_nominal$year, .before = "rev_impost_tot") %>%
   replace(is.na(.), 0)
 
+
+
+
 ######### 3. Reads and cleans ITR revenue data from Receita Federal ####################################################################################################
 
 # Reads ITR data
@@ -112,7 +116,7 @@ itr <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/I
                      skip = 8, sheet = "Plan1", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 # Reads municipalities codes from IBGE
-mun_codes <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Código Municípios/cod_ibge/RELATORIO_DTB_BRASIL_MUNICIPIO.xls",
+mun_codes <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Código Municípios/cod_ibge/RELATORIO_DTB_BRASIL_MUNICIPIO_itr.xls",
                         col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
@@ -120,60 +124,153 @@ mun_codes <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municí
 rev_itr <- itr %>% rename(municip = "MUNICÍPIO") %>%
   dplyr::select(-"UNIDADE DA FEDERAÇÃO") %>%
   dplyr::select(c(municip, `2000`:`2010`)) %>%
-  filter(!is.na(municip))
+  filter(!is.na(municip)) %>%
+  filter(municip !="Exterior - EX")
 
-# Arrange the data alphabetically to match it to code numbers
-rev_itr$municip <- gsub(" -.*", "", rev_itr$municip)
-
-rev_itr <- arrange(rev_itr, municip)
-
-# There is a observation called exterior, take it out
-rev_itr <- rev_itr %>% filter(municip !="Exterior")
+# transfrom all names to lowercase
+rev_itr <- rev_itr %>% mutate(municip = tolower(municip))
 
 
-# Select codes and municipalities names
-mun_codes <- mun_codes %>% rename (municip = "Nome_Município", cod = "Código Município Completo") %>%
-  dplyr::select(cod, municip)
+rev_itr <- rev_itr %>% mutate(municip = gsub("- ", "(", rev_itr$municip))
 
-# Arrange alphabetically to match the ITR data set
-mun_codes <- arrange(mun_codes, municip)
+rev_itr$municip[-length(rev_itr$municip)] <- paste0(rev_itr$municip[-length(rev_itr$municip)], ')')
+rev_itr[5526, 1] <- "palmas(to)"
+
+
+# Change mun codes strings
+teste_codes <- mun_codes %>% mutate(new_names = ifelse(Nome_UF == "Rondônia",  paste0(Nome_Município[-length(Nome_Município)], '(RO)'),
+                                                 ifelse(Nome_UF == "Acre",  paste0(Nome_Município[-length(Nome_Município)], '(AC)'),    
+                                                 ifelse(Nome_UF == "Amazonas",  paste0(Nome_Município[-length(Nome_Município)], '(AM)'),                
+                                                 ifelse(Nome_UF == "Roraima",  paste0(Nome_Município[-length(Nome_Município)], '(RR)'),                                                       
+                                                 ifelse(Nome_UF == "Pará",  paste0(Nome_Município[-length(Nome_Município)], '(PA)'),        
+                                                 ifelse(Nome_UF == "Amapá",  paste0(Nome_Município[-length(Nome_Município)], '(AP)'),
+                                                 ifelse(Nome_UF == "Tocantins",  paste0(Nome_Município[-length(Nome_Município)], '(TO)'),
+                                                 ifelse(Nome_UF == "Maranhão",  paste0(Nome_Município[-length(Nome_Município)], '(MA)'),      
+                                                 ifelse(Nome_UF == "Piauí",  paste0(Nome_Município[-length(Nome_Município)], '(PI)'),       
+                                                 ifelse(Nome_UF == "Ceará",  paste0(Nome_Município[-length(Nome_Município)], '(CE)'),         
+                                                 ifelse(Nome_UF == "Rio Grande do Norte",  paste0(Nome_Município[-length(Nome_Município)], '(RN)'),     
+                                                 ifelse(Nome_UF == "Paraíba",  paste0(Nome_Município[-length(Nome_Município)], '(PB)'),                                                         
+                                                 ifelse(Nome_UF == "Pernambuco",  paste0(Nome_Município[-length(Nome_Município)], '(PE)'),                                                        
+                                                 ifelse(Nome_UF == "Alagoas",  paste0(Nome_Município[-length(Nome_Município)], '(AL)'),
+                                                 ifelse(Nome_UF == "Sergipe",  paste0(Nome_Município[-length(Nome_Município)], '(SE)'),
+                                                 ifelse(Nome_UF == "Bahia",  paste0(Nome_Município[-length(Nome_Município)], '(BA)'),
+                                                 ifelse(Nome_UF == "Minas Gerais",  paste0(Nome_Município[-length(Nome_Município)], '(MG)'),
+                                                 ifelse(Nome_UF == "São Paulo",  paste0(Nome_Município[-length(Nome_Município)], '(SP)'),
+                                                 ifelse(Nome_UF == "Rio de Janeiro",  paste0(Nome_Município[-length(Nome_Município)], '(RJ)'),
+                                                 ifelse(Nome_UF == "Espírito Santo",  paste0(Nome_Município[-length(Nome_Município)], '(ES)'),
+                                                 ifelse(Nome_UF == "Rio Grande do Sul",  paste0(Nome_Município[-length(Nome_Município)], '(RS)'),                                                                 
+                                                 ifelse(Nome_UF == "Paraná",  paste0(Nome_Município[-length(Nome_Município)], '(PR)'),                                                                 
+                                                 ifelse(Nome_UF == "Santa Catarina",  paste0(Nome_Município[-length(Nome_Município)], '(SC)'),                
+                                                 ifelse(Nome_UF == "Mato Grosso do Sul",  paste0(Nome_Município[-length(Nome_Município)], '(MS)'),
+                                                 ifelse(Nome_UF == "Mato Grosso",  paste0(Nome_Município[-length(Nome_Município)], '(MT)'),          
+                                                 ifelse(Nome_UF == "Goiás",  paste0(Nome_Município[-length(Nome_Município)], '(GO)'),
+                                                 ifelse(Nome_UF == "Distrito Federal",  paste0(Nome_Município[-length(Nome_Município)], '(DF)'), ""
+                                                 ))))))))))))))))))))))))))))
+
+#Soemthing went wrong with Brasília (?)
+teste_codes[5570, 10] <- "Brasília(DF)"
+
+#Remove spaces
+teste_codes$new_names  <- gsub(" ", "", teste_codes$new_names)
+rev_itr$municip <- gsub(" ", "", rev_itr$municip)
+
+#Remove special characters
+teste_codes <- teste_codes %>% mutate(new_names = stri_trans_general(str = teste_codes$new_names, id = "Latin-ASCII"))
+rev_itr <- rev_itr %>% mutate(municip = stri_trans_general(str = rev_itr$municip, id = "Latin-ASCII"))
+
+# transfrom all names to lowercase
+teste_codes <- teste_codes %>% mutate(new_names = tolower(new_names))
+
+
+#Select
+teste_codes <- teste_codes %>% dplyr::select(c("new_names", "Nome_Município", "Nome_UF", "Código Município Completo")) %>%
+  rename(municip = "new_names", cod = "Código Município Completo")
+
 
 # Merge the two datasets to get codes for itr data
-rev_itr_codes <- semi_join(rev_itr, mun_codes, by = "municip")
-
-a <- full_join(mun_codes, rev_itr, by = "municip") %>%
+itr_final <- full_join(teste_codes, rev_itr, by = "municip") %>%
   arrange(cod)
 
 
-# Identifying duplicates for future correction
-dupl <- a[duplicated(a$municip), ]
-
-# See which municipalities are missing
-anti_1 <- anti_join(rev_itr, mun_codes, by = "municip")
-anti_2 <- anti_join(mun_codes, rev_itr, by = "municip")
-
-######### Municipalities with same name are highly problematic
-
-# I changed some names in both excel files to match grammar between them. Most importantly, I changed Embu-Guaçu to Embu Guaçu;
-# Lauro Muller; Quixaba which appears twice; Pariquera Açu; Januário Cicco - Boa Saúde;  in the official IBGE file
- 
-
-######################## Treinar string replacment nesses dois datasets depois
+# Deflates ITR data
+itr_long <- pivot_longer(itr_final, -c("municip", "Nome_Município", "Nome_UF", "cod"), values_to = "exp_itr", names_to = "year")
 
 
-
-# Deflates the values
-deflate <- function(x) x/(ipca$Index_2/100)
-
-##### na.rm???
-
-rev_real <- mutate_all(rev_nominal[4:15], deflate) %>%
-  add_column(cod = rev_nominal$cod, municip = rev_nominal$municip, year = rev_nominal$year, .before = "rev_impost_tot") %>%
+itr_real <- mutate_all(itr_long[6], deflate) %>%
+  add_column(cod = itr_long$cod, municip = itr_long$municip, municip2 = itr_long$Nome_Município,  year = itr_long$year, 
+             UF = itr_long$Nome_UF, .before = "exp_itr") %>%
   replace(is.na(.), 0)
 
+# Real Final Join
+
+rev_final <- left_join(itr_real, rev_real, by = c("cod", "year"))
+rev_final_2 <- full_join(rev_real, itr_real, by = c("cod", "year"))
 
 
-######### 4. Reads some municipality data that will be used as controls ##################################################################################### 
+# Saving
+save(rev_final, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/rev_final.RData")
+
+# Saving in excel
+#write_xlsx(itr_final, "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/AMS/match_names.xlsx")
+
+
+# Identifying duplicates for future correction
+#dupl <- a[duplicated(a$municip), ]
+
+# See which municipalities are missing
+#anti_1 <- anti_join(teste_itr, teste_codes, by = "municip")
+#anti_2 <- anti_join(teste_codes, teste_itr, by = "municip")
+
+
+######### 5. Reads data containig municipalities that opted for the agreement of 100% revenue ITR ##################################################################################### 
+#http://servicos.receita.fazenda.gov.br/Servicos/termoitr
+
+itr_agr <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/itr_convenio.xlsx",
+                   skip = 1 ,sheet = "Original", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+itr_agr <- itr_agr %>%
+  group_by(grp = cumsum(str_detect(Município, '^UF:\\s+'))) %>%
+             mutate(UF = toupper(str_extract(first(Município), '(?<=UF: )\\w{2}')),
+                    Município = case_when(row_number() > 1 
+                                     ~ sprintf('%s (%s)', Município, UF), TRUE ~ Município)) %>% 
+  ungroup %>%
+  dplyr::select(-c("grp"))
+
+
+
+itr_agr <- itr_agr %>% rename(municip = "Município", situ = "Situação do Convênio", op_date = "Data da Opção", op_vigen = "Data da Vigência")%>% 
+  mutate(op_date = ymd(op_date)) %>%
+  mutate(op_vigen = ymd(op_vigen))
+
+
+# Transform strings
+itr_agr <- itr_agr %>% mutate(municip = tolower(municip))
+itr_agr <- itr_agr %>% mutate(municip = stri_trans_general(str = itr_agr$municip, id = "Latin-ASCII"))
+itr_agr$municip  <- gsub(" ", "", itr_agr$municip)
+itr_agr$municip  <- gsub("-", "", itr_agr$municip)
+
+
+# Codes and names for matching
+teste_codes$municip  <- gsub("-", "", teste_codes$municip)
+
+# Joining
+itr_conv <- inner_join(itr_agr, teste_codes, by = "municip")
+
+# Generate dummies
+itr_conv$dummy_op_2010 <- ifelse(year(itr_conv$op_date) < 2010, 1, 0)
+itr_conv$dummy_vigen_2010 <- ifelse(year(itr_conv$op_vigen) < 2010, 1, 0)
+itr_conv$dummy_denun <- ifelse(itr_conv$situ == "Denúncia Vigente", 1, 0)
+itr_conv$dummy_conv <- ifelse(itr_conv$situ == "Convênio Vigente", 1, 0)
+itr_conv$dummy_conv_op_2010 <- ifelse(itr_conv$situ == "Convênio Vigente" & year(itr_conv$op_date) < 2010 , 1, 0)
+itr_conv$dummy_conv_vigen_2010 <- ifelse(itr_conv$situ == "Convênio Vigente" & year(itr_conv$op_vigen) < 2010 , 1, 0)
+
+#anti_1 <- anti_join(itr_agr, teste_codes, by = "municip")
+#anti_2 <- anti_join(teste_codes, itr_agr, by = "municip")
+#dupl <- teste[duplicated(teste$municip), ]
+
+
+######### 5. Reads some municipality data that will be used as controls ##################################################################################### 
 
 # Altitude measured in meters
 altitude <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/Controles/altitude.xls",
@@ -237,11 +334,15 @@ controls$capital_dummy[controls$dist_state != 0] <- 0
 # Transform it in a facotr variable
 controls <- controls %>% mutate(capital_dummy = as_factor(capital_dummy))
 
+# For merging
+controls <- controls %>% mutate(cod = as.integer(cod))
+
+save(controls, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/controls.RData")
 
 
-
-
-
+######### Reads and merges MUNIC data #######################################################################################################################
+munic_2004<- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/Controles/altitude.xls",
+                       col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
 

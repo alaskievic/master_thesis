@@ -29,7 +29,7 @@ atlas_mun <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municí
 # CORTE2 - Second quintile of per capita household  income distribution
 # CORTE3 - Third quintile of per capita household income distribution
 # CORTE4 - Fourth quintile of per capita household income distribution
-# CORTE 9 - 9th decil of per capita household income distribution
+# CORTE9 - 9th decil of per capita household income distribution
 # GINI - Gini index for per capita household income
 # PIND - Proportion of extremely poor
 # PINDCRI - Proportion of extremely poor children
@@ -81,8 +81,13 @@ variables <- c("ANO", "Codmun7", "Município", "E_ANOSESTUDO", "T_ANALF15M", "T_A
 
 atlas_mun <- atlas_mun %>% dplyr::select(variables)
 
+save(atlas_mun, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/atlas_mun.RData")
+
+
 # Changing Na values to zero
 atlas_mun <- atlas_mun %>% mutate_all(~replace(., is.na(.), 0))
+
+atlas_mun2 <- atlas_mun %>% dplyr::select(variables)
 
 ######### 2. Reads and cleans data from IBGE Pesquisa de Assistência Médico-Sanitária for 2002 and 2009 ######################################################
 
@@ -188,7 +193,6 @@ teste5 <- teste5 %>% add_row(exclude2 [17 , ], .before = 1356)
 teste5 <- teste5 %>% add_row(exclude2 [23 , ], .before = 3047)
 teste5 <- teste5 %>% add_row(exclude2 [35 , ], .before = 5407)
 
-
 ## Finally, sao paulo and rio
 teste5 <- teste5 %>% add_row(exclude2 [26 , ], .before = 3236)
 teste5 <- teste5 %>% add_row(exclude2 [28 , ], .before = 3822)
@@ -202,16 +206,94 @@ teste5 <- teste5 %>%
 ams_2002_tot <- ams_2002_tot %>%
   arrange(municip)
 
+# Aux
+aux <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/AMS/match_names_ams.xlsx",
+                            col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+aux <- aux %>% rename(municip2 = "Nome_Município") %>%
+  dplyr::select(c("cod", "municip", "municip2", "Nome_UF"))
+
+
+aux <- aux %>% mutate(municip2 = stri_trans_general(str = aux$municip2, id = "Latin-ASCII"))
+aux <- aux %>% mutate(municip2 = tolower(municip2))
+aux <- aux %>% mutate(municip2 = gsub("-", "", aux$municip2))
+aux$municip2 <- gsub(" ", "", aux$municip2)
+
+aux <- aux %>% arrange(municip2)
+
+
+teste5 <- teste5 %>% mutate(municip = gsub("-", "", teste5$municip))
+teste5$municip <- gsub(" ", "", teste5$municip)
+teste5 <- teste5 %>% rename(municip2 = "municip")
+
+
+
+anti <- anti_join(aux, teste5, by = "municip2")
+
+#filter out anti municipalities from codes
+match_codes <- filter(aux, !grepl("balneariorincao|mojuidoscampos|paraisodasaguas|pescariabrava|pintobandeira", aux$municip2))
+
+
+# Joining to 2009 data, NAO DEU CERTO AINDA
+match_codes <- match_codes %>% arrange(municip)
+teste5 <- teste5 %>% arrange(municip2)
+
+ams_2009_final <- cbind(match_codes, teste5)
+
+ams_2009_final <- ams_2009_final %>% dplyr::select()
+
+full <- full_join (teste5, ams_2002_tot, by = "municip")
+
+dupl <- full[duplicated(full$municip), ]
+
 anti1 <- anti_join(teste5, ams_2002_tot, by = "municip")
 anti2 <- anti_join(ams_2002_tot, teste5, by = "municip")
 
-# Merge IBGE codes on 2009 data
 
-mun_codes <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/RELATORIO_DTB_BRASIL_MUNICIPIO_original.xls",
+
+
+####################################### Merge IBGE codes on 2009 data
+
+mun_codes <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/AMS/RELATORIO_DTB_BRASIL_MUNICIPIO_ams.xls",
                         col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-mun_codes <- mun_codes %>% rename (municip = "Nome_Município", cod = "Código Município Completo") %>%
-  dplyr::select(cod, municip)
+mun_codes <- mun_codes %>% mutate(municip = ifelse(Nome_UF == "Rondônia",  paste0(Nome_Município[-length(Nome_Município)], '(RO)'),
+                                                ifelse(Nome_UF == "Acre",  paste0(Nome_Município[-length(Nome_Município)], '(AC)'),    
+                                                ifelse(Nome_UF == "Amazonas",  paste0(Nome_Município[-length(Nome_Município)], '(AM)'),                
+                                                ifelse(Nome_UF == "Roraima",  paste0(Nome_Município[-length(Nome_Município)], '(RR)'),                                                       
+                                                ifelse(Nome_UF == "Pará",  paste0(Nome_Município[-length(Nome_Município)], '(PA)'),        
+                                                ifelse(Nome_UF == "Amapá",  paste0(Nome_Município[-length(Nome_Município)], '(AP)'),
+                                                ifelse(Nome_UF == "Tocantins",  paste0(Nome_Município[-length(Nome_Município)], '(TO)'),
+                                                ifelse(Nome_UF == "Maranhão",  paste0(Nome_Município[-length(Nome_Município)], '(MA)'),      
+                                                ifelse(Nome_UF == "Piauí",  paste0(Nome_Município[-length(Nome_Município)], '(PI)'),       
+                                                ifelse(Nome_UF == "Ceará",  paste0(Nome_Município[-length(Nome_Município)], '(CE)'),         
+                                                ifelse(Nome_UF == "Rio Grande do Norte",  paste0(Nome_Município[-length(Nome_Município)], '(RN)'),     
+                                                ifelse(Nome_UF == "Paraíba",  paste0(Nome_Município[-length(Nome_Município)], '(PB)'),                                                         
+                                                ifelse(Nome_UF == "Pernambuco",  paste0(Nome_Município[-length(Nome_Município)], '(PE)'),                                                        
+                                                ifelse(Nome_UF == "Alagoas",  paste0(Nome_Município[-length(Nome_Município)], '(AL)'),
+                                                ifelse(Nome_UF == "Sergipe",  paste0(Nome_Município[-length(Nome_Município)], '(SE)'),
+                                                ifelse(Nome_UF == "Bahia",  paste0(Nome_Município[-length(Nome_Município)], '(BA)'),
+                                                ifelse(Nome_UF == "Minas Gerais",  paste0(Nome_Município[-length(Nome_Município)], '(MG)'),
+                                                ifelse(Nome_UF == "São Paulo",  paste0(Nome_Município[-length(Nome_Município)], '(SP)'),
+                                                ifelse(Nome_UF == "Rio de Janeiro",  paste0(Nome_Município[-length(Nome_Município)], '(RJ)'),
+                                                ifelse(Nome_UF == "Espírito Santo",  paste0(Nome_Município[-length(Nome_Município)], '(ES)'),
+                                                ifelse(Nome_UF == "Rio Grande do Sul",  paste0(Nome_Município[-length(Nome_Município)], '(RS)'),                                                                 
+                                                ifelse(Nome_UF == "Paraná",  paste0(Nome_Município[-length(Nome_Município)], '(PR)'),                                                                 
+                                                ifelse(Nome_UF == "Santa Catarina",  paste0(Nome_Município[-length(Nome_Município)], '(SC)'),                
+                                                ifelse(Nome_UF == "Mato Grosso do Sul",  paste0(Nome_Município[-length(Nome_Município)], '(MS)'),
+                                                ifelse(Nome_UF == "Mato Grosso",  paste0(Nome_Município[-length(Nome_Município)], '(MT)'),          
+                                                ifelse(Nome_UF == "Goiás",  paste0(Nome_Município[-length(Nome_Município)], '(GO)'),
+                                                ifelse(Nome_UF == "Distrito Federal",  paste0(Nome_Município[-length(Nome_Município)], '(DF)'), ""
+                                                ))))))))))))))))))))))))))))
+
+
+
+
+
+
+
+
+mun_codes <- mun_codes %>% rename (cod = "Código Município Completo")
 
 mun_codes <- arrange(mun_codes, municip)
 

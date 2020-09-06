@@ -341,8 +341,152 @@ save(controls, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/
 
 
 ######### Reads and merges MUNIC data #######################################################################################################################
-munic_2004<- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/Controles/altitude.xls",
-                       col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+# Takes all sheet names
+sheets_2004 <- excel_sheets(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2004.xls")
+
+# Remove undesirable ones
+sheets_2004 <- sheets_2004[-1]
+
+# Read all sheets
+munic_2004_all <-purrr::map(sheets_2004, function(sheet){
+    assign(x = sheet, value = read_excel(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2004.xls", col_names = TRUE,
+                                         sheet = sheet, na = c("NA","N/A","", "...", "-", "..", "X", "Não aplicável")))})
+
+# Merge them
+munic_2004 <- reduce(munic_2004_all, full_join, by = "A1")
+
+munic_2004 <- munic_2004 %>% na_if("Não aplicável")
+munic_2004 <- munic_2004 %>% na_if("Ignorado")
+
+
+# Repeat this process for all other MUNIC yeras
+
+#2005
+sheets_2005 <- excel_sheets(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2005.xls")
+
+sheets_2005 <- sheets_2005[-1]
+
+munic_2005_all <-purrr::map(sheets_2005, function(sheet){
+  assign(x = sheet, value = read_excel(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2005.xls", col_names = TRUE,
+                                       sheet = sheet, na = c("NA","N/A","", "...", "-", "..", "X", "Não aplicável", "Ignorado")))})
+
+munic_2005 <- reduce(munic_2005_all, full_join, by = "A1")
+munic_2005 <- munic_2005 %>% na_if("Não aplicável")
+munic_2005 <- munic_2005 %>% na_if("Ignorado")
+
+
+#2006
+sheets_2006 <- excel_sheets(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2006.xls")
+
+sheets_2006 <- sheets_2006[-1]
+
+munic_2006_all <-purrr::map(sheets_2006, function(sheet){
+  assign(x = sheet, value = read_excel(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2006.xls", col_names = TRUE,
+                                       sheet = sheet, na = c("NA","N/A","", "...", "-", "..", "X", "Não aplicável", "Ignorado")))})
+
+munic_2006 <- reduce(munic_2006_all, full_join, by = "A1")
+munic_2006 <- munic_2006 %>% na_if("Não aplicável")
+munic_2006 <- munic_2006 %>% na_if("Ignorado")
+
+
+#2008
+sheets_2008 <- excel_sheets(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2008.xls")
+
+sheets_2008 <- sheets_2008[-1]
+
+munic_2008_all <-purrr::map(sheets_2008, function(sheet){
+  assign(x = sheet, value = read_excel(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2008.xls", col_names = TRUE,
+                                       sheet = sheet, na = c("NA","N/A","", "...", "-", "..", "X", "Não aplicável", "Ignorado")))})
+
+munic_2008 <- reduce(munic_2008_all, full_join, by = "A1")
+munic_2008 <- munic_2008 %>% na_if("Não aplicável")
+munic_2008 <- munic_2008 %>% na_if("Ignorado")
+
+
+#2009
+sheets_2009 <- excel_sheets(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2009.xls")
+
+sheets_2009 <- sheets_2009[-1]
+
+munic_2009_all <-purrr::map(sheets_2009, function(sheet){
+  assign(x = sheet, value = read_excel(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2009.xls", col_names = TRUE,
+                                       sheet = sheet, na = c("NA","N/A","", "...", "-", "..", "X", "Não aplicável", "Ignorado")))})
+
+munic_2009 <- reduce(munic_2009_all, full_join, by = "A1")
+munic_2009 <- munic_2009 %>% na_if("Não aplicável")
+munic_2009 <- munic_2009 %>% na_if("Ignorado")
+
+
+#2011
+sheets_2011 <- excel_sheets(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2011.xls")
+
+sheets_2011 <- sheets_2011[-1]
+
+munic_2011_all <-purrr::map(sheets_2011, function(sheet){
+  assign(x = sheet, value = read_excel(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2011.xls", col_names = TRUE,
+                                       sheet = sheet, na = c("NA","N/A","", "...", "-", "..", "X", "Não aplicável", "Ignorado")))})
+
+munic_2011 <- reduce(munic_2011_all, full_join, by = "A1")
+munic_2011 <- munic_2011 %>% na_if("Não aplicável")
+munic_2011 <- munic_2011 %>% na_if("Ignorado")
+
+
+#2012
+sheets_2012 <- excel_sheets(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2012.xls")
+
+sheets_2012 <- sheets_2012[-1]
+
+munic_2012_all <-purrr::map(sheets_2012, function(sheet){
+  assign(x = sheet, value = read_excel(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2012.xls", col_names = TRUE,
+                                       sheet = sheet, na = c("NA","N/A","", "...", "-", "..", "X", "Não aplicável", "Ignorado")))})
+
+munic_2012 <- reduce(munic_2012_all, full_join, by = "A1")
+munic_2012 <- munic_2012 %>% na_if("Não aplicável")
+munic_2012 <- munic_2012 %>% na_if("Ignorado")
+
+#2013
+sheets_2013 <- excel_sheets(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2013.xls")
+
+sheets_2013 <- sheets_2013[-1]
+
+munic_2013_all <-purrr::map(sheets_2013, function(sheet){
+  assign(x = sheet, value = read_excel(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2013.xls", col_names = TRUE,
+                                       sheet = sheet, na = c("NA","N/A","", "...", "-", "..", "X", "Não aplicável", "Ignorado")))})
+
+munic_2013 <- reduce(munic_2013_all, full_join, by = "A1")
+munic_2013 <- munic_2013 %>% na_if("Não aplicável")
+munic_2013 <- munic_2013 %>% na_if("Ignorado")
+
+
+#2014
+sheets_2014 <- excel_sheets(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2014.xls")
+
+sheets_2014 <- sheets_2014[-1]
+
+munic_2014_all <-purrr::map(sheets_2014, function(sheet){
+  assign(x = sheet, value = read_excel(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2014.xls", col_names = TRUE,
+                                       sheet = sheet, na = c("NA","N/A","", "...", "-", "..", "X", "Não aplicável", "Ignorado")))})
+
+munic_2014 <- reduce(munic_2014_all, full_join, by = "A1")
+munic_2014 <- munic_2014 %>% na_if("Não aplicável")
+munic_2014 <- munic_2014 %>% na_if("Ignorado")
+
+
+#2015
+sheets_2015 <- excel_sheets(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2015.xls")
+
+sheets_2015 <- sheets_2015[-1]
+
+munic_2015_all <-purrr::map(sheets_2015, function(sheet){
+  assign(x = sheet, value = read_excel(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2015.xls", col_names = TRUE,
+                                       sheet = sheet, na = c("NA","N/A","", "...", "-", "..", "X", "Não aplicável", "Ignorado")))})
+
+munic_2015 <- reduce(munic_2015_all, full_join, by = "A1")
+munic_2015 <- munic_2015 %>% na_if("Não aplicável")
+munic_2015 <- munic_2015 %>% na_if("Ignorado")
+
+
 
 
 

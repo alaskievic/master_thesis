@@ -128,13 +128,14 @@ tmap_save(map_land_2017, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thes
 
 
 # Saving merged dataset
-tmp <- full_join(gini_land_1995, gini_land_2006, by = "cod")
-land_gini <- full_join(tmp, gini_land_2017, by = "cod")
+tmp <- full_join(dplyr::select(gini_land_1995, -"municip"), gini_land_2006, by = "cod")
+land_gini <- full_join(dplyr::select(tmp, -"municip"), gini_land_2017, by = "cod")
+
+land_gini <- land_gini %>% pivot_longer(-c("cod", "municip"), names_to = "year", values_to = "gini_land", names_prefix = "gini_") %>%
+  mutate(year = as.integer(year))
 
 #Saving
 save(land_gini, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/land_gini.RData")
-
-
 
 ######### 2. Make maps for Income Gini #####################################################################################################################
 

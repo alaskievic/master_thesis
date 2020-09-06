@@ -157,6 +157,10 @@ municip_pib <- pivot_longer(municip_pib, -c("cod", "municip"), names_to = "year"
 
 
 #Deflate
+ipca <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Prices/ipca_anual.xls", 
+                   sheet = "Séries", col_names = TRUE, na = "") %>%
+  filter(Date >= 2000 &  Date <= 2010)
+
 deflate <- function(x) x/(ipca$Index_2/100)
 
 municip_pib_real <- mutate_all(municip_pib[4], deflate) %>%
@@ -173,7 +177,6 @@ exp_bartik <- inner_join(exp_bartik, dplyr::select(exp_rev_pc, -"municip"), by =
 exp_bartik <- inner_join(exp_bartik, dplyr::select(municip_pib_real, -"municip"), by = c("cod", "year"))
 
 # Save
-
 write.dta(exp_bartik, "exp_bartik.dta")
 
 
@@ -182,25 +185,33 @@ a <- anti_join(pop_sidra, exp_bartik, by = c("cod", "year"))
 
 ######### 1.2 Gini Indexes ##################################################################################################################################
 
-income_gini <- atlas_mun %>% dplyr::select(c("ANO", "Codmun7", "Município", "GINI"))
+income_gini <- atlas_mun %>% dplyr::select(c("ANO", "Codmun7", "Município", "GINI")) %>%
   rename(cod = "Codmun7", year = "ANO")
 
 
-tmp <- full_join(gini_land_1995, gini_land_2006, by = "cod")
-land_gini <- full_join(tmp, gini_land_2017, by = "cod")
+
+######### 1.2 Demographic Census and Land Gini #######################################################################################################################
+######### Joining dataset with demographic census and land gini between 2000 and 2010
+
+## setting years
+land_gini_1 <- land_gini %>% filter(year != 2017) %>% mutate(year = ifelse(year == 1995, 2000, 2010))
+exp_bartik_tmp <- exp_bartik %>% filter(year == 2000 | year ==2010)
+atlas_mun <- atlas_mun %>% filter(ANO != 1991) %>%
+  rename(cod = "Codmun7", year = "ANO", municip = "Município")
+
+# Joining
+tmp_1 <- full_join(dplyr::select(land_gini_1, -"municip"), atlas_mun, by = c("cod", "year"))
+andrei_data_1 <- full_join(dplyr::select(tmp_1, -"municip"), exp_bartik_tmp, by = c("cod", "year"))
+
+write.dta(andrei_data_1, "andrei_data_1.dta")
+
+### Changing the assignment for the land gini years
+
+land_gini_2 <- land_gini %>% filter(year != 1995) %>% mutate(year = ifelse(year == 2006, 2000, 2010))
+
+tmp_2 <- full_join(dplyr::select(land_gini_2, -"municip"), atlas_mun, by = c("cod", "year"))
+andrei_data_2 <- full_join(dplyr::select(tmp_2, -"municip"), exp_bartik_tmp, by = c("cod", "year"))
 
 
-write.dta(income_gini, "income_gini.dta")
-write.dta(land_gini, "land_gini.dta")
-
-
-
-######### 1.3 Demographic Census ############################################################################################################################
-
-
-#write.dta(atlas_mun, "atlas_mun.dta")
-
-
-
-
+write.dta(andrei_data_2, "andrei_data_2.dta")
 

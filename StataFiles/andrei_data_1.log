@@ -1,0 +1,335 @@
+----------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\andrei_data_1.log
+  log type:  text
+ opened on:   3 Sep 2020, 11:58:25
+
+. 
+. eststo: qui reg dln_rdpc dummy_10
+(est1 stored)
+
+. eststo: qui reg dln_rdpc dummy_25
+(est2 stored)
+
+. eststo: qui reg dln_rdpc dpq_log
+(est3 stored)
+
+. 
+. eststo: qui reg dlog_pib_pc dummy_10
+(est4 stored)
+
+. eststo: qui reg dlog_pib_pc dummy_25
+(est5 stored)
+
+. eststo: qui reg dlog_pib_pc dpq_log
+(est6 stored)
+
+. 
+. 
+. esttab, se ar2 compress
+
+----------------------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)          (6)   
+            dln_rdpc     dln_rdpc     dln_rdpc    dlog_pi~c    dlog_pi~c    dlog_pi~c   
+----------------------------------------------------------------------------------------
+dummy_10      -0.107***                             -0.0814***                          
+           (0.00914)                               (0.0144)                             
+
+dummy_25                  -0.0962***                             -0.0777***             
+                        (0.00630)                              (0.00999)                
+
+dpq_log                                 -0.130***                             -0.0774***
+                                      (0.0137)                               (0.0216)   
+
+_cons          0.429***     0.442***     0.411***     0.495***     0.506***     0.482***
+           (0.00291)    (0.00316)    (0.00286)    (0.00458)    (0.00501)    (0.00450)   
+----------------------------------------------------------------------------------------
+N               5467         5467         5467         5467         5467         5467   
+adj. R-sq      0.024        0.041        0.016        0.006        0.011        0.002   
+----------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. eststo clear
+
+. 
+. eststo: qui reg dlog_rev_impost_tot dummy_10
+(est1 stored)
+
+. eststo: qui reg dlog_rev_impost_tot dummy_25
+(est2 stored)
+
+. eststo: qui reg dlog_rev_impost_tot dpq_log
+(est3 stored)
+
+. 
+. eststo: qui reg dlog_rev_iptu dummy_10
+(est4 stored)
+
+. eststo: qui reg dlog_rev_iptu dummy_25
+(est5 stored)
+
+. eststo: qui reg dlog_rev_iptu dpq_log
+(est6 stored)
+
+. 
+. esttab, se ar2 compress
+
+----------------------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)          (6)   
+           dlog_re~t    dlog_re~t    dlog_re~t    dlog_re~u    dlog_re~u    dlog_re~u   
+----------------------------------------------------------------------------------------
+dummy_10      -0.382***                              0.0763*                            
+            (0.0452)                               (0.0302)                             
+
+dummy_25                   -0.421***                              0.0656**              
+                         (0.0311)                               (0.0210)                
+
+dpq_log                                 -0.382***                              0.0174   
+                                      (0.0680)                               (0.0453)   
+
+_cons          1.573***     1.640***     1.514***     0.415***     0.406***     0.424***
+            (0.0144)     (0.0156)     (0.0141)    (0.00961)     (0.0105)    (0.00942)   
+----------------------------------------------------------------------------------------
+N               5467         5467         5467         5467         5467         5467   
+adj. R-sq      0.013        0.032        0.006        0.001        0.002       -0.000   
+----------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. eststo clear
+
+. 
+. eststo: qui reg dlog_rev_itr dummy_10
+(est1 stored)
+
+. eststo: qui reg dlog_rev_itr dummy_25
+(est2 stored)
+
+. eststo: qui reg dlog_rev_itr dpq_log
+(est3 stored)
+
+. 
+. esttab, se ar2 compress
+
+-------------------------------------------------
+                 (1)          (2)          (3)   
+           dlog_re~r    dlog_re~r    dlog_re~r   
+-------------------------------------------------
+dummy_10       0.145***                          
+            (0.0354)                             
+
+dummy_25                   0.0762**              
+                         (0.0246)                
+
+dpq_log                                -0.0376   
+                                      (0.0530)   
+
+_cons          0.499***     0.494***     0.511***
+            (0.0113)     (0.0123)     (0.0110)   
+-------------------------------------------------
+N               5467         5467         5467   
+adj. R-sq      0.003        0.002       -0.000   
+-------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. *
+. eststo clear
+
+. 
+. eststo: qui reg dlog_exp_func_total dummy_10
+(est1 stored)
+
+. eststo: qui reg dlog_exp_func_total dummy_25
+(est2 stored)
+
+. eststo: qui reg dlog_exp_func_total dpq_log
+(est3 stored)
+
+. 
+. eststo: qui reg dlog_exp_educ dummy_10
+(est4 stored)
+
+. eststo: qui reg dlog_exp_educ dummy_25
+(est5 stored)
+
+. eststo: qui reg dlog_exp_educ dpq_log
+(est6 stored)
+
+. 
+. esttab, se ar2 compress
+
+----------------------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)          (6)   
+           dlog_ex~l    dlog_ex~l    dlog_ex~l    dlog_ex~c    dlog_ex~c    dlog_ex~c   
+----------------------------------------------------------------------------------------
+dummy_10      -0.163*                                -0.160**                           
+            (0.0663)                               (0.0604)                             
+
+dummy_25                   -0.252***                              -0.259***             
+                         (0.0460)                               (0.0419)                
+
+dpq_log                                -0.0300                                -0.0666   
+                                      (0.0993)                               (0.0905)   
+
+_cons          0.540***     0.587***     0.522***     0.686***     0.735***     0.666***
+            (0.0211)     (0.0231)     (0.0207)     (0.0192)     (0.0210)     (0.0188)   
+----------------------------------------------------------------------------------------
+N               5467         5467         5467         5467         5467         5467   
+adj. R-sq      0.001        0.005       -0.000        0.001        0.007       -0.000   
+----------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. eststo clear
+
+. 
+. eststo: qui reg dlog_exp_habit dummy_10
+(est1 stored)
+
+. eststo: qui reg dlog_exp_habit dummy_25
+(est2 stored)
+
+. eststo: qui reg dlog_exp_habit dpq_log
+(est3 stored)
+
+. 
+. esttab, se ar2 compress
+
+-------------------------------------------------
+                 (1)          (2)          (3)   
+           dlog_ex~t    dlog_ex~t    dlog_ex~t   
+-------------------------------------------------
+dummy_10      -0.120                             
+            (0.0697)                             
+
+dummy_25                   -0.132**              
+                         (0.0484)                
+
+dpq_log                                -0.0801   
+                                       (0.104)   
+
+_cons          0.876***     0.897***     0.860***
+            (0.0222)     (0.0243)     (0.0217)   
+-------------------------------------------------
+N               5467         5467         5467   
+adj. R-sq      0.000        0.001       -0.000   
+-------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. *
+. eststo clear
+
+. 
+. eststo: qui reg dGINI dummy_10
+(est1 stored)
+
+. eststo: qui reg dGINI dummy_25
+(est2 stored)
+
+. eststo: qui reg dGINI dpq_log
+(est3 stored)
+
+. 
+. eststo: qui reg dT_LUZ dummy_10
+(est4 stored)
+
+. eststo: qui reg dT_LUZ dummy_25
+(est5 stored)
+
+. eststo: qui reg dT_LUZ dpq_log
+(est6 stored)
+
+. 
+. esttab, se ar2 compress
+
+----------------------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)          (6)   
+               dGINI        dGINI        dGINI       dT_LUZ       dT_LUZ       dT_LUZ   
+----------------------------------------------------------------------------------------
+dummy_10     -0.0130***                              -8.786***                          
+           (0.00296)                                (0.581)                             
+
+dummy_25                  -0.0160***                              -8.812***             
+                        (0.00205)                                (0.395)                
+
+dpq_log                                0.00920*                                -8.981***
+                                     (0.00444)                                (0.880)   
+
+_cons        -0.0516***   -0.0489***   -0.0524***     11.51***     12.83***     10.14***
+           (0.000942)    (0.00103)    (0.000925)      (0.185)      (0.198)      (0.183)   
+----------------------------------------------------------------------------------------
+N               5467         5467         5467         5467         5467         5467   
+adj. R-sq      0.003        0.011        0.001        0.040        0.083        0.019   
+----------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. eststo clear
+
+. 
+. eststo: qui reg dT_ANALF18M dummy_10
+(est1 stored)
+
+. eststo: qui reg dT_ANALF18M dummy_25
+(est2 stored)
+
+. eststo: qui reg dT_ANALF18M dpq_log
+(est3 stored)
+
+. 
+. eststo: qui reg dT_AGUA dummy_10
+(est4 stored)
+
+. eststo: qui reg dT_AGUA dummy_25
+(est5 stored)
+
+. eststo: qui reg dT_AGUA dpq_log
+(est6 stored)
+
+. 
+. esttab, se ar2 compress
+
+----------------------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)          (6)   
+           dT_AN~18M    dT_AN~18M    dT_AN~18M      dT_AGUA      dT_AGUA      dT_AGUA   
+----------------------------------------------------------------------------------------
+dummy_10       1.497***                              -13.70***                          
+             (0.164)                                (0.990)                             
+
+dummy_25                    1.632***                              -14.19***             
+                          (0.113)                                (0.673)                
+
+dpq_log                                  2.070***                              -6.074***
+                                       (0.246)                                (1.505)   
+
+_cons         -6.336***    -6.595***    -6.076***     20.35***     22.53***     18.64***
+            (0.0523)     (0.0566)     (0.0513)      (0.315)      (0.337)      (0.313)   
+----------------------------------------------------------------------------------------
+N               5467         5467         5467         5467         5467         5467   
+adj. R-sq      0.015        0.037        0.013        0.034        0.075        0.003   
+----------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. eststo clear
+
+. 
+end of do-file
+
+. log close
+      name:  <unnamed>
+       log:  C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\andrei_data_1.log
+  log type:  text
+ closed on:   3 Sep 2020, 15:09:01
+----------------------------------------------------------------------------------------------------------------------

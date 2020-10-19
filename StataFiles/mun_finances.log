@@ -1,0 +1,776 @@
+----------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\mun_finances.log
+  log type:  text
+ opened on:  14 Oct 2020, 20:45:20
+
+. 
+. eststo clear
+
+. 
+. 
+. ***** Log Pib per Capita in 2010 values
+. eststo: qui xtreg log_pib_pc log_shares_dummy_10 i.year, fe vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui xtreg log_pib_pc log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  
+> c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui xtreg log_pib_pc shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.la
+> titude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. eststo: qui xtreg log_pib_pc log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.lati
+> tude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est4 stored)
+
+. 
+. eststo: qui xtreg log_pib_pc pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitude
+> #i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est5 stored)
+
+. 
+. eststo: qui xtreg log_pib_pc log_shares_dummy_25  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  
+> c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est6 stored)
+
+. 
+. 
+. esttab, se ar2 keep(log_shares_dummy_10 log_shares_dummy_10 shares_dummy_10 log_pq_shares pq_shares log_shares_dummy
+> _25)
+
+------------------------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)             (6)   
+               log_pib_pc      log_pib_pc      log_pib_pc      log_pib_pc      log_pib_pc      log_pib_pc   
+------------------------------------------------------------------------------------------------------------
+log_share~10       0.0163**        0.0149**                                                                 
+                (0.00539)       (0.00540)                                                                   
+
+shares_du~10                                     0.000535                                                   
+                                                (0.00591)                                                   
+
+log_pq_sha~s                                                       0.0537***                                
+                                                                (0.00753)                                   
+
+pq_shares                                                                       0.0000303***                
+                                                                             (0.00000920)                   
+
+log_share~25                                                                                      0.00120   
+                                                                                                (0.00577)   
+------------------------------------------------------------------------------------------------------------
+N                   61056           60500           60500           60500           60500           60500   
+adj. R-sq           0.481           0.499           0.499           0.499           0.499           0.499   
+------------------------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. ***** Total Revenues
+. eststo clear
+
+. 
+. eststo: qui xtreg log_rev_tot log_shares_dummy_10 i.year, fe vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui xtreg log_rev_tot log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year 
+>  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui xtreg log_rev_tot log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.lat
+> itude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. eststo: qui xtreg log_rev_tot pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitud
+> e#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est4 stored)
+
+. 
+. eststo: qui xtreg log_rev_tot log_shares_dummy_25 c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  
+> c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est5 stored)
+
+. 
+. eststo: qui xtreg log_rev_tot log_quant_dummy_10 c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c
+> .latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est6 stored)
+
+. 
+. eststo: qui xtreg log_rev_tot log_pq_quant c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latit
+> ude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est7 stored)
+
+. 
+. eststo: qui xtreg log_rev_tot pq_quant c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitude#
+> i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est8 stored)
+
+. 
+. 
+. esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares pq_shares log_shares_dummy_25 log_quant_dummy_10 log_pq_quant 
+> pq_quant)
+
+----------------------------------------------------------------------------------------------------------------------
+> ----------------------
+                      (1)             (2)             (3)             (4)             (5)             (6)             
+> (7)             (8)   
+              log_rev_tot     log_rev_tot     log_rev_tot     log_rev_tot     log_rev_tot     log_rev_tot     log_rev_
+> tot     log_rev_tot   
+----------------------------------------------------------------------------------------------------------------------
+> ----------------------
+log_share~10      -0.0205         -0.0268                                                                             
+>                       
+                 (0.0242)        (0.0243)                                                                             
+>                       
+
+log_pq_sha~s                                      -0.0542                                                             
+>                       
+                                                 (0.0302)                                                             
+>                       
+
+pq_shares                                                       -0.000118**                                           
+>                       
+                                                              (0.0000370)                                             
+>                       
+
+log_share~25                                                                      -0.0237                             
+>                       
+                                                                                 (0.0216)                             
+>                       
+
+log_quant~10                                                                                       0.0144             
+>                       
+                                                                                                 (0.0378)             
+>                       
+
+log_pq_quant                                                                                                      -0.0
+> 542                   
+                                                                                                                 (0.03
+> 02)                   
+
+pq_quant                                                                                                              
+>           -3.02e-10***
+                                                                                                                      
+>          (6.38e-11)   
+----------------------------------------------------------------------------------------------------------------------
+> ----------------------
+N                   61119           60500           60500           60500           60500           60500           60
+> 500           60500   
+adj. R-sq           0.224           0.245           0.245           0.245           0.245           0.245           0.
+> 245           0.245   
+----------------------------------------------------------------------------------------------------------------------
+> ----------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. ***** Total Taxes Revenues
+. eststo clear
+
+. 
+. eststo: qui xtreg log_rev_impost_tot log_shares_dummy_10 i.year, fe vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui xtreg log_rev_impost_tot log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#
+> i.year  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui xtreg log_rev_impost_tot log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year
+>   c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. eststo: qui xtreg log_rev_impost_tot pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.
+> latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est4 stored)
+
+. 
+. eststo: qui xtreg log_rev_impost_tot log_shares_dummy_25 c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i
+> .year  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est5 stored)
+
+. 
+. eststo: qui xtreg log_rev_impost_tot log_quant_dummy_10 c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.
+> year  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est6 stored)
+
+. 
+. eststo: qui xtreg log_rev_impost_tot log_pq_quant c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  
+> c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est7 stored)
+
+. 
+. eststo: qui xtreg log_rev_impost_tot pq_quant c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.la
+> titude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est8 stored)
+
+. 
+. 
+. esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares pq_shares log_shares_dummy_25 log_quant_dummy_10 log_pq_quant 
+> pq_quant)
+
+----------------------------------------------------------------------------------------------------------------------
+> ----------------------
+                      (1)             (2)             (3)             (4)             (5)             (6)             
+> (7)             (8)   
+             log_rev_im~t    log_rev_im~t    log_rev_im~t    log_rev_im~t    log_rev_im~t    log_rev_im~t    log_rev_i
+> m~t    log_rev_im~t   
+----------------------------------------------------------------------------------------------------------------------
+> ----------------------
+log_share~10      -0.0179         -0.0249                                                                             
+>                       
+                 (0.0240)        (0.0241)                                                                             
+>                       
+
+log_pq_sha~s                                      -0.0393                                                             
+>                       
+                                                 (0.0300)                                                             
+>                       
+
+pq_shares                                                      -0.0000750*                                            
+>                       
+                                                              (0.0000366)                                             
+>                       
+
+log_share~25                                                                      -0.0187                             
+>                       
+                                                                                 (0.0213)                             
+>                       
+
+log_quant~10                                                                                      0.00113             
+>                       
+                                                                                                 (0.0378)             
+>                       
+
+log_pq_quant                                                                                                      -0.0
+> 393                   
+                                                                                                                 (0.03
+> 00)                   
+
+pq_quant                                                                                                              
+>           -4.75e-10***
+                                                                                                                      
+>          (7.40e-11)   
+----------------------------------------------------------------------------------------------------------------------
+> ----------------------
+N                   61119           60500           60500           60500           60500           60500           60
+> 500           60500   
+adj. R-sq           0.288           0.303           0.303           0.303           0.303           0.302           0.
+> 303           0.303   
+----------------------------------------------------------------------------------------------------------------------
+> ----------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. ***** Property Taxes
+. eststo clear
+
+. 
+. eststo: qui xtreg log_rev_iptu log_shares_dummy_10 i.year, fe vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui xtreg log_rev_iptu log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year
+>   c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui xtreg log_rev_iptu log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.la
+> titude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. 
+. esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares)
+
+------------------------------------------------------------
+                      (1)             (2)             (3)   
+             log_rev_iptu    log_rev_iptu    log_rev_iptu   
+------------------------------------------------------------
+log_share~10      -0.0432**       -0.0415**                 
+                 (0.0155)        (0.0155)                   
+
+log_pq_sha~s                                      -0.0353*  
+                                                 (0.0177)   
+------------------------------------------------------------
+N                   61119           60500           60500   
+adj. R-sq           0.072           0.079           0.079   
+------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. ***** Services Taxes
+. eststo clear
+
+. 
+. eststo: qui xtreg log_rev_iss log_shares_dummy_10 i.year, fe vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui xtreg log_rev_iss log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year 
+>  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui xtreg log_rev_iss log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.lat
+> itude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. 
+. esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares)
+
+------------------------------------------------------------
+                      (1)             (2)             (3)   
+              log_rev_iss     log_rev_iss     log_rev_iss   
+------------------------------------------------------------
+log_share~10       0.0320          0.0237                   
+                 (0.0228)        (0.0224)                   
+
+log_pq_sha~s                                      0.00176   
+                                                 (0.0298)   
+------------------------------------------------------------
+N                   61119           60500           60500   
+adj. R-sq           0.335           0.348           0.348   
+------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. ***** Rural Property Taxes
+. eststo clear
+
+. 
+. eststo: qui xtreg log_rev_itr log_shares_dummy_10 i.year, fe vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui xtreg log_rev_itr log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year 
+>  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui xtreg log_rev_itr log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.lat
+> itude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. eststo: qui xtreg log_rev_itr log_quant_dummy_10 c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c
+> .latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est4 stored)
+
+. 
+. eststo: qui xtreg log_rev_itr log_pq_quant c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latit
+> ude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est5 stored)
+
+. 
+. 
+. esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares log_quant_dummy_10 log_pq_quant)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+              log_rev_itr     log_rev_itr     log_rev_itr     log_rev_itr     log_rev_itr   
+--------------------------------------------------------------------------------------------
+log_share~10      -0.0252         -0.0278                                                   
+                 (0.0172)        (0.0162)                                                   
+
+log_pq_sha~s                                       0.0408*                                  
+                                                 (0.0180)                                   
+
+log_quant~10                                                      0.00908                   
+                                                                 (0.0282)                   
+
+log_pq_quant                                                                       0.0408*  
+                                                                                 (0.0180)   
+--------------------------------------------------------------------------------------------
+N                   61119           60500           60500           60500           60500   
+adj. R-sq           0.240           0.306           0.306           0.306           0.306   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. ***** Transfers
+. eststo clear
+
+. eststo: qui xtreg log_rev_fpm log_shares_dummy_10 i.year, fe vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui xtreg log_rev_fpm log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year 
+>  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui xtreg log_rev_fpm log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.lat
+> itude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares)
+
+------------------------------------------------------------
+                      (1)             (2)             (3)   
+              log_rev_fpm     log_rev_fpm     log_rev_fpm   
+------------------------------------------------------------
+log_share~10     -0.00294         0.00221                   
+                 (0.0376)        (0.0375)                   
+
+log_pq_sha~s                                      -0.0449   
+                                                 (0.0446)   
+------------------------------------------------------------
+N                   61119           60500           60500   
+adj. R-sq           0.040           0.047           0.047   
+------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. eststo clear
+
+. eststo: qui xtreg log_transf_icms log_shares_dummy_10 i.year, fe vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui xtreg log_transf_icms log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.y
+> ear  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui xtreg log_transf_icms log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c
+> .latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares)
+
+------------------------------------------------------------
+                      (1)             (2)             (3)   
+             log_transf~s    log_transf~s    log_transf~s   
+------------------------------------------------------------
+log_share~10       0.0155          0.0172                   
+                 (0.0308)        (0.0307)                   
+
+log_pq_sha~s                                      -0.0144   
+                                                 (0.0365)   
+------------------------------------------------------------
+N                   61119           60500           60500   
+adj. R-sq           0.049           0.057           0.057   
+------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. eststo clear
+
+. eststo: qui xtreg log_transf_ipva log_shares_dummy_10 i.year, fe vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui xtreg log_transf_ipva log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.y
+> ear  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui xtreg log_transf_ipva log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c
+> .latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares)
+
+------------------------------------------------------------
+                      (1)             (2)             (3)   
+             log_transf~a    log_transf~a    log_transf~a   
+------------------------------------------------------------
+log_share~10     -0.00344        -0.00205                   
+                 (0.0152)        (0.0152)                   
+
+log_pq_sha~s                                      0.00234   
+                                                 (0.0180)   
+------------------------------------------------------------
+N                   61119           60500           60500   
+adj. R-sq           0.329           0.334           0.334   
+------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. eststo clear
+
+. eststo: qui xtreg log_transf_estad log_shares_dummy_10 i.year, fe vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui xtreg log_transf_estad log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.
+> year  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui xtreg log_transf_estad log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  
+> c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares)
+
+------------------------------------------------------------
+                      (1)             (2)             (3)   
+             log_transf~d    log_transf~d    log_transf~d   
+------------------------------------------------------------
+log_share~10       0.0117          0.0134                   
+                 (0.0310)        (0.0308)                   
+
+log_pq_sha~s                                      -0.0139   
+                                                 (0.0365)   
+------------------------------------------------------------
+N                   61119           60500           60500   
+adj. R-sq           0.053           0.061           0.061   
+------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. ***** Total functional Expenditures
+. eststo clear
+
+. 
+. eststo: qui xtreg log_exp_func_total log_shares_dummy_10 i.year, fe vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui xtreg log_exp_func_total log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#
+> i.year  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui xtreg log_exp_func_total shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.ye
+> ar  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. eststo: qui xtreg log_exp_func_total log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year
+>   c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est4 stored)
+
+. 
+. eststo: qui xtreg log_exp_func_total pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.
+> latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est5 stored)
+
+. 
+. esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares shares_dummy_10 log_pq_shares pq_shares)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+             log_exp_fu~l    log_exp_fu~l    log_exp_fu~l    log_exp_fu~l    log_exp_fu~l   
+--------------------------------------------------------------------------------------------
+log_share~10      0.00743          0.0130                                                   
+                 (0.0426)        (0.0426)                                                   
+
+shares_du~10                                      -0.0553                                   
+                                                 (0.0442)                                   
+
+log_pq_sha~s                                                      -0.0495                   
+                                                                 (0.0498)                   
+
+pq_shares                                                                      -0.0000717   
+                                                                              (0.0000612)   
+--------------------------------------------------------------------------------------------
+N                   61119           60500           60500           60500           60500   
+adj. R-sq           0.046           0.057           0.057           0.057           0.057   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. ***** Education Expenditures with shares measure
+. eststo clear
+
+. 
+. 
+. eststo: qui xtreg log_exp_educ log_shares_dummy_10 i.year, fe vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui xtreg log_exp_educ log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year
+>   c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui xtreg log_exp_educ shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.
+> latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. eststo: qui xtreg log_exp_educ log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.la
+> titude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est4 stored)
+
+. 
+. eststo: qui xtreg log_exp_educ pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitu
+> de#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est5 stored)
+
+. 
+. esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares shares_dummy_10 pq_shares)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+             log_exp_educ    log_exp_educ    log_exp_educ    log_exp_educ    log_exp_educ   
+--------------------------------------------------------------------------------------------
+log_share~10      -0.0209         -0.0160                                                   
+                 (0.0385)        (0.0385)                                                   
+
+shares_du~10                                      -0.0872*                                  
+                                                 (0.0400)                                   
+
+log_pq_sha~s                                                      -0.0625                   
+                                                                 (0.0452)                   
+
+pq_shares                                                                      -0.0000512   
+                                                                              (0.0000537)   
+--------------------------------------------------------------------------------------------
+N                   61119           60500           60500           60500           60500   
+adj. R-sq           0.051           0.063           0.063           0.063           0.063   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. ***** Health Expenditures with shares measure
+. eststo clear
+
+. 
+. eststo: qui xtreg log_exp_educ log_shares_dummy_10 i.year, fe vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui xtreg log_exp_saude log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.yea
+> r  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui xtreg log_exp_saude shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c
+> .latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. eststo: qui xtreg log_exp_saude log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.l
+> atitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est4 stored)
+
+. 
+. eststo: qui xtreg log_exp_saude pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latit
+> ude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est5 stored)
+
+. 
+. 
+. esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares shares_dummy_10 pq_shares)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+             log_exp_educ    log_exp_sa~e    log_exp_sa~e    log_exp_sa~e    log_exp_sa~e   
+--------------------------------------------------------------------------------------------
+log_share~10      -0.0209         -0.0308                                                   
+                 (0.0385)        (0.0380)                                                   
+
+shares_du~10                                      -0.0749*                                  
+                                                 (0.0362)                                   
+
+log_pq_sha~s                                                      -0.0785                   
+                                                                 (0.0437)                   
+
+pq_shares                                                                       -0.000110*  
+                                                                              (0.0000499)   
+--------------------------------------------------------------------------------------------
+N                   61119           60500           60500           60500           60500   
+adj. R-sq           0.051           0.102           0.102           0.102           0.102   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. ***** Housing Expenditures with shares measure
+. eststo clear
+
+. 
+. eststo: qui xtreg log_exp_habit log_shares_dummy_10 i.year, fe vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui xtreg log_exp_habit log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.yea
+> r  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui xtreg log_exp_habit shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c
+> .latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est3 stored)
+
+. 
+. eststo: qui xtreg log_exp_habit log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.l
+> atitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est4 stored)
+
+. 
+. eststo: qui xtreg log_exp_habit pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latit
+> ude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe vce(cluster cod)
+(est5 stored)
+
+. 
+. 
+. esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares shares_dummy_10 pq_shares)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+             log_exp_ha~t    log_exp_ha~t    log_exp_ha~t    log_exp_ha~t    log_exp_ha~t   
+--------------------------------------------------------------------------------------------
+log_share~10      -0.0341         -0.0337                                                   
+                 (0.0390)        (0.0391)                                                   
+
+shares_du~10                                      -0.0749                                   
+                                                 (0.0387)                                   
+
+log_pq_sha~s                                                       -0.132**                 
+                                                                 (0.0466)                   
+
+pq_shares                                                                       -0.000155** 
+                                                                              (0.0000565)   
+--------------------------------------------------------------------------------------------
+N                   61119           60500           60500           60500           60500   
+adj. R-sq           0.065           0.075           0.075           0.075           0.075   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+end of do-file
+
+. exit, clear

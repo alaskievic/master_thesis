@@ -53,30 +53,80 @@ df_fix = function(x){
     summarize(quant_mean = mean(quant))
 }
 
+#Same function for the period 1990-1999
+
+df_fix_2 = function(x){
+  x %>% rename("cod" = "Cód.", municip = "Brasil e Município") %>%
+    dplyr::select("cod", "municip","1990" ,"1991" ,"1992" ,"1993" ,"1994" , "1995" ,"1996" ,"1997", "1998", "1999") %>%
+    pivot_longer(-c("cod", "municip"),names_to = "year", values_to = "quant") %>%
+    replace_na(list(quant = 0)) %>%
+    arrange(cod) %>%
+    group_by(cod, municip) %>%
+    summarize(quant_mean = mean(quant))
+}
+
+
 # Apply the function above to all datasets at once using map
 df_list_mean <- map(.x = df_list_map, .f = df_fix)
+
+df_list_mean_1990 <- map(.x = df_list_map, .f = df_fix_2)
 
 # Merge all the crops files
 quantities_map <- reduce(df_list_mean, merge, by = c("cod", "municip"))
 
+quantities_map_2 <- reduce(df_list_mean_1990, merge, by = c("cod", "municip"))
+
 # Produce a tidy dataset and takes out oatmeal, since it cannot be matched in the price dataset
-quantities <- quantities_map %>% setNames(c("cod", "municip", crops_names)) %>%
+quantities_1995 <- quantities_map %>% setNames(c("cod", "municip", crops_names)) %>%
+  as_tibble() %>%
+  dplyr::select(-oatmeal) %>%
+  filter(cod >1)
+
+quantities_1990 <- quantities_map_2 %>% setNames(c("cod", "municip", crops_names)) %>%
   as_tibble() %>%
   dplyr::select(-oatmeal) %>%
   filter(cod >1)
 
 #Save the quantities dataset
-save(quantities, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/quantities_bartik.Rdata")
+save(quantities_1995, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/quantities_1995_bartik.Rdata")
+
+save(quantities_1990, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/quantities_1990_bartik.Rdata")
 
 
+########## 2. Construct a measure for the share of each commodity in a given location in relation to the total produced quantity in that same location 
 
 
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/quantities_1995_bartik.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/quantities_1990_bartik.Rdata")
 
+# Sum over all quantities
+quantities_1995 <- quantities_1995 %>% mutate(total_quant = rowSums(.[3:19])) %>%
+  mutate(cotton = cotton_1 + cotton_2) %>%
+  dplyr::select(-c("cotton_1", "cotton_2")) %>%
+  relocate(cotton, .before = "indiantea")
 
+# Constrcut shares
+shares_1995 <- lmap(quantities_1995[3:18], ~{.x/quantities_1995$total_quant})
 
+#Tidying up
+shares_1995 <- shares_1995 %>% mutate(total_quant = rowSums(.[1:16])) %>%
+  add_column(cod = quantities_1995$cod, .before = "banana") %>%
+  add_column(municip = quantities_1995$municip, .before = "banana") %>%
+  arrange(cod)
 
+# Just checking
+#test <- quantities_1995 %>% mutate(total_quant = rowSums(.[3:19])) %>%
+  #transform(banana = banana/total_quant) %>%
+  #transform(barley = barley/total_quant) %>%
+  #transform(cocoa = cocoa/total_quant) %>%
+  #transform(coffee = coffee/total_quant) %>%
+  #transform(cotton_1 = cotton_1/total_quant) %>%
+  #transform(cotton_2 = cotton_2/total_quant) %>%
+  #transform(indiantea = indiantea/total_quant)
+  
 
+#Saving 
+save(shares_1995, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/shares_1995_bartik.Rdata")
 
-
-
+  
 

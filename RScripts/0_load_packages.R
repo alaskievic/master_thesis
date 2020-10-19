@@ -6,17 +6,22 @@ memory.limit(size=50000) # allocate more RAM
 set.seed(42) # set seed for replications
 
 
+#Updates packages
+update.packages(ask = FALSE)
+
+
 # Install packages
 list.of.packages <- c("rgdal", "sf", "ggplot2", "data.table", "tidyverse", "readxl", 
                       "tmap", "fabricatr", "raster", "rgeos", "mapview", "leaflet",
                       "RColorBrewer", "broom", "sp", "ggthemes", "viridis", "grid", "broom",
                       "viridis", "readstata13", "lubridate", "plm", "haven", "RColorBrewer",
-                      "ineq", "writexl", "xlsx", "foreign", "knitr", "stargazer", "glue", "zoo", "stringi", "magick")
+                      "ineq", "writexl", "xlsx", "foreign", "knitr", "stargazer", "glue",
+                      "zoo", "stringi", "magick", "devtools", "Rdpack", "installr")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)) install.packages(new.packages)
+if(length(new.packages)) install.packages(new.packages, type = "source", dependencies = TRUE)
 
 
-# Load packaages
+# Load packages
 library(rgdal)
 library(sf)
 library(tidyverse)
@@ -48,3 +53,11 @@ library(xlsx)
 library(zoo)
 library(stringi)
 library(magick)
+library(devtools)
+library(installr)
+
+
+#Updates R
+
+#updateR()
+

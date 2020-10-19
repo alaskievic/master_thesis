@@ -9,8 +9,10 @@ set more off,permanently
 
 *log using "C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\exp_bartik.log"
 
+*use "C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\andrei_data_1.dta"
 
-use "C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\andrei_data_1.dta"
+use "C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\andrei_tmp.dta"
+
 
 gsort +cod +year
 
@@ -36,10 +38,14 @@ foreach v of varlist rev_itr-exp_transp {
 
 
 * generates first differences
-gen dln_rdpc = log_rdpc - log_rdpc[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dpq_log = pq_log - pq_log[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dlog_pib_pc = log_pib_pc - log_pib_pc[_n-1] if year == 2010 & cod == cod[_n-1]
+** shares
+gen dlog_pq_quant = log_pq_quant - log_pq_quant[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_pq_shares = log_pq_shares - log_pq_shares[_n-1] if year == 2010 & cod == cod[_n-1]
 
+
+
+gen dlog_rdpc = log_rdpc - log_rdpc[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_pib_pc = log_pib_pc - log_pib_pc[_n-1] if year == 2010 & cod == cod[_n-1]
 
 
 gen dlog_rev_impost_tot = log_rev_impost_tot - log_rev_impost_tot[_n-1] if year == 2010 & cod == cod[_n-1]
@@ -54,19 +60,92 @@ gen dT_AGUA = T_AGUA - T_AGUA[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dT_ANALF18M = T_ANALF18M - T_ANALF18M[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dGINI = GINI - GINI[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dT_LUZ = T_LUZ - T_LUZ[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dgini_land = gini_land - gini_land[_n-1] if year == 2010 & cod == cod[_n-1]
 
+
+*AMS outcomes
+foreach v of varlist estab_total-leitos_sus {
+	gen d`v' = `v' - `v'[_n-1] if year == 2010 & cod == cod[_n-1]
+}
+
+
+
+
+
+
+*********
+**dummy se especificar year???????????
+xtset cod year
+
+log using "C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\andrei_tmp.log"
 
 eststo clear
-**
-log using "C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\andrei_data_1.log
 
-eststo: qui reg dln_rdpc dummy_10
-eststo: qui reg dln_rdpc dummy_25
-eststo: qui reg dln_rdpc dpq_log
+foreach v of varlist estab_total-leitos_sus {
+	eststo clear
+	eststo: qui xtreg `v' log_shares_dummy_10 i.year, fe 
+	eststo: qui xtreg `v' log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe 
+	eststo: qui xtreg `v' log_pq_shares i.year, fe 
+	eststo: qui xtreg `v' log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe
+	esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares)
+}
 
-eststo: qui reg dlog_pib_pc dummy_10
-eststo: qui reg dlog_pib_pc dummy_25
-eststo: qui reg dlog_pib_pc dpq_log
+eststo clear
+
+
+foreach v of varlist estab_total-leitos_sus {
+	eststo clear
+	eststo: qui xtreg `v' log_shares_dummy_10 i.year, fe 
+	eststo: qui xtreg `v' log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe 
+	eststo: qui xtreg `v' log_pq_shares i.year, fe 
+	eststo: qui xtreg `v' log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe
+	esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares)
+}
+
+
+foreach v of varlist gini_land-GINI {
+	eststo clear
+	eststo: qui xtreg `v' log_shares_dummy_10 i.year, fe 
+	eststo: qui xtreg `v' log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe 
+	eststo: qui xtreg `v' log_pq_shares i.year, fe 
+	eststo: qui xtreg `v' log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe
+	esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares)
+}
+
+foreach v of varlist T_AGUA-T_SLUZ {
+	eststo clear
+	eststo: qui xtreg `v' log_shares_dummy_10 i.year, fe 
+	eststo: qui xtreg `v' log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe 
+	eststo: qui xtreg `v' log_pq_shares i.year, fe 
+	eststo: qui xtreg `v' log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe
+	esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares)
+}
+
+
+foreach v of varlist log_rdpc-log_exp_transp {
+	eststo clear
+	eststo: qui xtreg `v' log_shares_dummy_10 i.year, fe 
+	eststo: qui xtreg `v' log_shares_dummy_10  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe 
+	eststo: qui xtreg `v' log_pq_shares i.year, fe 
+	eststo: qui xtreg `v' log_pq_shares  c.dist_state#i.year c.dist_federal#i.year c.geo_area_2010#i.year  c.latitude#i.year c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year i.year, fe
+	esttab, se ar2 keep(log_shares_dummy_10 log_pq_shares)
+}
+
+
+
+/*
+*eststo clear
+
+*log using "C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\andrei_data_1.log
+
+eststo: qui reg dlog_rdpc log_shares_dummy_10
+eststo: qui reg dlog_rdpc dlog_pq_quant
+eststo: qui reg dlog_rdpc dlog_pq_shares
+
+eststo: qui reg dlog_pib_pc log_shares_dummy_10
+eststo: qui reg dlog_pib_pc dlog_pq_quant
+eststo: qui reg dlog_pib_pc dlog_pq_shares
+
 
 
 esttab, se ar2 compress
@@ -139,7 +218,7 @@ eststo: qui reg dT_AGUA dpq_log
 esttab, se ar2 compress
 
 eststo clear
-
+*/
 
 
 *Summary Statistics

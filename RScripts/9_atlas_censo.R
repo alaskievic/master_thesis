@@ -166,7 +166,7 @@ ams_2009_atend <- ams_2009_atend %>% rename(municip = "Grandes Regiões\n", atend
                                             atend_total_pub = "Total...6", atend_cintern_pub = "Com\ninter-\nnação...7", atend_nintern_pub =  "Sem\ninter-\nnação...8", 
                                             atend_terap_pub = "Apoio à\ndiagnose e\nterapia...9", atend_total_priv = "Total...10", 
                                             atend_cintern_priv = "Com\ninter-\nnação...11", atend_nintern_priv = "Sem\ninter-\nnação...12" , 
-                                            atend_terap_priv = "Apoio à diagnose e terapia...13", atend_total_su = "Total...14",
+                                            atend_terap_priv = "Apoio à diagnose e terapia...13", atend_total_sus = "Total...14",
                                             atend_cintern_sus =  "Com\ninter-\nnação...15", atend_nintern_sus = "Sem\ninter-\nnação...16",
                                             atend_terap_sus = "Apoio à diagnose e terapia...17")
 
@@ -374,6 +374,29 @@ ams_2009 <- full_join(ams_2009, ams_2009_leitos, by = "municip")
 ams_2009 <- ams_2009 %>% mutate_all(~replace(., is.na(.), 0))
 
 save(ams_2009, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/ams_2009.RData")
+
+
+######### 3. Reads Censo Escolar Data ############################################################################################################################
+
+ams_2009_leitos <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/AMS/2009/tab13_2009_leitos.xls",
+                              skip = 8, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

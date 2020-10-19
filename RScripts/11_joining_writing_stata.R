@@ -11,26 +11,68 @@ load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/rev_fina
 load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/controls.RData")
 load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/atlas_mun.RData")
 load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/land_gini.RData")
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/ams_2002.RData")
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/ams_2009.RData")
+
 
 
 ######### 1. Exports data to Stata for summary statistics and regressions making ###############################################################################
-## Reading Bartik data
+#Consolidating Bartik measures data
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/pq_bartik.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/pq_shares_bartik.Rdata")
 
-pq_bartik <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/com_municip.dta")
+pq_final_longer <- pq_final_longer %>% rename(pq_quant = "pq")
+pq_final_shares_longer <- pq_final_shares_longer %>% rename(pq_shares = "pq")
+
+
+pq_bartik_final <- full_join(pq_final_longer, dplyr::select(pq_final_shares_longer, -"municip"), by = c("cod", "year"))
+
+#Saving
+write_xlsx(pq_bartik_final, 'C:/Users/Andrei/Desktop/Dissertation/Dados/pq_bartik_final.xlsx')
+
+
+
+######## Reading Bartik data
+
+pq_bartik <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/bartik_residuals.dta")
 
 
 # Ranks the residuals in quintiles
-
 pq_bartik <- as_tibble(pq_bartik)
-pq_bartik <- pq_bartik %>%  mutate(resid_rank = cut(100 * percent_rank(resid), seq(0, 100, len = 11),
+pq_bartik <- pq_bartik %>%  mutate(resid_quant_rank_1 = cut(100 * percent_rank(pq_quant_resid), seq(0, 100, len = 11),
                                           include.lowest = TRUE)) %>%
-  mutate(resid_rank_2 = cut(100 * percent_rank(resid), seq(0, 100, len = 5),
+  mutate(resid_quant_rank_2 = cut(100 * percent_rank(pq_quant_resid), seq(0, 100, len = 5),
                             include.lowest = TRUE))
+
+pq_bartik <- pq_bartik %>%  mutate(resid_shares_rank_1 = cut(100 * percent_rank(pq_shares_resid), seq(0, 100, len = 11),
+                                                          include.lowest = TRUE)) %>%
+  mutate(resid_shares_rank_2 = cut(100 * percent_rank(pq_shares_resid), seq(0, 100, len = 5),
+                                  include.lowest = TRUE))
+
+pq_bartik <- pq_bartik %>%  mutate(resid_log_quant_rank_1 = cut(100 * percent_rank(log_pq_quant_resid), seq(0, 100, len = 11),
+                                                          include.lowest = TRUE)) %>%
+  mutate(resid_log_quant_rank_2 = cut(100 * percent_rank(log_pq_quant_resid), seq(0, 100, len = 5),
+                                  include.lowest = TRUE))
+
+pq_bartik <- pq_bartik %>%  mutate(resid_log_shares_rank_1 = cut(100 * percent_rank(log_pq_shares_resid), seq(0, 100, len = 11),
+                                                          include.lowest = TRUE)) %>%
+  mutate(resid_log_shares_rank_2 = cut(100 * percent_rank(log_pq_shares_resid), seq(0, 100, len = 5),
+                                  include.lowest = TRUE))
+
 # Generate dummies
-pq_bartik <- pq_bartik %>% mutate(dummy_10 = ifelse(resid_rank == "(90,100]", 1, 0)) %>%
-  mutate(dummy_25 = ifelse(resid_rank_2 == "(75,100]", 1, 0))
+pq_bartik <- pq_bartik %>% mutate(quant_dummy_10 = ifelse(resid_quant_rank_1 == "(90,100]", 1, 0)) %>%
+  mutate(quant_dummy_25 = ifelse(resid_quant_rank_2 == "(75,100]", 1, 0))
 
+pq_bartik <- pq_bartik %>% mutate(shares_dummy_10 = ifelse(resid_shares_rank_1 == "(90,100]", 1, 0)) %>%
+  mutate(shares_dummy_25 = ifelse(resid_shares_rank_2 == "(75,100]", 1, 0))
 
+pq_bartik <- pq_bartik %>% mutate(log_quant_dummy_10 = ifelse(resid_log_quant_rank_1 == "(90,100]", 1, 0)) %>%
+  mutate(log_quant_dummy_25 = ifelse(resid_log_quant_rank_2 == "(75,100]", 1, 0))
+
+pq_bartik <- pq_bartik %>% mutate(log_shares_dummy_10 = ifelse(resid_log_shares_rank_1 == "(90,100]", 1, 0)) %>%
+  mutate(log_shares_dummy_25 = ifelse(resid_log_shares_rank_2 == "(75,100]", 1, 0))
+
+# Filter years
 pq_bartik <- pq_bartik %>% filter(year >= 2000, year <= 2010)
 
 
@@ -71,7 +113,7 @@ exp_rev_controls_pc <- full_join(controls, teste1, by = "cod")
 
 summ <- inner_join(pop, exp_rev_controls_pc, by = c("cod", "year"))
 
-
+#Saving in Stata
 write.dta(summ, "summ.dta")
 
 
@@ -131,7 +173,6 @@ exp_rev_pc <- mutate_all(exp_rev[5:26], pc) %>%
 
 
 #Reads Municipalities GDP data
-
 municip_pib_2002 <-read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/PIB/municip_pib_ibge_antigo.xlsx", 
                          skip = 3, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
@@ -176,7 +217,7 @@ exp_bartik <- inner_join(pq_bartik, dplyr::select(controls, -"municip"), by = "c
 exp_bartik <- inner_join(exp_bartik, dplyr::select(exp_rev_pc, -"municip"), by = c("cod", "year"))
 exp_bartik <- inner_join(exp_bartik, dplyr::select(municip_pib_real, -"municip"), by = c("cod", "year"))
 
-# Save
+# Saving to Stata
 write.dta(exp_bartik, "exp_bartik.dta")
 
 
@@ -214,4 +255,50 @@ andrei_data_2 <- full_join(dplyr::select(tmp_2, -"municip"), exp_bartik_tmp, by 
 
 
 write.dta(andrei_data_2, "andrei_data_2.dta")
+
+######### 2. AMS Data #########################################################################################################################
+setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
+
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/ams_2002.RData")
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/ams_2009.RData")
+
+
+
+#Tidying up
+ams_2002 <- ams_2002 %>% mutate(year = rep(2000,length(cod))) %>%
+  relocate(year, .before = "estab_total")
+
+#Check
+ams_2009_check <- ams_2009 %>% mutate(year = rep(2010,length(cod))) %>%
+  relocate(c("cod", "municip2","year", "Nome_UF", "UF"), .before = "municip") %>%
+  rename(municip = "municip2", municip2 = "municip", atend_total_sus = "atend_total_su") %>%
+  dplyr::select(-c("UF.x", "UF.y")) %>%
+  arrange(cod)
+
+ams_2009 <- ams_2009 %>% mutate(year = rep(2010,length(cod))) %>%
+  relocate(c("cod", "municip2","year", "Nome_UF", "UF"), .before = "municip") %>%
+  rename(municip = "municip2", municip2 = "municip", atend_total_sus = "atend_total_su") %>%
+  dplyr::select(-c("UF.x", "UF.y", "Nome_UF", "UF", "municip2")) %>%
+  transform(cod = as.integer(cod)) %>%
+  arrange(cod)
+
+#Merging
+ams_2002_join <- dplyr::select(ams_2002, colnames(ams_2009))
+  
+colnames <- colnames(ams_2009)
+
+ams <- full_join(ams_2002_join, ams_2009, by = c(colnames))
+
+#Full joining with andrei_1
+
+andrei_tmp <- full_join(ams, dplyr::select(andrei_data_1, -"municip"), by = c("cod", "year")) %>%
+  arrange(cod)
+
+#Saving
+write.dta(andrei_tmp, "andrei_tmp.dta")
+  
+
+
+
+
 

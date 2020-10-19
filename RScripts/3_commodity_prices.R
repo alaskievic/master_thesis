@@ -20,7 +20,7 @@ cambio <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Prices/cambio_n
   filter(Date >= 1990 &  Date <= 2015)
 
 # Reads Brazilian IPCA inflation data with 1990 = 100
-ipca <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Prices/ipca_anual.xls", 
+ipca <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Prices/IPCA_anual.xls", 
                    sheet = "Séries", col_names = TRUE, na = "") %>%
   filter(Date >= 1990 &  Date <= 2015)
 
@@ -42,10 +42,9 @@ pink_prices <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Prices/CMO
                           #sheet = "Monthly Prices", col_names = TRUE, na = "..", skip = 6) %>%
   #select(1, 12, 13, 14, 15, 16, 17, 18, 25, 30, 31, 32, 33, 34, 35, 36, 37, 38 ,39, 40, 41, 46, 47, 48, 49, 56, 57, 58)
 
-
-
 # Let's check
 #all.equal(pink_prices, pink_prices2)
+
 
 # Doing some renaming, formatting and filtering
 pink_prices <- pink_prices %>% 
@@ -54,7 +53,7 @@ pink_prices <- pink_prices %>%
   mutate(Month = paste0(Month, '-01')) %>%
   mutate(Month = as.Date(Month, format = "%Y-%m-%d"))
 
-pink_prices <- pink_prices %>% filter(Month >= "1990-01-01" & Month <=  "2015-12-01")
+pink_prices <- pink_prices %>% filter(Month >= "1990-01-01" & Month <  "2020-01-01")
 
 years <- format(as.Date(pink_prices$Month), format = "%Y")
 
@@ -72,6 +71,7 @@ pink_prices <- pink_prices %>% mutate(COCOA = COCOA*1000,
                         SUGAR_EU = SUGAR_EU*1000,
                         SUGAR_US = SUGAR_US*1000,
                         SUGAR_WLD = SUGAR_WLD*1000,
+                        COTTON_A_INDX = COTTON_A_INDX*1000,
                         RUBBER_TSR20 = RUBBER_TSR20*1000,
                         RUBBER1_MYSG = RUBBER1_MYSG*1000)
 
@@ -217,17 +217,30 @@ pink_prices_final <- pink_prices_avg %>%
   as_tibble()
 
 
-# Using CPI to deflate the series
+# Using CPI to deflate the series with 1990=100
+pink_prices_final <- pink_prices_final %>% filter(Years >=1990 & Years<=2015)
 cpi_prices <- (pink_prices_final[-1]/(cpi$Index/100))
 
-cpi_prices <- add_column(cpi_prices, Years = pink_prices_avg[[1]], .before = "Banana") %>%
+cpi_prices <- add_column(cpi_prices, Years = pink_prices_final[[1]], .before = "Banana") %>%
+  as_tibble()
+
+
+# Using CPI to deflate the series with 2010=100
+cpi_prices_2010 <- (pink_prices_final[-1]/(cpi$Index_2/100))
+
+cpi_prices_2010 <- add_column(cpi_prices_2010, Years = pink_prices_final[[1]], .before = "Banana") %>%
   as_tibble()
 
 # Creates an index for cpi_prices
 index_cpi_prices <- lmap(cpi_prices[-1], ~{.x/ .x[[1]][1]*100}) %>%
-  add_column(Years = pink_prices_avg[[1]], .before = "Banana") %>%
+  add_column(Years = pink_prices_final[[1]], .before = "Banana") %>%
   gather(Commodity, Index, Banana:`Wheat S`)
 
+index_cpi_prices_2010 <- lmap(cpi_prices_2010[-1], ~{.x/ .x[[1]][1]*100}) %>%
+  add_column(Years = pink_prices_final[[1]], .before = "Banana") %>%
+  gather(Commodity, Index, Banana:`Wheat S`)
+
+#########
 
 # Convert prices to BRL(R$)
 br_prices <- cambio$Cambio * pink_prices_final[-1]
@@ -242,6 +255,8 @@ real_br_prices <- add_column(real_br_prices, Years = pink_prices_avg[[1]], .befo
 index_real_br_prices <- lmap(real_br_prices[-1], ~{.x/ .x[[1]][1]*100}) %>%
   add_column(Years = pink_prices_avg[[1]], .before = "Banana") %>%
   gather(Commodity, Index, Banana:`Wheat S`)
+
+#########
 
 
 #Plot the indexed real_br_prices
@@ -272,7 +287,18 @@ graph_6
 #Saving prices dataset
 save(pink_prices_final, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/prices_nominal_bartik.Rdata")
 save(cpi_prices, file ="C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/prices_real_bartik.Rdata")
+save(cpi_prices_2010, file ="C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/prices_real_bartik_2010.Rdata")
 
+# Plot the deflated prices in US$ with 2010=100
+index_cpi_prices_2010 <- filter(index_cpi_prices_2010, Commodity != "Rubber")
 
+graph_7 <- ggplot(index_cpi_prices_2010, aes(x=Years)) +
+  geom_line(data = index_cpi_prices_2010, aes(y=Index, color = Commodity, group = Commodity))+
+  scale_color_manual(values=c25)+
+  geom_point(data = index_cpi_prices_2010, aes(x=Years, y=Index, color=Commodity), size=1)+
+  labs(x = "Year", y="Price Index (1990=100)") +
+  scale_x_discrete(breaks = c("1990", "1995", "2000", "2005", "2010", "2015")) + 
+  ggtitle("Individual Commodity Prices")
 
+graph_7
 

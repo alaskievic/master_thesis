@@ -100,18 +100,45 @@ load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/quantities_1995_b
 load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/quantities_1990_bartik.Rdata")
 
 # Sum over all quantities
+
+quant_fao_1995 <- quantities_1995 %>% mutate(cotton = cotton_1 + cotton_2, tea = indiantea + yerba_mate) %>%
+  dplyr::select(-c("cotton_1", "cotton_2", "indiantea", "yerba_mate", "rubber")) %>%
+  mutate(total_quant = rowSums(.[3:16]))
+
+quant_fao_1990 <- quantities_1990 %>% mutate(cotton = cotton_1 + cotton_2, tea = indiantea + yerba_mate) %>%
+  dplyr::select(-c("cotton_1", "cotton_2", "indiantea", "yerba_mate", "rubber")) %>%
+  mutate(total_quant = rowSums(.[3:16]))
+
+
 quantities_1995 <- quantities_1995 %>% mutate(total_quant = rowSums(.[3:19])) %>%
   mutate(cotton = cotton_1 + cotton_2) %>%
   dplyr::select(-c("cotton_1", "cotton_2")) %>%
   relocate(cotton, .before = "indiantea")
 
+
+
+  
 # Constrcut shares
 shares_1995 <- lmap(quantities_1995[3:18], ~{.x/quantities_1995$total_quant})
+
+shares_fao_1990 <- lmap(quant_fao_1990[3:17], ~{.x/quant_fao_1990$total_quant})
+shares_fao_1995 <- lmap(quant_fao_1995[3:17], ~{.x/quant_fao_1995$total_quant})
+
 
 #Tidying up
 shares_1995 <- shares_1995 %>% mutate(total_quant = rowSums(.[1:16])) %>%
   add_column(cod = quantities_1995$cod, .before = "banana") %>%
   add_column(municip = quantities_1995$municip, .before = "banana") %>%
+  arrange(cod)
+
+shares_fao_1990 <- shares_fao_1990 %>%
+  add_column(cod = quant_fao_1990$cod, .before = "banana") %>%
+  add_column(municip = quant_fao_1990$municip, .before = "banana") %>%
+  arrange(cod)
+
+shares_fao_1995 <- shares_fao_1995 %>%
+  add_column(cod = quant_fao_1995$cod, .before = "banana") %>%
+  add_column(municip = quant_fao_1995$municip, .before = "banana") %>%
   arrange(cod)
 
 # Just checking
@@ -128,5 +155,8 @@ shares_1995 <- shares_1995 %>% mutate(total_quant = rowSums(.[1:16])) %>%
 #Saving 
 save(shares_1995, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/shares_1995_bartik.Rdata")
 
-  
+save(shares_fao_1995, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/shares_fao_1995.Rdata")
+
+save(shares_fao_1990, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/shares_fao_1990.Rdata")
+
 

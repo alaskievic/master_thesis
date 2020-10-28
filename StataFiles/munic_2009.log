@@ -1,0 +1,509 @@
+-----------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\munic_2009.log
+  log type:  text
+ opened on:  22 Oct 2020, 09:19:04
+
+. 
+. 
+. gen log_area = log(geo_area_2010)
+
+. replace log_area=0 if log_area==.
+(0 real changes made)
+
+. 
+. rename (A85 A86 A87 A88 A89 A90 A91 A92 A93 A94 A95 A96 A97 A98 A348 A349) (mecan_incent iptu_parc iptu_tot iss
+>  taxas c_terr d_terr outros n_util indust com_serv turis agro outro reg_fund1 reg_fund2)
+
+. 
+. 
+. foreach v of varlist pq_2005-pq_2010 {
+  2.         eststo clear
+  3.         eststo: qui reg mecan_incent `v' altitude dist_federal dist_state latitude longitude log_area temp_o
+> utono temp_verao temp_primavera temp_inverno rain_inverno rain_verao rain_outono rain_primavera capital_dummy, 
+> vce(cluster cod)
+  4.         eststo: qui reg iptu_parc `v' altitude dist_federal dist_state latitude longitude log_area temp_outo
+> no temp_verao temp_primavera temp_inverno rain_inverno rain_verao rain_outono rain_primavera capital_dummy, vce
+> (cluster cod)
+  5.         eststo: qui reg iptu_tot `v' altitude dist_federal dist_state latitude longitude log_area temp_outon
+> o temp_verao temp_primavera temp_inverno rain_inverno rain_verao rain_outono rain_primavera capital_dummy, vce(
+> cluster cod)
+  6.         eststo: qui reg iss `v' altitude dist_federal dist_state latitude longitude log_area temp_outono tem
+> p_verao temp_primavera temp_inverno rain_inverno rain_verao rain_outono rain_primavera capital_dummy, vce(clust
+> er cod)
+  7.         eststo: qui reg taxas `v' altitude dist_federal dist_state latitude longitude log_area temp_outono t
+> emp_verao temp_primavera temp_inverno rain_inverno rain_verao rain_outono rain_primavera capital_dummy, vce(clu
+> ster cod)
+  8.         esttab, se ar2 keep(`v')
+  9. }
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+(est5 stored)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+             mecan_incent       iptu_parc        iptu_tot             iss           taxas   
+--------------------------------------------------------------------------------------------
+pq_2005           -0.0157         -0.0192*        -0.0164*        -0.0241**       -0.0166*  
+                (0.00865)       (0.00777)       (0.00763)       (0.00774)       (0.00740)   
+--------------------------------------------------------------------------------------------
+N                    4967            4967            4967            4967            4967   
+adj. R-sq           0.106           0.042           0.047           0.041           0.049   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+(est5 stored)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+             mecan_incent       iptu_parc        iptu_tot             iss           taxas   
+--------------------------------------------------------------------------------------------
+pq_2006           -0.0140         -0.0201*        -0.0160         -0.0248**       -0.0160*  
+                (0.00913)       (0.00843)       (0.00828)       (0.00838)       (0.00798)   
+--------------------------------------------------------------------------------------------
+N                    4967            4967            4967            4967            4967   
+adj. R-sq           0.106           0.042           0.047           0.041           0.049   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+(est5 stored)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+             mecan_incent       iptu_parc        iptu_tot             iss           taxas   
+--------------------------------------------------------------------------------------------
+pq_2007           -0.0190*        -0.0206*        -0.0212**       -0.0281***      -0.0188*  
+                (0.00896)       (0.00818)       (0.00802)       (0.00813)       (0.00782)   
+--------------------------------------------------------------------------------------------
+N                    4967            4967            4967            4967            4967   
+adj. R-sq           0.107           0.042           0.048           0.041           0.049   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+(est5 stored)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+             mecan_incent       iptu_parc        iptu_tot             iss           taxas   
+--------------------------------------------------------------------------------------------
+pq_2008           -0.0236*        -0.0231**       -0.0249**       -0.0320***      -0.0210*  
+                (0.00922)       (0.00860)       (0.00840)       (0.00852)       (0.00821)   
+--------------------------------------------------------------------------------------------
+N                    4967            4967            4967            4967            4967   
+adj. R-sq           0.107           0.042           0.048           0.042           0.049   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+(est5 stored)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+             mecan_incent       iptu_parc        iptu_tot             iss           taxas   
+--------------------------------------------------------------------------------------------
+pq_2009           -0.0180         -0.0236**       -0.0212*        -0.0290***      -0.0187*  
+                (0.00929)       (0.00866)       (0.00845)       (0.00858)       (0.00820)   
+--------------------------------------------------------------------------------------------
+N                    4967            4967            4967            4967            4967   
+adj. R-sq           0.106           0.042           0.047           0.041           0.049   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+(est5 stored)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+             mecan_incent       iptu_parc        iptu_tot             iss           taxas   
+--------------------------------------------------------------------------------------------
+pq_2010           -0.0151         -0.0214**       -0.0186*        -0.0264**       -0.0169*  
+                (0.00895)       (0.00825)       (0.00806)       (0.00818)       (0.00781)   
+--------------------------------------------------------------------------------------------
+N                    4967            4967            4967            4967            4967   
+adj. R-sq           0.106           0.042           0.047           0.041           0.049   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. foreach v of varlist pq_2005-pq_2010 {
+  2.         eststo clear
+  3.         eststo: qui reg c_terr `v' altitude dist_federal dist_state latitude longitude log_area temp_outono 
+> temp_verao temp_primavera temp_inverno rain_inverno rain_verao rain_outono rain_primavera capital_dummy, vce(cl
+> uster cod)
+  4.         eststo: qui reg d_terr `v' altitude dist_federal dist_state latitude longitude log_area temp_outono 
+> temp_verao temp_primavera temp_inverno rain_inverno rain_verao rain_outono rain_primavera capital_dummy, vce(cl
+> uster cod)
+  5.         eststo: qui reg outros `v' altitude dist_federal dist_state latitude longitude log_area temp_outono 
+> temp_verao temp_primavera temp_inverno rain_inverno rain_verao rain_outono rain_primavera capital_dummy, vce(cl
+> uster cod)
+  6.         eststo: qui reg n_util `v' altitude dist_federal dist_state latitude longitude log_area temp_outono 
+> temp_verao temp_primavera temp_inverno rain_inverno rain_verao rain_outono rain_primavera capital_dummy, vce(cl
+> uster cod)
+  7.         eststo: qui reg indust `v' altitude dist_federal dist_state latitude longitude log_area temp_outono 
+> temp_verao temp_primavera temp_inverno rain_inverno rain_verao rain_outono rain_primavera capital_dummy, vce(cl
+> uster cod)
+  8.         esttab, se ar2 keep(`v')
+  9. }
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+(est5 stored)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+                   c_terr          d_terr          outros          n_util          indust   
+--------------------------------------------------------------------------------------------
+pq_2005          -0.00677        -0.00483        -0.00529         0.00920*        -0.0175*  
+                (0.00739)       (0.00712)       (0.00660)       (0.00459)       (0.00820)   
+--------------------------------------------------------------------------------------------
+N                    4967            4967            4967            4967            4967   
+adj. R-sq           0.058           0.034           0.064           0.003           0.155   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+(est5 stored)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+                   c_terr          d_terr          outros          n_util          indust   
+--------------------------------------------------------------------------------------------
+pq_2006          -0.00433       -0.000775        -0.00542         0.00858         -0.0147   
+                (0.00778)       (0.00739)       (0.00715)       (0.00478)       (0.00874)   
+--------------------------------------------------------------------------------------------
+N                    4967            4967            4967            4967            4967   
+adj. R-sq           0.058           0.034           0.064           0.003           0.155   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+(est5 stored)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+                   c_terr          d_terr          outros          n_util          indust   
+--------------------------------------------------------------------------------------------
+pq_2007          -0.00768        -0.00635        -0.00634          0.0104*        -0.0225** 
+                (0.00770)       (0.00741)       (0.00696)       (0.00475)       (0.00860)   
+--------------------------------------------------------------------------------------------
+N                    4967            4967            4967            4967            4967   
+adj. R-sq           0.058           0.034           0.064           0.003           0.156   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+(est5 stored)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+                   c_terr          d_terr          outros          n_util          indust   
+--------------------------------------------------------------------------------------------
+pq_2008          -0.00938        -0.00798        -0.00646          0.0109*        -0.0286** 
+                (0.00796)       (0.00762)       (0.00732)       (0.00483)       (0.00898)   
+--------------------------------------------------------------------------------------------
+N                    4967            4967            4967            4967            4967   
+adj. R-sq           0.058           0.034           0.064           0.003           0.156   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+(est5 stored)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+                   c_terr          d_terr          outros          n_util          indust   
+--------------------------------------------------------------------------------------------
+pq_2009          -0.00571        -0.00139        -0.00603         0.00978*        -0.0215*  
+                (0.00791)       (0.00748)       (0.00737)       (0.00487)       (0.00895)   
+--------------------------------------------------------------------------------------------
+N                    4967            4967            4967            4967            4967   
+adj. R-sq           0.058           0.034           0.064           0.003           0.156   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+(est5 stored)
+
+--------------------------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)             (5)   
+                   c_terr          d_terr          outros          n_util          indust   
+--------------------------------------------------------------------------------------------
+pq_2010          -0.00372       -0.000501        -0.00556         0.00901         -0.0175*  
+                (0.00758)       (0.00720)       (0.00702)       (0.00470)       (0.00855)   
+--------------------------------------------------------------------------------------------
+N                    4967            4967            4967            4967            4967   
+adj. R-sq           0.058           0.033           0.064           0.003           0.155   
+--------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. foreach v of varlist pq_2005-pq_2010 {
+  2.         eststo clear
+  3.         eststo: qui reg com_serv `v' altitude dist_federal dist_state latitude longitude log_area temp_outon
+> o temp_verao temp_primavera temp_inverno rain_inverno rain_verao rain_outono rain_primavera capital_dummy, vce(
+> cluster cod)
+  4.         eststo: qui reg turis `v' altitude dist_federal dist_state latitude longitude log_area temp_outono t
+> emp_verao temp_primavera temp_inverno rain_inverno rain_verao rain_outono rain_primavera capital_dummy, vce(clu
+> ster cod)
+  5.         eststo: qui reg agro `v' altitude dist_federal dist_state latitude longitude log_area temp_outono te
+> mp_verao temp_primavera temp_inverno rain_inverno rain_verao rain_outono rain_primavera capital_dummy, vce(clus
+> ter cod)
+  6.         eststo: qui reg outro `v' altitude dist_federal dist_state latitude longitude log_area temp_outono t
+> emp_verao temp_primavera temp_inverno rain_inverno rain_verao rain_outono rain_primavera capital_dummy, vce(clu
+> ster cod)
+  7.         esttab, se ar2 keep(`v')
+  8. }
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+
+----------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)   
+                 com_serv           turis            agro           outro   
+----------------------------------------------------------------------------
+pq_2005           -0.0102      -0.0000915       0.0000747        -0.00812   
+                (0.00821)       (0.00512)       (0.00372)       (0.00555)   
+----------------------------------------------------------------------------
+N                    4967            4967            4967            4967   
+adj. R-sq           0.037           0.015           0.030           0.010   
+----------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+
+----------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)   
+                 com_serv           turis            agro           outro   
+----------------------------------------------------------------------------
+pq_2006           -0.0105       -0.000291       -0.000487        -0.00740   
+                (0.00882)       (0.00552)       (0.00384)       (0.00595)   
+----------------------------------------------------------------------------
+N                    4967            4967            4967            4967   
+adj. R-sq           0.037           0.015           0.030           0.010   
+----------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+
+----------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)   
+                 com_serv           turis            agro           outro   
+----------------------------------------------------------------------------
+pq_2007           -0.0115        0.000778        0.000785        -0.00896   
+                (0.00860)       (0.00531)       (0.00374)       (0.00586)   
+----------------------------------------------------------------------------
+N                    4967            4967            4967            4967   
+adj. R-sq           0.038           0.015           0.030           0.010   
+----------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+
+----------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)   
+                 com_serv           turis            agro           outro   
+----------------------------------------------------------------------------
+pq_2008           -0.0131       -0.000958        0.000765        -0.00902   
+                (0.00897)       (0.00554)       (0.00372)       (0.00614)   
+----------------------------------------------------------------------------
+N                    4967            4967            4967            4967   
+adj. R-sq           0.038           0.015           0.030           0.010   
+----------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+
+----------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)   
+                 com_serv           turis            agro           outro   
+----------------------------------------------------------------------------
+pq_2009           -0.0122        -0.00198       -0.000752        -0.00767   
+                (0.00904)       (0.00564)       (0.00380)       (0.00608)   
+----------------------------------------------------------------------------
+N                    4967            4967            4967            4967   
+adj. R-sq           0.038           0.015           0.030           0.010   
+----------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+(est3 stored)
+(est4 stored)
+
+----------------------------------------------------------------------------
+                      (1)             (2)             (3)             (4)   
+                 com_serv           turis            agro           outro   
+----------------------------------------------------------------------------
+pq_2010           -0.0107       -0.000772        -0.00118        -0.00695   
+                (0.00864)       (0.00540)       (0.00370)       (0.00582)   
+----------------------------------------------------------------------------
+N                    4967            4967            4967            4967   
+adj. R-sq           0.037           0.015           0.030           0.009   
+----------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. foreach v of varlist pq_2005-pq_2010 {
+  2.         eststo clear
+  3.         eststo: qui reg reg_fund1 `v' altitude dist_federal dist_state latitude longitude log_area temp_outo
+> no temp_verao temp_primavera temp_inverno rain_inverno rain_verao rain_outono rain_primavera capital_dummy, vce
+> (cluster cod)
+  4.         eststo: qui reg reg_fund2 `v' altitude dist_federal dist_state latitude longitude log_area temp_outo
+> no temp_verao temp_primavera temp_inverno rain_inverno rain_verao rain_outono rain_primavera capital_dummy, vce
+> (cluster cod)
+  5.         esttab, se ar2 keep(`v')
+  6. }
+(est1 stored)
+(est2 stored)
+
+--------------------------------------------
+                      (1)             (2)   
+                reg_fund1       reg_fund2   
+--------------------------------------------
+pq_2005           -0.0201*        -0.0128   
+                (0.00823)       (0.00788)   
+--------------------------------------------
+N                    4967            4967   
+adj. R-sq           0.060           0.053   
+--------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+
+--------------------------------------------
+                      (1)             (2)   
+                reg_fund1       reg_fund2   
+--------------------------------------------
+pq_2006           -0.0232**       -0.0150   
+                (0.00882)       (0.00854)   
+--------------------------------------------
+N                    4967            4967   
+adj. R-sq           0.060           0.053   
+--------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+
+--------------------------------------------
+                      (1)             (2)   
+                reg_fund1       reg_fund2   
+--------------------------------------------
+pq_2007           -0.0231**       -0.0146   
+                (0.00856)       (0.00827)   
+--------------------------------------------
+N                    4967            4967   
+adj. R-sq           0.060           0.053   
+--------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+
+--------------------------------------------
+                      (1)             (2)   
+                reg_fund1       reg_fund2   
+--------------------------------------------
+pq_2008           -0.0276**       -0.0190*  
+                (0.00884)       (0.00861)   
+--------------------------------------------
+N                    4967            4967   
+adj. R-sq           0.061           0.054   
+--------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+
+--------------------------------------------
+                      (1)             (2)   
+                reg_fund1       reg_fund2   
+--------------------------------------------
+pq_2009           -0.0281**       -0.0200*  
+                (0.00892)       (0.00869)   
+--------------------------------------------
+N                    4967            4967   
+adj. R-sq           0.061           0.054   
+--------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+(est1 stored)
+(est2 stored)
+
+--------------------------------------------
+                      (1)             (2)   
+                reg_fund1       reg_fund2   
+--------------------------------------------
+pq_2010           -0.0253**       -0.0174*  
+                (0.00860)       (0.00833)   
+--------------------------------------------
+N                    4967            4967   
+adj. R-sq           0.060           0.054   
+--------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+end of do-file
+
+. log close
+      name:  <unnamed>
+       log:  C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\munic_2009.log
+  log type:  text
+ closed on:  22 Oct 2020, 09:19:11
+-----------------------------------------------------------------------------------------------------------------

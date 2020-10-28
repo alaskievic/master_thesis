@@ -25,12 +25,13 @@ pq_final_longer <- pq_final_longer %>% rename(pq_quant = "pq")
 pq_final_shares_longer <- pq_final_shares_longer %>% rename(pq_shares = "pq")
 
 
-pq_bartik_final <- full_join(pq_final_longer, dplyr::select(pq_final_shares_longer, -"municip"), by = c("cod", "year"))
+pq_bartik_final <- full_join(pq_final_longer, dplyr::select(pq_final_shares_longer, -"municip"), by = c("cod", "year")) %>%
+  mutate(cod = as.integer(cod)) %>% mutate(year = as.integer(year))
 
 #Saving
 write_xlsx(pq_bartik_final, 'C:/Users/Andrei/Desktop/Dissertation/Dados/pq_bartik_final.xlsx')
 
-
+save(pq_bartik_final, file = 'C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/pq_bartik_final.Rdata')
 
 ######## Reading Bartik data
 
@@ -146,6 +147,9 @@ pop_sidra <- pivot_longer(pop_sidra, -c("cod", "municip"), values_to = "pesotot"
   arrange(year) %>%
   arrange(cod) %>%
   mutate(year = as.integer(year))
+
+#Saving
+save(pop_sidra, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/pop_sidra.Rdata")
 
 pop_sidra <- pop_sidra %>% filter(year >=2000, year <=2010)
 

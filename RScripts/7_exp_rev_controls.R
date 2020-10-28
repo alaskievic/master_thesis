@@ -276,7 +276,6 @@ itr_conv$dummy_conv_vigen_2010 <- ifelse(itr_conv$situ == "Convênio Vigente" & y
 altitude <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/Controles/altitude.xls",
                         col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-
 # Geographic area in km2
 geo_area <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/Controles/area_geografica.xls",
                        col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
@@ -297,7 +296,12 @@ latitude <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municíp
 longitude <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/Controles/longitude.xls",
                         col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-# Just changing some names and arraging
+# Temperatures and Rain
+clime_rain <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/Controles/chuva_temp_control.xls",
+                                     col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+# Just changing some names and arranging
 altitude <- altitude %>% rename(altitude = "1998", cod = "Codigo", municip = "Município") %>%
   dplyr::select(-"Sigla") %>%
   arrange(cod)
@@ -322,8 +326,20 @@ longitude <- longitude %>% rename(longitude = "1998", cod = "Codigo", municip = 
   dplyr::select(-"Sigla") %>%
   arrange(cod)
 
+clime_rain <- clime_rain %>% rename(cod = "Codigo", municip = "Município", 
+                                    temp_outono = "Estimativas das médias trimestrais de temperatura (°C): outono(mar-mai)",
+                                    temp_inverno = "Estimativas das médias trimestrais de temperatura (°C): inverno(jun-ago)", 
+                                    temp_verao = "Estimativas das médias trimestrais de temperatura (°C): verão(dez-fev)", 
+                                    temp_primavera = "Estimativas das médias trimestrais de temperatura (°C): primavera(set-nov)", 
+                                    rain_verao = "Estimativas das médias trimestrais precipitação pluviométrica(mm/mês): verão(dez-fev)", 
+                                    rain_outono = "Estimativas das médias trimestrais precipitação pluviométrica(mm/mês): outono(mar-mai)", 
+                                    rain_inverno = "Estimativas das médias trimestrais precipitação pluviométrica(mm/mês):  inverno(jun-ago)", 
+                                    rain_primavera = "Estimativas das médias trimestrais precipitação pluviométrica(mm/mês): primavera(set-nov)") %>%
+  dplyr::select(-"Sigla") %>%
+  arrange(cod)
+
 # Joining all controls in one dataframe
-list_controls <- list(altitude, dist_federal, dist_state, geo_area, latitude, longitude)
+list_controls <- list(altitude, dist_federal, dist_state, geo_area, latitude, longitude, clime_rain)
 
 controls <- purrr::reduce(list_controls, inner_join, by = c("cod", "municip"))
 

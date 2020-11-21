@@ -91,20 +91,21 @@ fao_mean <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis
 
 
 
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/shares_fao_1990.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/shares_fao_1995.Rdata")
 
-full_fao <- inner_join(shares_fao_1990, fao_mean, by = "cod")
+
+full_fao <- inner_join(shares_fao_1995, fao_mean, by = "cod")
 
 
 write.dta(full_fao, "full_fao.dta")
 
 
 ######### 2. Getting back from STATA and constructing the index ####################################################
-
 load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/prices_real_bartik_2010.Rdata")
 prices <- cpi_prices_2010 %>% filter(Years >= 2000)
+prices[-1] <- log(prices[-1])
 
-fao_pr <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/fao_pr.dta")
+fao_pr <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/full_fao.dta")
 
 #banana
 fao_banana <- NULL
@@ -164,7 +165,7 @@ fao_coffee_arabic <- fao_coffee_arabic %>% as_tibble(.name_repair = "unique") %>
 
 
 
-#cotton
+# cotton
 fao_cotton <- NULL
 
 for (i in 1:16) {
@@ -179,7 +180,7 @@ fao_cotton <- fao_cotton %>% as_tibble(.name_repair = "unique") %>%
   as_tibble()
 
 
-#maize
+# maize
 fao_maize <- NULL
 
 for (i in 1:16) {
@@ -351,19 +352,37 @@ fao_final <- fao_final_index_wider %>% pivot_longer(-c("cod", "municip"), names_
   mutate(cod = as.integer(cod), year = as.integer(year)) %>%
   arrange(cod)
 
-#Saving the dataset
-write_xlsx(fao_final_index_wider, 'C:/Users/Andrei/Desktop/Dissertation/Dados/fao_final_index_wider.xlsx')
+# Saving the dataset
+#write_xlsx(fao_final_index_wider, 'C:/Users/Andrei/Desktop/Dissertation/Dados/fao_final_index_wider.xlsx')
 
-#Saving
-save(fao_final_index, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/fao_final_index.Rdata")
+# Saving
+save(fao_final_index, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/fao_final_index_widerx.Rdata")
 save(fao_final, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/fao_final.Rdata")
 
+##########################################################################################
+
+# Baseline for most things
+
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/controls_baseline.Rdata")
+
+baseline <- inner_join(fao_final, controls_baseline, by = "cod")
 
 
-#Merging with previous datasets
 
-#tmp1 <- fao_pr <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/exp_bartik.dta")
+# Load land gini
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/land_gini.RData")
 
+
+land_gini %<>% mutate(year = ifelse(year==1995, 2000, year)) %>%
+  mutate(year = ifelse(year==2017, 2015, year))
+
+baseline_gini <- full_join(baseline, land_gini, by = c("cod", "year"))
+save(baseline_gini, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/baseline_gini.Rdata")
+
+
+
+
+############################################################################################
 load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/rev_final.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/pq_bartik_final.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/controls.Rdata")
@@ -412,6 +431,24 @@ fao_andrei <- inner_join(fao_final, tmp3, by = c("cod", "year"))
 setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
 
 write.dta(fao_andrei, "fao_andrei.dta")
+
+######### Full Bartik
+
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/fao_final.Rdata")
+
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/pq_bartik_final.Rdata")
+
+
+bartik_final <- full_join(fao_final, dplyr::select(pq_bartik_final, -c("municip")), by = c("cod", "year"))
+
+
+save(bartik_final, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/bartik_final.Rdata")
+
+
+
+
+
+
 
 
 

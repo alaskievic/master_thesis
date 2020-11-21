@@ -148,7 +148,7 @@ pop_sidra <- pivot_longer(pop_sidra, -c("cod", "municip"), values_to = "pesotot"
   arrange(cod) %>%
   mutate(year = as.integer(year))
 
-#Saving
+# Saving
 save(pop_sidra, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/pop_sidra.Rdata")
 
 pop_sidra <- pop_sidra %>% filter(year >=2000, year <=2010)
@@ -176,7 +176,7 @@ exp_rev_pc <- mutate_all(exp_rev[5:26], pc) %>%
   as_tibble()
 
 
-#Reads Municipalities GDP data
+# Reads Municipalities GDP data
 municip_pib_2002 <-read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/PIB/municip_pib_ibge_antigo.xlsx", 
                          skip = 3, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 

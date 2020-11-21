@@ -6,6 +6,11 @@ source("./0_load_packages.R")
 
 ######### 1. Reads and plots Land Gini Inequality data calculated in Stata ###################################################################################
 
+
+### Increase RAM usage
+memory.limit(size = NA)
+memory.limit(size = 50000)
+
 # Reads IBGE's 2019 shapefile containing 5570 municipalities
 shp_ibge <-  readOGR("C:/Users/Andrei/Desktop/Dissertation/Dados/Shapefiles/br_municipios_2019", "BR_Municipios_2019", stringsAsFactors = F)
 
@@ -38,18 +43,27 @@ map_land_1995 <- tm_shape(shp_ibge_gini_1995) +
               title = "Land Gini in 1995") +
   tm_shape(shp_ufs) +
   tm_borders(lwd = 1.5, col = "black", alpha = .5) +
-  tm_layout(legend.position = c("BOTTOM", "LEFT"), 
-            frame = FALSE, legend.outside = TRUE) +
+  tm_layout(legend.text.size=1.25,
+            legend.title.size=1.55,
+            legend.position = c("left","bottom"), 
+            legend.height=1.0, #capped?
+            frame = FALSE) +
   tm_compass(position = c("right", "bottom")) +
   tm_scale_bar(position = c("right", "bottom")) 
 
 map_land_1995
 
+
 # Saving
 tmap_save(map_land_1995, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_land_1995.png")
 
 
-################## 2006
+tmap_save(map_land_1995, "C:/Users/Andrei/Desktop/teste.png")
+
+
+
+
+######### 2006
 # Reads from Stata
 stata_agro_2006 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/agro_2006.dta")
 
@@ -86,8 +100,6 @@ map_land_2006
 tmap_save(map_land_2006, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_land_2006.png")
 
 
-
-
 ################## 2017
 
 # Reads from Stata
@@ -110,15 +122,21 @@ mean(gini_land_2017$gini_2017)
 
 # Plotting
 map_land_2017 <- tm_shape(shp_ibge_gini_2017) +
-  tm_polygons(col = "gini_2017",  style = "fisher", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
+  tm_polygons(col = "gini_2017", style = "fisher", palette = "YlOrRd",
+              border.col = "black", border.alpha = .3, showNA = TRUE, 
               textNA="No Data",
               title = "Land Gini in 2017") +
   tm_shape(shp_ufs) +
   tm_borders(lwd = 1.5, col = "black", alpha = .5) +
-  tm_layout(legend.position = c("left", "bottom"), 
+  tm_layout(legend.text.size=1.25,
+            legend.title.size=1.55,
+            legend.position = c("left","bottom"), 
+            legend.height=1.0,
             frame = FALSE) +
   tm_compass(position = c("right", "bottom")) +
   tm_scale_bar(position = c("right", "bottom")) 
+
+
 
 map_land_2017
 
@@ -136,6 +154,128 @@ land_gini <- land_gini %>% pivot_longer(-c("cod", "municip"), names_to = "year",
 
 #Saving
 save(land_gini, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/land_gini.RData")
+
+
+
+
+######### Making maps for the changes in Land Gini
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/land_gini.RData")
+
+gini_diff <- pivot_wider(land_gini, names_from = "year", values_from = "gini_land")
+
+gini_diff %<>% mutate(diff_1 = `2017` - `2006`) %>%
+  mutate(diff_2 = `2006` - `1995`) %>%
+  mutate(diff_3 =`2017` - `1995`)
+
+# Merging with IBGE data
+names(shp_ibge@data)[1] = "cod"
+gini_diff <- merge(shp_ibge, gini_diff, all.x = TRUE)
+
+
+
+# Plotting the maps
+map_land_diff1 <- tm_shape(gini_diff) +
+  tm_polygons(col = "diff_1", style = "fisher", palette = "YlOrRd",
+              border.col = "black", border.alpha = .3, showNA = TRUE, 
+              textNA="No Data", midpoint = NA,
+              title = "Land Gini Change\n(2017 - 2006)") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.text.size=1.25,
+            legend.title.size=1.55,
+            legend.position = c("left","bottom"), 
+            legend.height=1.0,
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom")) 
+
+map_land_diff1
+
+#Saving
+tmap_save(map_land_diff1, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_land_diff1.png")
+
+
+
+
+map_land_diff2 <- tm_shape(gini_diff) +
+  tm_polygons(col = "diff_2",  style = "fisher", palette = "YlOrRd",
+              border.col = "black", border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Land Gini Change (2006 - 1995)") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.text.size=1.25,
+            legend.title.size=1.55,
+            legend.position = c("left","bottom"), 
+            legend.height=1.0,
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom")) 
+
+map_land_diff2
+
+#Saving
+save(map_land_diff2, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/land_gini_diff2.RData")
+
+
+
+
+map_land_diff3 <- tm_shape(gini_diff) +
+  tm_polygons(col = "diff_3",  style = "fisher", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Land Gini Change (2017 - 1995)") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.text.size=1.25,
+            legend.title.size=1.55,
+            legend.position = c("left","bottom"), 
+            legend.height=1.0,
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom")) 
+
+map_land_diff3
+
+#Saving
+save(map_land_diff3, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/land_gini_diff3.RData")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ######### 2. Make maps for Income Gini #####################################################################################################################
 

@@ -1,0 +1,1169 @@
+-------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\pop_struc.log
+  log type:  text
+ opened on:  18 Nov 2020, 00:18:53
+
+. 
+. 
+. **** Preparing Data
+. 
+. gsort +cod +year
+
+. 
+. 
+. gen log_area = log(geo_area_2010)
+
+. 
+. gen log_rdpc = log(RDPC)
+
+. gen log_rdpct = log(RDPCT)
+
+. 
+. gen pop_desn1 = pesotot/geo_area_2010
+
+. gen pop_desn2 = POP/geo_area_2010
+
+. gen log_popd1 = log(pop_desn1)
+
+. gen log_popd2 = log(pop_desn2)
+
+. 
+. gen rur_share = pesoRUR/POP
+
+. gen urb_share = pesourb/POP
+
+. 
+. gen log_fao = log(sum_fao)
+(5,565 missing values generated)
+
+. gen log_shares = log(pq_shares)
+(5,747 missing values generated)
+
+. 
+. 
+. * Differences
+. gen dlog_rdpc = log_rdpc - log_rdpc[_n-1] if year == 2010 & cod == cod[_n-1]
+(11,123 missing values generated)
+
+. gen dlog_rdpct = log_rdpct - log_rdpct[_n-1] if year == 2010 & cod == cod[_n-1]
+(11,123 missing values generated)
+
+. gen dlog_popd2 = log_popd2 - log_popd2[_n-1] if year == 2010 & cod == cod[_n-1]
+(11,123 missing values generated)
+
+. gen drur_share = rur_share - rur_share[_n-1] if year == 2010 & cod == cod[_n-1]
+(11,123 missing values generated)
+
+. gen durb_share = urb_share - urb_share[_n-1] if year == 2010 & cod == cod[_n-1]
+(11,123 missing values generated)
+
+. 
+. gen dlog_fao  = log_fao - log_fao[_n-1] if year == 2010 & cod == cod[_n-1]
+(11,123 missing values generated)
+
+. gen dlog_shares  = log_shares  - log_shares[_n-1] if year == 2010 & cod == cod[_n-1]
+(11,214 missing values generated)
+
+. 
+. 
+. gen dagro_sh = P_AGRO - P_AGRO[_n-1] if year == 2010 & cod == cod[_n-1]
+(11,123 missing values generated)
+
+. gen dserv_sh = P_SERV - P_SERV[_n-1] if year == 2010 & cod == cod[_n-1]
+(11,123 missing values generated)
+
+. gen dcom_sh = P_COM - P_COM[_n-1] if year == 2010 & cod == cod[_n-1]
+(11,123 missing values generated)
+
+. gen dconstr_sh = P_CONSTR - P_CONSTR[_n-1] if year == 2010 & cod == cod[_n-1]
+(11,123 missing values generated)
+
+. gen dextr_sh = P_EXTR - P_EXTR[_n-1] if year == 2010 & cod == cod[_n-1]
+(11,123 missing values generated)
+
+. gen dtransf_sh = P_TRANSF - P_TRANSF[_n-1] if year == 2010 & cod == cod[_n-1]
+(11,123 missing values generated)
+
+. 
+. gen rural_sh_c = rur_share[_n-2] if year == 2010
+(11,123 missing values generated)
+
+. 
+. gen pop_dens_c = log_popd2[_n-2] if year == 2010
+(11,123 missing values generated)
+
+. 
+. gen rdpc_c = log_rdpc[_n-2] if year == 2010
+(11,123 missing values generated)
+
+. ***** Regressions
+. 
+. ***********
+. eststo clear    
+
+. eststo: qui reg dlog_rdpc dlog_fao, robust
+(est1 stored)
+
+. 
+. eststo: qui reg dlog_rdpc dlog_fao dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est2 stored)
+
+. 
+. eststo: qui reg dlog_rdpc dlog_shares, robust
+(est3 stored)
+
+. 
+. eststo: qui reg dlog_rdpc dlog_shares  dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est4 stored)
+
+. 
+. esttab, se ar2 keep(dlog_fao dlog_shares) compress
+
+--------------------------------------------------------------
+                 (1)          (2)          (3)          (4)   
+           dlog_rdpc    dlog_rdpc    dlog_rdpc    dlog_rdpc   
+--------------------------------------------------------------
+dlog_fao      -0.288***    -0.330***                          
+            (0.0337)     (0.0398)                             
+
+dlog_sha~s                              -0.178***    -0.208***
+                                      (0.0211)     (0.0218)   
+--------------------------------------------------------------
+N               5558         5500         5467         5467   
+adj. R-sq      0.014        0.101        0.012        0.105   
+--------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. *******
+. eststo clear
+
+. 
+. eststo: qui ivreg2 dlog_rdpc (dlog_shares = dlog_fao), robust ffirst savefirst
+(est1 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dlog_rdpc rural_sh_c pop_dens_c  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est2 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dlog_rdpc dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est3 stored)
+
+.  
+. eststo: qui ivreg2 dlog_rdpc  rural_sh_c pop_dens_c dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est4 stored)
+
+. 
+. eststo: estimates restore _ivreg2_dlog_shares
+(results _ivreg2_dlog_shares are active now)
+(est5 stored)
+
+. 
+. esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
+
+---------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)   
+           dlog_rdpc    dlog_rdpc    dlog_rdpc    dlog_rdpc    dlog_sh~s   
+---------------------------------------------------------------------------
+dlog_sha~s    -0.334***    -0.143***    -0.344***    -0.261***             
+            (0.0406)     (0.0395)     (0.0468)     (0.0498)                
+
+dlog_fao                                                           0.796***
+                                                                (0.0239)   
+---------------------------------------------------------------------------
+widstat       1632.5       1541.7       1345.2       1106.0                
+---------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. 
+. ******************************************************************
+. eststo clear    
+
+. eststo: qui reg dlog_rdpct dlog_fao, robust
+(est1 stored)
+
+. 
+. eststo: qui reg dlog_rdpct dlog_fao dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est2 stored)
+
+. 
+. eststo: qui reg dlog_rdpct dlog_shares, robust
+(est3 stored)
+
+. 
+. eststo: qui reg dlog_rdpct dlog_shares dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est4 stored)
+
+. 
+. esttab, se ar2 keep(dlog_fao dlog_shares) compress
+
+--------------------------------------------------------------
+                 (1)          (2)          (3)          (4)   
+           dlog_rd~t    dlog_rd~t    dlog_rd~t    dlog_rd~t   
+--------------------------------------------------------------
+dlog_fao      -0.226***    -0.241***                          
+            (0.0323)     (0.0386)                             
+
+dlog_sha~s                              -0.146***    -0.172***
+                                      (0.0202)     (0.0212)   
+--------------------------------------------------------------
+N               5558         5500         5467         5467   
+adj. R-sq      0.009        0.059        0.009        0.065   
+--------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. *******
+. eststo clear
+
+. 
+. eststo: qui ivreg2 dlog_rdpct (dlog_shares = dlog_fao), robust ffirst savefirst
+(est1 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dlog_rdpct rural_sh_c pop_dens_c  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est2 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dlog_rdpct dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est3 stored)
+
+.  
+. eststo: qui ivreg2 dlog_rdpct  rural_sh_c pop_dens_c dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est4 stored)
+
+. 
+. eststo: estimates restore _ivreg2_dlog_shares
+(results _ivreg2_dlog_shares are active now)
+(est5 stored)
+
+. 
+. esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
+
+---------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)   
+           dlog_rd~t    dlog_rd~t    dlog_rd~t    dlog_rd~t    dlog_sh~s   
+---------------------------------------------------------------------------
+dlog_sha~s    -0.264***    -0.107**     -0.238***    -0.175***             
+            (0.0385)     (0.0374)     (0.0450)     (0.0481)                
+
+dlog_fao                                                           0.796***
+                                                                (0.0239)   
+---------------------------------------------------------------------------
+widstat       1632.5       1541.7       1345.2       1106.0                
+---------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. 
+. 
+. ******************************************************************
+. eststo clear    
+
+. eststo: qui reg dlog_popd2 dlog_fao, robust
+(est1 stored)
+
+. 
+. eststo: qui reg dlog_popd2 dlog_fao dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est2 stored)
+
+. 
+. eststo: qui reg dlog_popd2 dlog_shares, robust
+(est3 stored)
+
+. 
+. eststo: qui reg dlog_popd2 dlog_shares dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est4 stored)
+
+. 
+. esttab, se ar2 keep(dlog_fao dlog_shares) compress
+
+--------------------------------------------------------------
+                 (1)          (2)          (3)          (4)   
+           dlog_po~2    dlog_po~2    dlog_po~2    dlog_po~2   
+--------------------------------------------------------------
+dlog_fao       0.205***    0.0297                             
+            (0.0258)     (0.0300)                             
+
+dlog_sha~s                              0.0945***    0.0521***
+                                      (0.0148)     (0.0155)   
+--------------------------------------------------------------
+N               5558         5500         5467         5467   
+adj. R-sq      0.013        0.115        0.007        0.119   
+--------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. *******
+. eststo clear
+
+. 
+. eststo: qui ivreg2 dlog_popd2 (dlog_shares = dlog_fao), robust ffirst savefirst
+(est1 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dlog_popd2 rural_sh_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est2 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dlog_popd2 dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est3 stored)
+
+.  
+. eststo: qui ivreg2 dlog_popd2  rural_sh_c rdpc_c dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est4 stored)
+
+. 
+. eststo: estimates restore _ivreg2_dlog_shares
+(results _ivreg2_dlog_shares are active now)
+(est5 stored)
+
+. 
+. esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
+
+---------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)   
+           dlog_po~2    dlog_po~2    dlog_po~2    dlog_po~2    dlog_sh~s   
+---------------------------------------------------------------------------
+dlog_sha~s     0.221***     0.205***    0.0214      -0.0761*               
+            (0.0311)     (0.0342)     (0.0348)     (0.0344)                
+
+dlog_fao                                                           0.815***
+                                                                (0.0239)   
+---------------------------------------------------------------------------
+widstat       1632.5       1462.2       1345.2       1157.7                
+---------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. ******************************************************************
+. eststo clear    
+
+. eststo: qui reg drur_share dlog_fao, robust
+(est1 stored)
+
+. 
+. eststo: qui reg drur_share dlog_fao dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est2 stored)
+
+. 
+. eststo: qui reg drur_share dlog_shares, robust
+(est3 stored)
+
+. 
+. eststo: qui reg drur_share dlog_shares dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est4 stored)
+
+. 
+. esttab, se ar2 keep(dlog_fao dlog_shares) compress
+
+--------------------------------------------------------------
+                 (1)          (2)          (3)          (4)   
+           drur_sh~e    drur_sh~e    drur_sh~e    drur_sh~e   
+--------------------------------------------------------------
+dlog_fao      0.0482***   0.00844                             
+            (0.0117)     (0.0138)                             
+
+dlog_sha~s                              0.0476***    0.0282***
+                                     (0.00729)    (0.00745)   
+--------------------------------------------------------------
+N               5558         5500         5467         5467   
+adj. R-sq      0.003        0.023        0.007        0.024   
+--------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. *******
+. eststo clear
+
+. 
+. eststo: qui ivreg2 drur_share (dlog_shares = dlog_fao), robust ffirst savefirst
+(est1 stored)
+
+. 
+. 
+. eststo: qui ivreg2 drur_share pop_dens_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est2 stored)
+
+. 
+. 
+. eststo: qui ivreg2 drur_share dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est3 stored)
+
+.  
+. eststo: qui ivreg2 drur_share pop_dens_c rdpc_c dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est4 stored)
+
+. 
+. eststo: estimates restore _ivreg2_dlog_shares
+(results _ivreg2_dlog_shares are active now)
+(est5 stored)
+
+. 
+. esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
+
+---------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)   
+           drur_sh~e    drur_sh~e    drur_sh~e    drur_sh~e    dlog_sh~s   
+---------------------------------------------------------------------------
+dlog_sha~s    0.0622***    0.0629***   0.00659      -0.0421*               
+            (0.0132)     (0.0126)     (0.0165)     (0.0176)                
+
+dlog_fao                                                           0.796***
+                                                                (0.0239)   
+---------------------------------------------------------------------------
+widstat       1632.5       1701.2       1345.2       1110.9                
+---------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. ******************************************************************
+. eststo clear    
+
+. eststo: qui reg durb_share dlog_fao, robust
+(est1 stored)
+
+. 
+. eststo: qui reg durb_share dlog_fao dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est2 stored)
+
+. 
+. eststo: qui reg durb_share dlog_shares, robust
+(est3 stored)
+
+. 
+. eststo: qui reg durb_share dlog_shares dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est4 stored)
+
+. 
+. esttab, se ar2 keep(dlog_fao dlog_shares) compress
+
+--------------------------------------------------------------
+                 (1)          (2)          (3)          (4)   
+           durb_sh~e    durb_sh~e    durb_sh~e    durb_sh~e   
+--------------------------------------------------------------
+dlog_fao     -0.0500***  -0.00140                             
+            (0.0108)     (0.0135)                             
+
+dlog_sha~s                             -0.0331***   -0.0134   
+                                     (0.00653)    (0.00693)   
+--------------------------------------------------------------
+N               5558         5500         5467         5467   
+adj. R-sq      0.004        0.033        0.004        0.033   
+--------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. *******
+. eststo clear
+
+. 
+. eststo: qui ivreg2 durb_share (dlog_shares = dlog_fao), robust ffirst savefirst
+(est1 stored)
+
+. 
+. 
+. eststo: qui ivreg2 durb_share pop_dens_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est2 stored)
+
+. 
+. 
+. eststo: qui ivreg2 durb_share dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est3 stored)
+
+.  
+. eststo: qui ivreg2 durb_share pop_dens_c rdpc_c dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est4 stored)
+
+. 
+. eststo: estimates restore _ivreg2_dlog_shares
+(results _ivreg2_dlog_shares are active now)
+(est5 stored)
+
+. 
+. esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
+
+---------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)   
+           durb_sh~e    durb_sh~e    durb_sh~e    durb_sh~e    dlog_sh~s   
+---------------------------------------------------------------------------
+dlog_sha~s   -0.0627***   -0.0580***   0.00731       0.0463**              
+            (0.0124)     (0.0121)     (0.0159)     (0.0170)                
+
+dlog_fao                                                           0.796***
+                                                                (0.0239)   
+---------------------------------------------------------------------------
+widstat       1632.5       1701.2       1345.2       1110.9                
+---------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. * Agro share
+. ******************************************************************
+. eststo clear    
+
+. eststo: qui reg dagro_sh dlog_fao, robust
+(est1 stored)
+
+. 
+. eststo: qui reg dagro_sh dlog_fao dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est2 stored)
+
+. 
+. eststo: qui reg dagro_sh dlog_shares, robust
+(est3 stored)
+
+. 
+. eststo: qui reg dagro_sh dlog_shares dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est4 stored)
+
+. 
+. esttab, se ar2 keep(dlog_fao dlog_shares) compress
+
+--------------------------------------------------------------
+                 (1)          (2)          (3)          (4)   
+            dagro_sh     dagro_sh     dagro_sh     dagro_sh   
+--------------------------------------------------------------
+dlog_fao      -3.255**     -0.479                             
+             (1.220)      (1.494)                             
+
+dlog_sha~s                               2.193**      3.866***
+                                       (0.828)      (0.874)   
+--------------------------------------------------------------
+N               5558         5500         5467         5467   
+adj. R-sq      0.001        0.067        0.001        0.070   
+--------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. *******
+. eststo clear
+
+. 
+. eststo: qui ivreg2 dagro_sh (dlog_shares = dlog_fao), robust ffirst savefirst
+(est1 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dagro_sh rural_sh_c pop_dens_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est2 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dagro_sh dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est3 stored)
+
+.  
+. eststo: qui ivreg2 dagro_sh  rural_sh_c pop_dens_c rdpc_c dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est4 stored)
+
+. 
+. eststo: estimates restore _ivreg2_dlog_shares
+(results _ivreg2_dlog_shares are active now)
+(est5 stored)
+
+. 
+. esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
+
+---------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)   
+            dagro_sh     dagro_sh     dagro_sh     dagro_sh    dlog_sh~s   
+---------------------------------------------------------------------------
+dlog_sha~s    -4.306**     -9.233***    -2.727       -7.001***             
+             (1.457)      (1.475)      (1.768)      (1.853)                
+
+dlog_fao                                                           0.793***
+                                                                (0.0240)   
+---------------------------------------------------------------------------
+widstat       1632.5       1549.9       1345.2       1093.9                
+---------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. ******************************************************************
+. eststo clear    
+
+. eststo: qui reg dserv_sh dlog_fao, robust
+(est1 stored)
+
+. 
+. eststo: qui reg dserv_sh dlog_fao dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est2 stored)
+
+. 
+. eststo: qui reg dserv_sh dlog_shares, robust
+(est3 stored)
+
+. 
+. eststo: qui reg dserv_sh dlog_shares dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est4 stored)
+
+. 
+. esttab, se ar2 keep(dlog_fao dlog_shares) compress
+
+--------------------------------------------------------------
+                 (1)          (2)          (3)          (4)   
+            dserv_sh     dserv_sh     dserv_sh     dserv_sh   
+--------------------------------------------------------------
+dlog_fao      -5.690***    -6.125***                          
+             (0.843)      (1.085)                             
+
+dlog_sha~s                              -3.717***    -3.076***
+                                       (0.555)      (0.605)   
+--------------------------------------------------------------
+N               5558         5500         5467         5467   
+adj. R-sq      0.007        0.060        0.007        0.058   
+--------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. *******
+. eststo clear
+
+. 
+. eststo: qui ivreg2 dserv_sh (dlog_shares = dlog_fao), robust ffirst savefirst
+(est1 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dserv_sh rural_sh_c pop_dens_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est2 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dserv_sh dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est3 stored)
+
+.  
+. eststo: qui ivreg2 dserv_sh  rural_sh_c pop_dens_c rdpc_c dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est4 stored)
+
+. 
+. eststo: estimates restore _ivreg2_dlog_shares
+(results _ivreg2_dlog_shares are active now)
+(est5 stored)
+
+. 
+. esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
+
+---------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)   
+            dserv_sh     dserv_sh     dserv_sh     dserv_sh    dlog_sh~s   
+---------------------------------------------------------------------------
+dlog_sha~s    -6.469***    -1.892*      -6.963***    -1.691                
+             (1.005)      (0.957)      (1.291)      (1.258)                
+
+dlog_fao                                                           0.793***
+                                                                (0.0240)   
+---------------------------------------------------------------------------
+widstat       1632.5       1549.9       1345.2       1093.9                
+---------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. ******************************************************************
+. eststo clear    
+
+. eststo: qui reg dcom_sh dlog_fao, robust
+(est1 stored)
+
+. 
+. eststo: qui reg dcom_sh dlog_fao dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est2 stored)
+
+. 
+. eststo: qui reg dcom_sh dlog_shares, robust
+(est3 stored)
+
+. 
+. eststo: qui reg dcom_sh dlog_shares dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est4 stored)
+
+. 
+. esttab, se ar2 keep(dlog_fao dlog_shares) compress
+
+--------------------------------------------------------------
+                 (1)          (2)          (3)          (4)   
+             dcom_sh      dcom_sh      dcom_sh      dcom_sh   
+--------------------------------------------------------------
+dlog_fao      -1.165*      -1.947***                          
+             (0.456)      (0.548)                             
+
+dlog_sha~s                              -1.436***    -1.764***
+                                       (0.299)      (0.323)   
+--------------------------------------------------------------
+N               5558         5500         5467         5467   
+adj. R-sq      0.001        0.027        0.004        0.029   
+--------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. *******
+. eststo clear
+
+. 
+. eststo: qui ivreg2 dcom_sh (dlog_shares = dlog_fao), robust ffirst savefirst
+(est1 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dcom_sh rural_sh_c pop_dens_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est2 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dcom_sh dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est3 stored)
+
+.  
+. eststo: qui ivreg2 dcom_sh  rural_sh_c pop_dens_c rdpc_c dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est4 stored)
+
+. 
+. eststo: estimates restore _ivreg2_dlog_shares
+(results _ivreg2_dlog_shares are active now)
+(est5 stored)
+
+. 
+. esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
+
+---------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)   
+             dcom_sh      dcom_sh      dcom_sh      dcom_sh    dlog_sh~s   
+---------------------------------------------------------------------------
+dlog_sha~s    -1.268*      -0.855       -2.071**     -2.090**              
+             (0.538)      (0.550)      (0.641)      (0.705)                
+
+dlog_fao                                                           0.793***
+                                                                (0.0240)   
+---------------------------------------------------------------------------
+widstat       1632.5       1549.9       1345.2       1093.9                
+---------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. ******************************************************************
+. eststo clear    
+
+. eststo: qui reg dconstr_sh dlog_fao, robust
+(est1 stored)
+
+. 
+. eststo: qui reg dconstr_sh dlog_fao dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est2 stored)
+
+. 
+. eststo: qui reg dconstr_sh dlog_shares, robust
+(est3 stored)
+
+. 
+. eststo: qui reg dconstr_sh dlog_shares dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est4 stored)
+
+. 
+. esttab, se ar2 keep(dlog_fao dlog_shares) compress
+
+--------------------------------------------------------------
+                 (1)          (2)          (3)          (4)   
+           dconstr~h    dconstr~h    dconstr~h    dconstr~h   
+--------------------------------------------------------------
+dlog_fao      -0.577       -1.139*                            
+             (0.363)      (0.468)                             
+
+dlog_sha~s                              -0.976***    -1.230***
+                                       (0.243)      (0.265)   
+--------------------------------------------------------------
+N               5558         5500         5467         5467   
+adj. R-sq      0.000        0.077        0.002        0.078   
+--------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. *******
+. eststo clear
+
+. 
+. eststo: qui ivreg2 dconstr_sh (dlog_shares = dlog_fao), robust ffirst savefirst
+(est1 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dconstr_sh rural_sh_c pop_dens_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est2 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dconstr_sh dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est3 stored)
+
+.  
+. eststo: qui ivreg2 dconstr_sh  rural_sh_c pop_dens_c rdpc_c dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est4 stored)
+
+. 
+. eststo: estimates restore _ivreg2_dlog_shares
+(results _ivreg2_dlog_shares are active now)
+(est5 stored)
+
+. 
+. esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
+
+---------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)   
+           dconstr~h    dconstr~h    dconstr~h    dconstr~h    dlog_sh~s   
+---------------------------------------------------------------------------
+dlog_sha~s    -0.706       0.0665       -1.194*      -0.610                
+             (0.432)      (0.428)      (0.546)      (0.585)                
+
+dlog_fao                                                           0.793***
+                                                                (0.0240)   
+---------------------------------------------------------------------------
+widstat       1632.5       1549.9       1345.2       1093.9                
+---------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. ******************************************************************
+. eststo clear    
+
+. eststo: qui reg dextr_sh dlog_fao, robust
+(est1 stored)
+
+. 
+. eststo: qui reg dextr_sh dlog_fao dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est2 stored)
+
+. 
+. eststo: qui reg dextr_sh dlog_shares, robust
+(est3 stored)
+
+. 
+. eststo: qui reg dextr_sh dlog_shares dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est4 stored)
+
+. 
+. esttab, se ar2 keep(dlog_fao dlog_shares) compress
+
+--------------------------------------------------------------
+                 (1)          (2)          (3)          (4)   
+            dextr_sh     dextr_sh     dextr_sh     dextr_sh   
+--------------------------------------------------------------
+dlog_fao       0.451**      0.458*                            
+             (0.155)      (0.189)                             
+
+dlog_sha~s                               0.251**      0.177   
+                                      (0.0963)      (0.113)   
+--------------------------------------------------------------
+N               5558         5500         5467         5467   
+adj. R-sq      0.001        0.003        0.001        0.002   
+--------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. *******
+. eststo clear
+
+. 
+. eststo: qui ivreg2 dextr_sh (dlog_shares = dlog_fao), robust ffirst savefirst
+(est1 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dextr_sh rural_sh_c pop_dens_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est2 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dextr_sh dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est3 stored)
+
+.  
+. eststo: qui ivreg2 dextr_sh  rural_sh_c pop_dens_c rdpc_c dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est4 stored)
+
+. 
+. eststo: estimates restore _ivreg2_dlog_shares
+(results _ivreg2_dlog_shares are active now)
+(est5 stored)
+
+. 
+. esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
+
+---------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)   
+            dextr_sh     dextr_sh     dextr_sh     dextr_sh    dlog_sh~s   
+---------------------------------------------------------------------------
+dlog_sha~s     0.503**      0.637***     0.577**      0.516*               
+             (0.185)      (0.182)      (0.218)      (0.257)                
+
+dlog_fao                                                           0.793***
+                                                                (0.0240)   
+---------------------------------------------------------------------------
+widstat       1632.5       1549.9       1345.2       1093.9                
+---------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. 
+. 
+. 
+. ******************************************************************
+. eststo clear    
+
+. eststo: qui reg dtransf_sh dlog_fao, robust
+(est1 stored)
+
+. 
+. eststo: qui reg dtransf_sh dlog_fao dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est2 stored)
+
+. 
+. eststo: qui reg dtransf_sh dlog_shares, robust
+(est3 stored)
+
+. 
+. eststo: qui reg dtransf_sh dlog_shares dist_state dist_federal ///
+>         log_area  latitude longitude altitude ///
+>         capital_dummy, robust
+(est4 stored)
+
+. 
+. esttab, se ar2 keep(dlog_fao dlog_shares) compress
+
+--------------------------------------------------------------
+                 (1)          (2)          (3)          (4)   
+           dtransf~h    dtransf~h    dtransf~h    dtransf~h   
+--------------------------------------------------------------
+dlog_fao       6.449***     6.750***                          
+             (0.841)      (0.933)                             
+
+dlog_sha~s                               1.494*       0.309   
+                                       (0.587)      (0.579)   
+--------------------------------------------------------------
+N               5558         5500         5467         5467   
+adj. R-sq      0.010        0.108        0.001        0.103   
+--------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. *******
+. eststo clear
+
+. 
+. eststo: qui ivreg2 dtransf_sh (dlog_shares = dlog_fao), robust ffirst savefirst
+(est1 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dtransf_sh rural_sh_c pop_dens_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est2 stored)
+
+. 
+. 
+. eststo: qui ivreg2 dtransf_sh dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est3 stored)
+
+.  
+. eststo: qui ivreg2 dtransf_sh  rural_sh_c pop_dens_c rdpc_c dist_state dist_federal latitude ///
+>  longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
+(est4 stored)
+
+. 
+. eststo: estimates restore _ivreg2_dlog_shares
+(results _ivreg2_dlog_shares are active now)
+(est5 stored)
+
+. 
+. esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
+
+---------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)   
+           dtransf~h    dtransf~h    dtransf~h    dtransf~h    dlog_sh~s   
+---------------------------------------------------------------------------
+dlog_sha~s     7.900***     8.152***     9.980***     9.836***             
+             (1.037)      (1.072)      (1.193)      (1.310)                
+
+dlog_fao                                                           0.793***
+                                                                (0.0240)   
+---------------------------------------------------------------------------
+widstat       1632.5       1549.9       1345.2       1093.9                
+---------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. log close
+      name:  <unnamed>
+       log:  C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\pop_struc.log
+  log type:  text
+ closed on:  18 Nov 2020, 00:19:07
+-------------------------------------------------------------------------------------------------------------------------

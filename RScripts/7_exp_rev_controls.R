@@ -197,7 +197,8 @@ itr_long <- pivot_longer(itr_final, -c("municip", "Nome_Município", "Nome_UF", "
 
 
 itr_real <- mutate_all(itr_long[6], deflate) %>%
-  add_column(cod = itr_long$cod, municip = itr_long$municip, municip2 = itr_long$Nome_Município,  year = itr_long$year, 
+  add_column(cod = itr_long$cod, municip = itr_long$municip, 
+             municip2 = itr_long$Nome_Município,  year = itr_long$year, 
              UF = itr_long$Nome_UF, .before = "exp_itr") %>%
   replace(is.na(.), 0)
 
@@ -222,8 +223,8 @@ save(rev_final, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis
 #anti_2 <- anti_join(teste_codes, teste_itr, by = "municip")
 
 
-######### 5. Reads data containig municipalities that opted for the agreement of 100% revenue ITR ##################################################################################### 
-#http://servicos.receita.fazenda.gov.br/Servicos/termoitr
+######### 4. Reads data containig municipalities that opted for the agreement of 100% revenue ITR ##################################################################################### 
+# http://servicos.receita.fazenda.gov.br/Servicos/termoitr
 
 itr_agr <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/itr_convenio.xlsx",
                    skip = 1 ,sheet = "Original", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
@@ -231,9 +232,9 @@ itr_agr <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípi
 
 itr_agr <- itr_agr %>%
   group_by(grp = cumsum(str_detect(Município, '^UF:\\s+'))) %>%
-             mutate(UF = toupper(str_extract(first(Município), '(?<=UF: )\\w{2}')),
-                    Município = case_when(row_number() > 1 
-                                     ~ sprintf('%s (%s)', Município, UF), TRUE ~ Município)) %>% 
+                 mutate(UF = toupper(str_extract(first(Município), '(?<=UF: )\\w{2}')),
+                        Município = case_when(row_number() > 1 
+                                    ~ sprintf('%s (%s)', Município, UF), TRUE ~ Município)) %>% 
   ungroup %>%
   dplyr::select(-c("grp"))
 
@@ -258,16 +259,81 @@ teste_codes$municip  <- gsub("-", "", teste_codes$municip)
 itr_conv <- inner_join(itr_agr, teste_codes, by = "municip")
 
 # Generate dummies
-itr_conv$dummy_op_2010 <- ifelse(year(itr_conv$op_date) < 2010, 1, 0)
+itr_conv$dummy_op_2010 <- ifelse(year(itr_conv$op_date) <= 2010, 1, 0)
+itr_conv$dummy_op_2015 <- ifelse(year(itr_conv$op_date) <= 2015, 1, 0)
 itr_conv$dummy_vigen_2010 <- ifelse(year(itr_conv$op_vigen) < 2010, 1, 0)
+itr_conv$dummy_vigen_2015 <- ifelse(year(itr_conv$op_vigen) < 2015, 1, 0)
+
 itr_conv$dummy_denun <- ifelse(itr_conv$situ == "Denúncia Vigente", 1, 0)
 itr_conv$dummy_conv <- ifelse(itr_conv$situ == "Convênio Vigente", 1, 0)
-itr_conv$dummy_conv_op_2010 <- ifelse(itr_conv$situ == "Convênio Vigente" & year(itr_conv$op_date) < 2010 , 1, 0)
-itr_conv$dummy_conv_vigen_2010 <- ifelse(itr_conv$situ == "Convênio Vigente" & year(itr_conv$op_vigen) < 2010 , 1, 0)
 
-#anti_1 <- anti_join(itr_agr, teste_codes, by = "municip")
-#anti_2 <- anti_join(teste_codes, itr_agr, by = "municip")
-#dupl <- teste[duplicated(teste$municip), ]
+itr_conv$dummy_conv_op_2010 <- ifelse(itr_conv$situ == "Convênio Vigente" & year(itr_conv$op_date) <= 2010 , 1, 0)
+itr_conv$dummy_conv_vigen_2010 <- ifelse(itr_conv$situ == "Convênio Vigente" & year(itr_conv$op_vigen) <= 2010 , 1, 0)
+itr_conv$dummy_conv_op_2015 <- ifelse(itr_conv$situ == "Convênio Vigente" & year(itr_conv$op_date) <= 2015 , 1, 0)
+itr_conv$dummy_conv_vigen_2015 <- ifelse(itr_conv$situ == "Convênio Vigente" & year(itr_conv$op_vigen) <= 2015 , 1, 0)
+
+
+# Merging and saving
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/controls.RData")
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/pq_bartik_final.Rdata")
+
+pq_fao <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/fao_final_index_wider.xlsx",
+                        col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+pq_fao <- pq_fao %>%
+  set_names(~ str_to_lower(.) %>% str_replace_all("20", "pq_20"))
+
+
+itr_conv_final <- full_join(itr_conv, pq_fao, by = "cod") %>%
+  mutate(cod = as.integer(cod))
+
+itr_conv_final[9:18][is.na(itr_conv_final[9:18])] <- 0
+
+itr_conv_final <- inner_join(itr_conv_final, controls, by = "cod")
+
+
+save(itr_conv_final, 
+     file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/itr_conv_final.Rdata")
+
+
+# Also merging with FAO
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/itr_conv_final.Rdata")
+
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/pq_shares_bartik.Rdata")
+
+
+
+pq_bartik_join <- pivot_wider(pq_final_shares_longer, names_from = "year",
+                              values_from = "pq") %>%
+  mutate(cod = as.integer(cod))
+
+
+setnames(pq_bartik_join, c('cod', 'municip', "btk_2000", "btk_2001", "btk_2002", "btk_2003",
+                           "btk_2004", "btk_2005", "btk_2006", "btk_2007", "btk_2008",
+                           "btk_2009", "btk_2010", "btk_2011", "btk_2012", "btk_2013", "btk_2014",
+                           "btk_2015"))
+
+
+itr_conv_final <- full_join(itr_conv_final, pq_bartik_join, by = "cod") %>%
+  mutate(cod = as.integer(cod))
+
+itr_conv_final[54:69][is.na(itr_conv_final[54:69])] <- 0
+
+
+itr_conv_final <- full_join(itr_conv, pq_fao, by = "cod") %>%
+  mutate(cod = as.integer(cod))
+
+
+
+setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
+write.dta(itr_conv_final, "itr_conv_final.dta")
+
+
+
+
+# anti_1 <- anti_join(itr_agr, teste_codes, by = "municip")
+# anti_2 <- anti_join(teste_codes, itr_agr, by = "municip")
+# dupl <- teste[duplicated(teste$municip), ]
 
 
 ######### 5. Reads some municipality data that will be used as controls ##################################################################################### 
@@ -356,7 +422,7 @@ controls <- controls %>% mutate(cod = as.integer(cod))
 save(controls, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/controls.RData")
 
 
-######### Reads and merges MUNIC data #######################################################################################################################
+######### 6. Reads and merges MUNIC data #######################################################################################################################
 
 # Takes all sheet names
 sheets_2004 <- excel_sheets(path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/MUNIC/MUNIC_2004.xls")

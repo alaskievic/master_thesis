@@ -159,8 +159,9 @@ municip_pib <- full_join(municip_pib, municip_pib_serv, by = c("cod", "year", "m
   arrange(cod)
 
 
-##Deflating
-#Reads IPCA for deflation
+## Deflating
+
+# Reads IPCA for deflation
 ipca <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Prices/ipca_anual.xls", 
                    sheet = "Séries", col_names = TRUE, na = "")
 
@@ -174,7 +175,7 @@ municip_pib_real <- mutate_all(municip_pib[4:7], deflate) %>%
 municip_pib_real <- municip_pib_real %>% mutate(cod = as.integer(cod)) %>%
   mutate(year = as.integer(year))
 
-#Adding population
+# Adding population
 load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/pop_sidra.Rdata")
 
 municip_pib_real <- municip_pib_real %>% filter(year >= 2000 & year <= 2015)
@@ -182,18 +183,18 @@ municip_pib_real <- municip_pib_real %>% filter(year >= 2000 & year <= 2015)
 municip_pib_final <- inner_join(municip_pib_real, dplyr::select(pop_sidra, -"municip"), by = c("cod", "year"))
 
 
-#Adding Bartik
+# Adding Bartik
 load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/pq_bartik_final.Rdata")
 
 municip_pib_final <- inner_join(municip_pib_final, dplyr::select(pq_bartik_final, -"municip"), by = c("cod", "year"))
 
-#Adding Controls
+# Adding Controls
 load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/controls.RData")
 
 municip_pib_final <- inner_join(municip_pib_final, dplyr::select(controls, -"municip"), by = "cod")
 
 
-#Write to Stata
+# Write to Stata
 setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
 write.dta(municip_pib_final, "municip_pib_final.dta")
 

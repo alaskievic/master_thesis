@@ -16,7 +16,8 @@ list.of.packages <- c("rgdal", "sf", "ggplot2", "data.table", "tidyverse", "read
                       "RColorBrewer", "broom", "sp", "ggthemes", "viridis", "grid", "broom",
                       "viridis", "readstata13", "lubridate", "plm", "haven", "RColorBrewer",
                       "ineq", "writexl", "xlsx", "foreign", "knitr", "stargazer", "glue",
-                      "zoo", "stringi", "magick", "devtools", "Rdpack", "installr")
+                      "zoo", "stringi", "magick", "devtools", "Rdpack", "installr", "magrittr", 
+                      "janitor")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages, type = "source", dependencies = TRUE)
 
@@ -55,7 +56,8 @@ library(stringi)
 library(magick)
 library(devtools)
 library(installr)
-
+library(magrittr)
+library(janitor)
 
 #Updates R
 

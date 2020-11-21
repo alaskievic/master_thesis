@@ -240,7 +240,7 @@ index_cpi_prices_2010 <- lmap(cpi_prices_2010[-1], ~{.x/ .x[[1]][1]*100}) %>%
   add_column(Years = pink_prices_final[[1]], .before = "Banana") %>%
   gather(Commodity, Index, Banana:`Wheat S`)
 
-#########
+######
 
 # Convert prices to BRL(R$)
 br_prices <- cambio$Cambio * pink_prices_final[-1]
@@ -256,7 +256,7 @@ index_real_br_prices <- lmap(real_br_prices[-1], ~{.x/ .x[[1]][1]*100}) %>%
   add_column(Years = pink_prices_avg[[1]], .before = "Banana") %>%
   gather(Commodity, Index, Banana:`Wheat S`)
 
-#########
+#######
 
 
 #Plot the indexed real_br_prices
@@ -271,13 +271,19 @@ graph_5 <- ggplot(index_real_br_prices, aes(x=Years)) +
 graph_5
 
 
-# Plot the deflated prices in US$
-index_cpi_prices <- filter(index_cpi_prices, Commodity != "Rubber")
+# Plot the deflated prices in US$ 1990=100
+graph_aux1 <- cpi_prices %>% dplyr::select(-c("Coffee Robust", "Rice A1",
+                                                   "Wheat H", "Sorghum", "Rubber")) %>%
+  rename(Wheat = "Wheat S", Coffee = "Coffee Arabic", Rice = "Rice 05")
 
-graph_6 <- ggplot(index_cpi_prices, aes(x=Years)) +
-  geom_line(data = index_cpi_prices, aes(y=Index, color = Commodity, group = Commodity))+
+prices_graph1 <- lmap(graph_aux1[-1], ~{.x/ .x[[1]][1]*100}) %>%
+  add_column(Years = pink_prices_final[[1]], .before = "Banana") %>%
+  gather(Commodity, Index, Banana:`Wheat`)
+
+graph_6 <- ggplot(prices_graph1, aes(x=Years)) +
+  geom_line(data = prices_graph1, aes(y=Index, color = Commodity, group = Commodity), lwd = 1)+
   scale_color_manual(values=c25)+
-  geom_point(data = index_cpi_prices, aes(x=Years, y=Index, color=Commodity), size=1)+
+  geom_point(data = prices_graph1, aes(x=Years, y=Index, color=Commodity), size=2)+
   labs(x = "Year", y="Price Index (1990=100)") +
   scale_x_discrete(breaks = c("1990", "1995", "2000", "2005", "2010", "2015")) + 
   ggtitle("Individual Commodity Prices")
@@ -290,15 +296,34 @@ save(cpi_prices, file ="C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis
 save(cpi_prices_2010, file ="C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/prices_real_bartik_2010.Rdata")
 
 # Plot the deflated prices in US$ with 2010=100
-index_cpi_prices_2010 <- filter(index_cpi_prices_2010, Commodity != "Rubber")
+# final graph
+graph_aux2 <- cpi_prices_2010 %>% dplyr::select(-c("Coffee Robust", "Rice A1",
+                                               "Wheat H", "Sorghum", "Rubber")) %>%
+  rename(Wheat = "Wheat S", Coffee = "Coffee Arabic", Rice = "Rice 05")
 
-graph_7 <- ggplot(index_cpi_prices_2010, aes(x=Years)) +
-  geom_line(data = index_cpi_prices_2010, aes(y=Index, color = Commodity, group = Commodity))+
+prices_graph2 <- lmap(graph_aux2[-1], ~{.x/ .x[[1]][1]*100}) %>%
+  add_column(Years = pink_prices_final[[1]], .before = "Banana") %>%
+  gather(Commodity, Index, Banana:`Wheat`)
+
+
+graph_7 <- ggplot(prices_graph2, aes(x=Years)) +
+  geom_line(data = prices_graph2, aes(y=Index, color = Commodity, group = Commodity), lwd = 1)+
   scale_color_manual(values=c25)+
-  geom_point(data = index_cpi_prices_2010, aes(x=Years, y=Index, color=Commodity), size=1)+
+  geom_point(data = prices_graph2, aes(x=Years, y=Index, color=Commodity), size=2)+
   labs(x = "Year", y="Price Index (1990=100)") +
-  scale_x_discrete(breaks = c("1990", "1995", "2000", "2005", "2010", "2015")) + 
-  ggtitle("Individual Commodity Prices")
+  scale_x_discrete(breaks = c("1990", "1995", "2000", "2005", "2010", "2015")) +
+  ggtitle("Individual Commodity Prices") + 
+  theme_bw()
 
 graph_7
+
+ggsave(filename = "com_prices.eps", plot = graph_7, path = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures")
+
+ggsave(filename = "com_prices.png", plot = graph_7, path = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures")
+
+
+  
+
+
+
 

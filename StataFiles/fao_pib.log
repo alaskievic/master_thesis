@@ -1,0 +1,309 @@
+-------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\fao_pib.log
+  log type:  text
+ opened on:  28 Oct 2020, 20:19:50
+
+. 
+. 
+. eststo clear
+
+. 
+. eststo: qui reghdfe log_pib_tot log_fao c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui reghdfe log_pib_tot log_pqshares c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui reghdfe log_pib_tot dq10red2_fao c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est3 stored)
+
+. 
+. eststo: qui reghdfe log_pib_tot dq10red2_sh c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est4 stored)
+
+. 
+. eststo: qui reghdfe log_pib_tot dq25red2_fao c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est5 stored)
+
+. 
+. eststo: qui reghdfe log_pib_tot dq25red2_sh c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est6 stored)
+
+. 
+. 
+. esttab, se ar2 keep(log_fao log_pqshares dq10red2_fao dq10red2_sh dq25red2_fao dq25red2_sh) compress
+
+----------------------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)          (6)   
+           log_pi~ot    log_pi~ot    log_pi~ot    log_pi~ot    log_pi~ot    log_pi~ot   
+----------------------------------------------------------------------------------------
+log_fao        0.161***                                                                 
+            (0.0190)                                                                    
+
+log_pqsh~s                 0.0623***                                                    
+                        (0.00851)                                                       
+
+dq10red2~o                              0.0192***                                       
+                                     (0.00292)                                          
+
+dq10red2~h                                           0.0126***                          
+                                                  (0.00280)                             
+
+dq25red2~o                                                        0.0170***             
+                                                               (0.00228)                
+
+dq25red2~h                                                                     0.0138***
+                                                                            (0.00216)   
+----------------------------------------------------------------------------------------
+N              87999        87471        87999        87999        87999        87999   
+adj. R-sq      0.942        0.942        0.942        0.942        0.942        0.942   
+----------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. eststo clear
+
+. 
+. eststo: qui reghdfe log_pib_agro log_fao c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui reghdfe log_pib_agro log_pqshares c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui reghdfe log_pib_agro dq10red2_fao c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est3 stored)
+
+. 
+. eststo: qui reghdfe log_pib_agro dq10red2_sh c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est4 stored)
+
+. 
+. eststo: qui reghdfe log_pib_agro dq25red2_fao c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est5 stored)
+
+. 
+. eststo: qui reghdfe log_pib_agro dq25red2_sh c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est6 stored)
+
+. 
+. 
+. esttab, se ar2 keep(log_fao log_pqshares dq10red2_fao dq10red2_sh dq25red2_fao dq25red2_sh) compress
+
+----------------------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)          (6)   
+           log_pib~o    log_pib~o    log_pib~o    log_pib~o    log_pib~o    log_pib~o   
+----------------------------------------------------------------------------------------
+log_fao        0.415***                                                                 
+            (0.0321)                                                                    
+
+log_pqsh~s                  0.151***                                                    
+                         (0.0153)                                                       
+
+dq10red2~o                              0.0495***                                       
+                                     (0.00509)                                          
+
+dq10red2~h                                           0.0454***                          
+                                                  (0.00514)                             
+
+dq25red2~o                                                        0.0402***             
+                                                               (0.00380)                
+
+dq25red2~h                                                                     0.0430***
+                                                                            (0.00397)   
+----------------------------------------------------------------------------------------
+N              87976        87471        87976        87976        87976        87976   
+adj. R-sq      0.940        0.935        0.940        0.940        0.940        0.940   
+----------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. 
+. 
+. eststo clear
+
+. 
+. eststo: qui reghdfe log_pib_indust log_fao c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui reghdfe log_pib_indust log_pqshares c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui reghdfe log_pib_indust dq10red2_fao c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est3 stored)
+
+. 
+. eststo: qui reghdfe log_pib_indust dq10red2_sh c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est4 stored)
+
+. 
+. eststo: qui reghdfe log_pib_indust dq25red2_fao c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est5 stored)
+
+. 
+. eststo: qui reghdfe log_pib_indust dq25red2_sh c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est6 stored)
+
+. 
+. 
+. esttab, se ar2 keep(log_fao log_pqshares dq10red2_fao dq10red2_sh dq25red2_fao dq25red2_sh) compress
+
+----------------------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)          (6)   
+           log_pi~st    log_pi~st    log_pi~st    log_pi~st    log_pi~st    log_pi~st   
+----------------------------------------------------------------------------------------
+log_fao        0.273***                                                                 
+            (0.0450)                                                                    
+
+log_pqsh~s                 0.0490*                                                      
+                         (0.0208)                                                       
+
+dq10red2~o                              0.0336***                                       
+                                     (0.00693)                                          
+
+dq10red2~h                                           0.0147*                            
+                                                  (0.00687)                             
+
+dq25red2~o                                                        0.0291***             
+                                                               (0.00534)                
+
+dq25red2~h                                                                     0.0128*  
+                                                                            (0.00511)   
+----------------------------------------------------------------------------------------
+N              87959        87431        87959        87959        87959        87959   
+adj. R-sq      0.909        0.908        0.909        0.909        0.909        0.909   
+----------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. 
+. 
+. eststo clear
+
+. 
+. eststo: qui reghdfe log_pib_serv log_fao c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est1 stored)
+
+. 
+. eststo: qui reghdfe log_pib_serv log_pqshares c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est2 stored)
+
+. 
+. eststo: qui reghdfe log_pib_serv dq10red2_fao c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est3 stored)
+
+. 
+. eststo: qui reghdfe log_pib_serv dq10red2_sh c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est4 stored)
+
+. 
+. eststo: qui reghdfe log_pib_serv dq25red2_fao c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est5 stored)
+
+. 
+. eststo: qui reghdfe log_pib_serv dq25red2_sh c.dist_state#i.year c.dist_federal#i.year ///
+> c.geo_area_2010#i.year c.latitude#i.year c.longitude#i.year c.altitude#i.year ///
+> c.capital_dummy#i.year, absorb (cod year) vce(cluster cod)
+(est6 stored)
+
+. 
+. 
+. esttab, se ar2 keep(log_fao log_pqshares dq10red2_fao dq10red2_sh dq25red2_fao dq25red2_sh) compress
+
+----------------------------------------------------------------------------------------
+                 (1)          (2)          (3)          (4)          (5)          (6)   
+           log_pib~v    log_pib~v    log_pib~v    log_pib~v    log_pib~v    log_pib~v   
+----------------------------------------------------------------------------------------
+log_fao       0.0434**                                                                  
+            (0.0132)                                                                    
+
+log_pqsh~s                 0.0226***                                                    
+                        (0.00557)                                                       
+
+dq10red2~o                             0.00525**                                        
+                                     (0.00203)                                          
+
+dq10red2~h                                          0.00106                             
+                                                  (0.00187)                             
+
+dq25red2~o                                                       0.00614***             
+                                                               (0.00153)                
+
+dq25red2~h                                                                    0.00358*  
+                                                                            (0.00146)   
+----------------------------------------------------------------------------------------
+N              88000        87472        88000        88000        88000        88000   
+adj. R-sq      0.957        0.956        0.957        0.957        0.957        0.957   
+----------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. log close
+      name:  <unnamed>
+       log:  C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\fao_pib.log
+  log type:  text
+ closed on:  28 Oct 2020, 20:25:58
+-------------------------------------------------------------------------------------------------------------------------

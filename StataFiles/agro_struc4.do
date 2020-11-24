@@ -3,47 +3,48 @@ clear all
 set more off,permanently
 
 
-use "C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\agro_struc4.dta"
+use "C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\agrostruc_pres2.dta"
 
-log using "C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\agro_struc4.log"
+*log using "C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\agro_struc4.log"
 
 
 **** Preparing Data
-
-drop year_y
-rename year_x year
-drop pop_dens
-drop pesotot_y
-rename pesotot_x pesotot
+rename municip_x_x_x_x_x_x municip
+rename gini_land_x gini_land
+drop if year ==1995
 gsort +cod +year
 
-gen pop_dens = pesotot/geo_area_2010
 
+
+* controls
+gen log_income_1991 = log(income_1991)
+gen log_popdens_1991 = log(pop_dens_1991)
+gen agr_sh_1991 = pesorur_1991/pesotot_1991
+
+* anothers
 gen log_area = log(geo_area_2010)
+
+* Measures *DO NOT PASS LOGS
+
+
+* Outcomes
 gen log_linten = log(l_inten)
-gen log_dens = log(pop_dens)
-gen log_agrival = log(val_outpw)
-
-gen log_rdpc = log(RDPC)
-gen rur_share = pesoRUR/POP
-
-gen log_fao = log(sum_fao)
-gen log_shares = log(pq_shares)
+gen log_valpw = log(val_outpw)
 
 
-gen rural_sh_c = rur_share[_n-2] if year == 2017
+gen ineq_shares = gini_land * pq_sum
+gen ineq_fao = gini_land * sum_fao
 
-gen pop_dens_c = log_dens[_n-2] if year == 2017
 
-gen rdpc_c = log_rdpc[_n-2] if year == 2017
+******************* Differences ***************************
 
-*xtset cod year
+* Measures
+gen dfao  = sum_fao - sum_fao[_n-1] if year == 2017 & cod == cod[_n-1]
+gen dshares  = pq_sum  - pq_sum[_n-1] if year == 2017 & cod == cod[_n-1]
 
-* Generating differences
+* Outcomes
 gen dlog_linten = log_linten - log_linten[_n-1] if year == 2017 & cod == cod[_n-1]
-gen dlog_dens = log_dens - log_dens[_n-1] if year == 2017 & cod == cod[_n-1]
-gen dlog_agrival = log_agrival - log_agrival[_n-1] if year == 2017 & cod == cod[_n-1]
-
+gen dlog_valpw = log_valpw - log_valpw[_n-1] if year == 2017 & cod == cod[_n-1]
 
 gen dnf_tract = nf_tract - nf_tract[_n-1] if year == 2017 & cod == cod[_n-1]
 gen dn_tract = n_tract - n_tract[_n-1] if year == 2017 & cod == cod[_n-1]
@@ -51,24 +52,83 @@ gen dn_maq = n_maq - n_maq[_n-1] if year == 2017 & cod == cod[_n-1]
 
 
 
+* Land Inequality
+gen dgini_land = gini_land - gini_land[_n-1] if year == 2017 & cod == cod[_n-1]
 
-/* Generating first differences: attention 1995(census) == 2000(bartik)
-2015 (bartik) == 2017 (census)
-2006 == 2006
-*/
 
-* _1 == 2006 - 1995 (2000 in bartik) in measures
-gen dlog_fao_1 = log_fao[_n-1] - log_fao[_n-2] if year == 2017 & cod == cod[_n-1]
-gen dlog_shares_1 = log_shares[_n-1] - log_shares[_n-2] if year == 2017 & cod == cod[_n-1]
-
-* _1 == 2017(2015) - 2006 (2000 in bartik) in measures
-gen dlog_fao_2 = log_fao - log_fao[_n-1] if year == 2017 & cod == cod[_n-1]
-gen dlog_shares_2 = log_shares - log_shares[_n-1] if year == 2017 & cod == cod[_n-1]
+* Interactions
+gen dineq_shares = ineq_shares - ineq_shares[_n-1] if year == 2017 & cod == cod[_n-1]
+gen dineq_fao = ineq_fao - ineq_fao[_n-1] if year == 2017 & cod == cod[_n-1]
 
 
 
 
 **********************************************************************************************
+
+
+eststo clear
+eststo: qui ivreg2 dlog_linten log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares = dfao dineq_fao), cluster(cod) ffirst savefirst
+
+
+eststo: estimates restore _ivreg2_dshares
+eststo: estimates restore _ivreg2_dineq_shares
+
+esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares dineq_shares dineq_fao) compress
+
+
+
+
+
+eststo clear
+eststo: qui ivreg2 dlog_valpw log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares = dfao dineq_fao), cluster(cod) ffirst savefirst
+
+
+eststo: estimates restore _ivreg2_dshares
+eststo: estimates restore _ivreg2_dineq_shares
+
+esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares dineq_shares dineq_fao) compress
+
+
+
+
+eststo clear
+eststo: qui ivreg2 dnf_tract log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares = dfao dineq_fao), cluster(cod) ffirst savefirst
+
+
+eststo: estimates restore _ivreg2_dshares
+eststo: estimates restore _ivreg2_dineq_shares
+
+esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares dineq_shares dineq_fao) compress
+
+
+
+
+eststo clear
+eststo: qui ivreg2 dn_tract log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares = dfao dineq_fao), cluster(cod) ffirst savefirst
+
+
+eststo: estimates restore _ivreg2_dshares
+eststo: estimates restore _ivreg2_dineq_shares
+
+esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares dineq_shares dineq_fao) compress
+
+
+
+eststo clear
+eststo: qui ivreg2 dn_maq log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares = dfao dineq_fao), cluster(cod) ffirst savefirst
+
+
+eststo: estimates restore _ivreg2_dshares
+eststo: estimates restore _ivreg2_dineq_shares
+
+esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares dineq_shares dineq_fao) compress
+
+
+
+
+
+
+***********************************************************************************************
 eststo clear	
 eststo: qui reg dlog_agrival dlog_fao_1, robust
 

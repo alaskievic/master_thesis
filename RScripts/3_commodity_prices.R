@@ -297,6 +297,10 @@ save(cpi_prices_2010, file ="C:/Users/Andrei/Desktop/Dissertation/Dados/master_t
 
 # Plot the deflated prices in US$ with 2010=100
 # final graph
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/prices_real_bartik_2010.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/prices_nominal_bartik.Rdata")
+
+
 graph_aux2 <- cpi_prices_2010 %>% dplyr::select(-c("Coffee Robust", "Rice A1",
                                                "Wheat H", "Sorghum", "Rubber")) %>%
   rename(Wheat = "Wheat S", Coffee = "Coffee Arabic", Rice = "Rice 05")
@@ -312,13 +316,12 @@ graph_7 <- ggplot(prices_graph2, aes(x=Years)) +
   geom_point(data = prices_graph2, aes(x=Years, y=Index, color=Commodity), size=2)+
   labs(x = "Year", y="Price Index (1990=100)") +
   scale_x_discrete(breaks = c("1990", "1995", "2000", "2005", "2010", "2015")) +
-  ggtitle("Individual Commodity Prices") + 
-  theme_bw()
+  ggtitle("Individual Commodity Prices (2010$)") + 
+  theme_bw(base_size = 13)
 
 graph_7
 
 ggsave(filename = "com_prices.eps", plot = graph_7, path = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures")
-
 ggsave(filename = "com_prices.png", plot = graph_7, path = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures")
 
 

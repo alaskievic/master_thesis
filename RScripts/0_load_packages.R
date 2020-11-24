@@ -17,7 +17,7 @@ list.of.packages <- c("rgdal", "sf", "ggplot2", "data.table", "tidyverse", "read
                       "viridis", "readstata13", "lubridate", "plm", "haven", "RColorBrewer",
                       "ineq", "writexl", "xlsx", "foreign", "knitr", "stargazer", "glue",
                       "zoo", "stringi", "magick", "devtools", "Rdpack", "installr", "magrittr", 
-                      "janitor")
+                      "janitor", "ggpmisc")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages, type = "source", dependencies = TRUE)
 
@@ -58,6 +58,8 @@ library(devtools)
 library(installr)
 library(magrittr)
 library(janitor)
+library(ggpmisc)
+
 
 #Updates R
 

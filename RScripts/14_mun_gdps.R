@@ -175,10 +175,14 @@ municip_pib_real <- mutate_all(municip_pib[4:7], deflate) %>%
 municip_pib_real <- municip_pib_real %>% mutate(cod = as.integer(cod)) %>%
   mutate(year = as.integer(year))
 
+municip_pib_real <- municip_pib_real %>% filter(year >= 2000 & year <= 2015)
+
+save(municip_pib_real, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/municip_pib_real.Rdata")
+
+
 # Adding population
 load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/pop_sidra.Rdata")
 
-municip_pib_real <- municip_pib_real %>% filter(year >= 2000 & year <= 2015)
 
 municip_pib_final <- inner_join(municip_pib_real, dplyr::select(pop_sidra, -"municip"), by = c("cod", "year"))
 

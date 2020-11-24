@@ -49,7 +49,7 @@ map_land_1995 <- tm_shape(shp_ibge_gini_1995) +
             legend.height=1.0, #capped?
             frame = FALSE) +
   tm_compass(position = c("right", "bottom")) +
-  tm_scale_bar(position = c("right", "bottom")) 
+  tm_scale_bar(position = c("right", "bottom"), text.size = 1) 
 
 map_land_1995
 

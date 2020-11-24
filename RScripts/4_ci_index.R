@@ -16,9 +16,6 @@ load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/quantities_1995_b
 # Subset prices to 2000 forward
 prices <- cpi_prices_2010 %>% filter(Years >= 2000)
 
-#Formatting Years
-#prices <- prices %>% transform(Years = as.Date(Years, format = "%Y")) %>%
-  #as_tibble()
 
 # Sum up the two types of cotton
 quantities_cotton_sum <- mutate(quantities_1995, cotton = rowSums(dplyr::select(quantities_1995, cotton_1, cotton_2))) %>%
@@ -1079,11 +1076,11 @@ pq_final_shares_log <- pq_aux %>% mutate(sum_pq = dplyr::select(., banana:yerbam
   dplyr::select(municip, year, sum_pq)
 
 
-pq_final_shares_wider_log <- pq_final_shares %>% pivot_wider(names_from = "year", values_from = "sum_pq", names_repair = "minimal") %>%
+pq_final_shares_wider_log <- pq_final_shares_log  %>% pivot_wider(names_from = "year", values_from = "sum_pq", names_repair = "minimal") %>%
   add_column(cod = shares_1995$cod, .before = "municip") %>%
   arrange(cod)
 
-
+pq_final_shares_log <- pq_final_shares_wider_log %>% pivot_longer(-c("cod", "municip"), names_to = "year", values_to = "pq_sum")
 
 #Saving
 save(pq_final_shares_log, 

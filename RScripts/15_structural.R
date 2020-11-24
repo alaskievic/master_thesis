@@ -43,8 +43,6 @@ tab_321 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípi
 
 
 
-
-
 # Cleaning and merging
 
 tab_338 %<>% set_names(c("cod", "municip", "x", "val_pec")) %>%
@@ -78,6 +76,9 @@ agriprod_1995 <- Reduce(inner_join, list(tab_338, tab_500,
 agriprod_1995[is.na(agriprod_1995)] = 0
 
 agriprod_1995 %<>% mutate(totval = rowSums(.[3:8]))
+
+# Putting in mil reais
+agriprod_1995 %<>% mutate(totval = totval/1000)
 
 
 tab_314 %<>% set_names(c("cod", "municip", "x", "total_area")) %>%
@@ -485,6 +486,9 @@ aux_2017_def <- aux_2017 %>% mutate(totval = totval/(ipca_2017$Index_2/100)) %>%
 
 agro_struc <- bind_rows(aux_1995, aux_2006)
 agro_struc <- bind_rows(agro_struc, aux_2017)
+
+save(agro_struc, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/agro_struc.Rdata")
+
 
 ####### Joining with controls and Bartik
 

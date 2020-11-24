@@ -362,11 +362,16 @@ save(fao_final, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis
 ##########################################################################################
 
 # Baseline for most things
-
 load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/controls_baseline.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/fao_final.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/pq_shares_log.Rdata")
+
+pq_final_shares_log %<>% mutate(cod = as.integer(cod)) %>% mutate(year = as.integer(year))
+
 
 baseline <- inner_join(fao_final, controls_baseline, by = "cod")
 
+baseline <- inner_join(baseline, pq_final_shares_log, by = c("cod", "year"))
 
 
 # Load land gini
@@ -382,34 +387,9 @@ save(baseline_gini, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_th
 
 
 
-############################################################################################
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/rev_final.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/pq_bartik_final.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/controls.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/exp_real_long.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/pop_sidra.Rdata")
 
 
-rev_final <- rev_final %>% mutate(cod = as.integer(cod), year = as.integer(year)) %>% arrange(cod)
-exp_real_long <- exp_real_long %>% mutate(cod = as.integer(cod), year = as.integer(year)) %>% arrange(cod)
-
-fao_rev <- inner_join(fao_final, rev_final, by = c("cod", "year"))
-
-fao_rev <- inner_join(fao_rev, pq_bartik_final, by = c("cod", "year"))
-
-fao_rev <- inner_join(fao_rev, controls, by = "cod")
-
-fao_rev <- inner_join(fao_rev, exp_real_long, by = c("cod", "year"))
-
-fao_rev <- inner_join(fao_rev, pop_sidra, by = c("cod", "year"))
-
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
-
-write.dta(fao_rev, "fao_rev.dta")
-
-
-
-########
+#########################################################################################################
 
 tmp2 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/municip_pib_final.dta")
 

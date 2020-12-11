@@ -1,5 +1,5 @@
 # Set Working Directory
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
 
 #Load packaages
 source("./0_load_packages.R")
@@ -11,34 +11,34 @@ source("./0_load_packages.R")
 
 # Value of production
 
-tab_338 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/1995/total_prod/tabela338.xlsx", 
+tab_338 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/1995/total_prod/tabela338.xlsx", 
                                skip = 4, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_500 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/1995/total_prod/tabela500.xlsx", 
+tab_500 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/1995/total_prod/tabela500.xlsx", 
                      skip = 4, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_513 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/1995/total_prod/tabela513.xlsx", 
+tab_513 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/1995/total_prod/tabela513.xlsx", 
                      skip = 4, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_527 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/1995/total_prod/tabela527.xlsx", 
+tab_527 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/1995/total_prod/tabela527.xlsx", 
                      skip = 4, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_534 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/1995/total_prod/tabela534.xlsx", 
+tab_534 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/1995/total_prod/tabela534.xlsx", 
                       skip = 4, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_551 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/1995/total_prod/tabela551.xlsx", 
+tab_551 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/1995/total_prod/tabela551.xlsx", 
                       skip = 4, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
 # Total Area
 
-tab_314 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/1995/total_area/tabela314.xlsx", 
+tab_314 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/1995/total_area/tabela314.xlsx", 
                       skip = 4, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
 # Number of Workers
 
-tab_321 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/1995/n_workers/tabela321.xlsx", 
+tab_321 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/1995/n_workers/tabela321.xlsx", 
                       skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
@@ -106,55 +106,55 @@ agri_1995 %<>% add_column(year = rep("1995", length(agri_1995$cod)), .before = "
 
 # Value of production
 
-tab_782 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2006/total_prod/tabela782.xlsx", 
+tab_782 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/total_prod/tabela782.xlsx", 
                       skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_815 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2006/total_prod/tabela815.xlsx", 
+tab_815 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/total_prod/tabela815.xlsx", 
                       skip = 6, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_816 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2006/total_prod/tabela816.xlsx", 
+tab_816 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/total_prod/tabela816.xlsx", 
                       skip = 6, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_818 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2006/total_prod/tabela818.xlsx", 
+tab_818 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/total_prod/tabela818.xlsx", 
                       skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_937 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2006/total_prod/tabela937.xlsx", 
+tab_937 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/total_prod/tabela937.xlsx", 
                       skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_943 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2006/total_prod/tabela943.xlsx", 
+tab_943 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/total_prod/tabela943.xlsx", 
                       skip = 6, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_1177 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2006/total_prod/tabela1177.xlsx", 
+tab_1177 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/total_prod/tabela1177.xlsx", 
                       skip = 6, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_1178 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2006/total_prod/tabela1178.xlsx", 
+tab_1178 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/total_prod/tabela1178.xlsx", 
                       skip = 6, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_1823 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2006/total_prod/tabela1823.xlsx", 
+tab_1823 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/total_prod/tabela1823.xlsx", 
                       skip = 4, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
 # Total Area
 
-tab_787 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2006/total_area/tabela787.xlsx", 
+tab_787 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/total_area/tabela787.xlsx", 
                       skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
 # Number of Workers
 
-tab_956 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2006/n_workers/tabela956.xlsx", 
+tab_956 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/n_workers/tabela956.xlsx", 
                       skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
 # Number of Tractors and Machines
 
-tab_860_a <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2006/machines/tabela860.xlsx", 
+tab_860_a <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/machines/tabela860.xlsx", 
                       skip = 6, sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_860_b <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2006/machines/tabela860.xlsx", 
+tab_860_b <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/machines/tabela860.xlsx", 
                         skip = 6, sheet = 2, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_861 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2006/machines/tabela861.xlsx", 
+tab_861 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/machines/tabela861.xlsx", 
                       skip = 6, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
@@ -262,16 +262,16 @@ agri_2006 <- inner_join(agri_2006, dplyr::select(tab_861, -"municip"), by = "cod
 
 # Value of production
 
-tab_6910_a <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/total_prod/tabela6910.xlsx", 
+tab_6910_a <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/total_prod/tabela6910.xlsx", 
                       skip = 5, sheet = "Tabela 1", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_6910_b <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/total_prod/tabela6910.xlsx", 
+tab_6910_b <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/total_prod/tabela6910.xlsx", 
                        skip = 5, sheet = "Tabela 2", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_6910_c <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/total_prod/tabela6910.xlsx", 
+tab_6910_c <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/total_prod/tabela6910.xlsx", 
                        skip = 5, sheet = "Tabela 3", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_6910_d <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/total_prod/tabela6910.xlsx", 
+tab_6910_d <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/total_prod/tabela6910.xlsx", 
                        skip = 5, sheet = "Tabela 4", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
@@ -288,13 +288,13 @@ tab_6910 %<>% mutate(val_bov = Total.x + Total.y + Total.x.x + Total.y.y) %>%
 
 
 
-tab_6927 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/total_prod/tabela6927.xlsx", 
+tab_6927 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/total_prod/tabela6927.xlsx", 
                          skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_6940_a <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/total_prod/tabela6940.xlsx", 
+tab_6940_a <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/total_prod/tabela6940.xlsx", 
                        skip = 5, sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_6940_b <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/total_prod/tabela6940.xlsx", 
+tab_6940_b <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/total_prod/tabela6940.xlsx", 
                          skip = 5, sheet = 2, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 tab_6940 <- inner_join(tab_6940_a, tab_6940_b, by = "...1")
@@ -306,44 +306,44 @@ tab_6940 %<>% mutate(val_aves = Total.x + Total.y) %>%
 
 
 
-tab_6947 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/total_prod/tabela6947.xlsx", 
+tab_6947 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/total_prod/tabela6947.xlsx", 
                        skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_6949 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/total_prod/tabela6949.xlsx", 
+tab_6949 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/total_prod/tabela6949.xlsx", 
                        skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_6953 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/total_prod/tabela6953.xlsx", 
+tab_6953 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/total_prod/tabela6953.xlsx", 
                        skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_6955 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/total_prod/tabela6955.xlsx", 
+tab_6955 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/total_prod/tabela6955.xlsx", 
                        skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_6957 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/total_prod/tabela6957.xlsx", 
+tab_6957 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/total_prod/tabela6957.xlsx", 
                        skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
 
 # Total Area
 
-tab_6878 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/total_area/tabela6878.xlsx", 
+tab_6878 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/total_area/tabela6878.xlsx", 
                       skip = 6, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
 # Number of Workers
 
-tab_6889 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/n_workers/tabela6889.xlsx", 
+tab_6889 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/n_workers/tabela6889.xlsx", 
                       skip = 6, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
 # Number of Tractors and Machines
 
-tab_6869_a <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/machines/tabela6869.xlsx", 
+tab_6869_a <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/machines/tabela6869.xlsx", 
                         skip = 5, sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_6869_b <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/machines/tabela6869.xlsx", 
+tab_6869_b <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/machines/tabela6869.xlsx", 
                         skip = 5, sheet = 2, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-tab_6872 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Agro/2017/machines/tabela6872.xlsx", 
+tab_6872 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/machines/tabela6872.xlsx", 
                       skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
@@ -443,9 +443,6 @@ agri_2017 <- inner_join(agri_2017, dplyr::select(tab_6872, -"municip"), by = "co
 
 
 
-
-
-
 #### Putting it all together in long format
 
 aux_1995 <- dplyr::select(agri_1995, c("cod", "year", "municip", "totval", "n_workers", 
@@ -466,7 +463,7 @@ aux_2017 <- dplyr::select(agri_2017, c("cod", "year", "municip", "totval", "n_wo
 
 ### Deflating
 
-ipca <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Prices/ipca_anual.xls", 
+ipca <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/ipca_anual.xls", 
                    sheet = "Séries", col_names = TRUE, na = "")
 
 ipca_1995 <- ipca %>% filter(Date == 1995)
@@ -487,17 +484,137 @@ aux_2017_def <- aux_2017 %>% mutate(totval = totval/(ipca_2017$Index_2/100)) %>%
 agro_struc <- bind_rows(aux_1995, aux_2006)
 agro_struc <- bind_rows(agro_struc, aux_2017)
 
-save(agro_struc, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/agro_struc.Rdata")
+save(agro_struc, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/agro_struc.Rdata")
 
+
+
+
+##### Joining data for group areas and use of fertilizers ######################
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/agro_struc.Rdata")
+
+## 2006
+
+
+# Read data
+
+
+group_2006 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/area_group/area_grupo_2006.xlsx", 
+                         skip = 4, sheet = 2, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+adubo_tipo_2006 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/fertilizer/adubo_tipo_2006.xlsx", 
+                              skip = 5, sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+agrotox_2006 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/fertilizer/agrotox_2006.xlsx", 
+                              skip = 4, sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+agrotox_equip_2006 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/fertilizer/agrotox_equip_2006.xlsx", 
+                              skip = 5, sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+# Cleaning
+
+group_2006 %<>% set_names(c("cod", "municip", "x", "total_area", "temp", "hort", "perm", "sement", 
+                            "pecu", "flor1", "flor2", "pesca", "aqui")) %>%
+  slice(-5571) %>% dplyr::select(- c("x", "municip")) %>% mutate(cod = as.integer(cod))
+
+group_2006[is.na(group_2006)] = 0
+
+# Por enquanto vamos usar apenas a área usada, já esá no dataset anterior
+
+
+adubo_tipo_2006 %<>% set_names(c("cod", "municip", "x", "y", "total_adubo", "adubo_yes", "quimn",
+                                 "quimnn", "esterco", "verde", "vin", "humus", "bio", "inoc", 
+                                 "compost", "outros", "nus", "adubo_n")) %>%
+  slice(-5571) %>% dplyr::select(- c("x", "y", "municip")) %>% mutate(cod = as.integer(cod))
+
+adubo_tipo_2006[is.na(adubo_tipo_2006)] = 0
+
+# We have a problem here withe the shares in each type
+adubo_tipo_2006 %<>% mutate(shares_adubo = ((adubo_yes + nus)/total_adubo), 
+                            quimio_share = ((quimn + quimnn)/total_adubo),
+                            org_share = ((esterco + verde + vin + humus + bio + inoc + compost + outros)/total_adubo), 
+                            shares_nadubo = adubo_n/total_adubo) %>%
+  dplyr::select(cod, adubo_yes, shares_adubo)
+
+
+agrotox_2006  %<>% set_names(c("cod", "municip", "x", "y", "total_agrotox", "agrotox_yes", "agrotox_n")) %>%
+  slice(-5571) %>% dplyr::select(- c("x", "y", "municip")) %>% mutate(cod = as.integer(cod))
+
+
+agrotox_2006[is.na(agrotox_2006)] = 0
+
+agrotox_2006 %<>% mutate(share_agrotox = agrotox_yes/total_agrotox) %>%
+  dplyr::select(cod, agrotox_yes, share_agrotox)
+
+
+
+## 2017
+
+group_2017 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/area_group/area_grupo_2017.xlsx", 
+                         skip = 5, sheet = 2, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+adubo_tipo_2017 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/fertilizer/adubo_tipo_2017.xlsx", 
+                         skip = 5, sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+agrotox_2017 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/fertilizer/agrotox_2017.xlsx", 
+                           skip = 5, sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+# Cleaning 
+adubo_tipo_2017 %<>% set_names(c("cod", "municip", "x", "y", "z", "total_adubo", "adubo_yes", "quimio",
+                                 "org", "quimiorg", "adubo_n", "a", "b")) %>%
+  slice(-5571) %>% dplyr::select(- c("x", "y", "a", "b", "municip")) %>% mutate(cod = as.integer(cod))
+
+
+adubo_tipo_2017[is.na(adubo_tipo_2017)] = 0
+
+adubo_tipo_2017 %<>% mutate(shares_adubo = adubo_yes/total_adubo) %>%
+  dplyr::select(cod, adubo_yes, shares_adubo)
+
+
+
+
+agrotox_2017  %<>% set_names(c("cod", "municip", "x", "y", "z", "total_agrotox", "agrotox_yes", "agrotox_n")) %>%
+  slice(-5571) %>% dplyr::select(- c("x", "y", "z", "municip")) %>% mutate(cod = as.integer(cod))
+
+agrotox_2017[is.na(agrotox_2017)] = 0
+
+
+agrotox_2017 %<>% mutate(share_agrotox = agrotox_yes/total_agrotox) %>%
+  dplyr::select(cod, agrotox_yes, share_agrotox)
+
+
+# Joining
+
+fertilizer_2006 <- inner_join(adubo_tipo_2006, agrotox_2006, by = "cod") 
+fertilizer_2017 <- inner_join(adubo_tipo_2017, agrotox_2017, by = "cod") 
+
+fertilizer_2006 %<>% mutate(year = 2006)
+fertilizer_2017 %<>% mutate(year = 2017)
+
+fertilizer <- bind_rows(fertilizer_2006, fertilizer_2017)
+
+# Cleaning the agricultural census dataset and adding intensities
+
+agro_struc %<>% mutate(year = as.integer(year))
+
+agro_struc<- full_join(agro_struc, fertilizer, by = (c("cod", "year")))
+
+agro_struc %<>% mutate(ltract_inten = log(n_tract/total_area), lmaq_inten = log(n_maq/total_area))
+
+
+save(agro_struc, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/agro_struc.Rdata")
 
 ####### Joining with controls and Bartik
 
 agro_struc %<>% mutate(year = as.integer(year))
 
 # Adding population
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/pop_sidra.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/pop_sidra.Rdata")
 
-pop_1996 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/Controles/populacao_total.xls", 
+pop_1996 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/IPEA/Controles/populacao_total.xls", 
                         sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 pop_1996 %<>% rename(cod = "Codigo", municip = "Município") %>%
@@ -523,7 +640,7 @@ agro_struc <- inner_join(agro_struc, dplyr::select(pop_aux, -"municip"), by = c(
 
 
 # Adding Controls
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/controls.RData")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/controls.RData")
 
 agro_struc <- inner_join(agro_struc, dplyr::select(controls, -"municip"), by = "cod")
 
@@ -532,7 +649,7 @@ agro_struc %<>% mutate(pop_dens = pesotot/geo_area_2010)
 
 
 # Adding Bartik
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/bartik_final.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/bartik_final.Rdata")
 
 bartik_final_1 <- bartik_final %>% filter(year == 2000| year == 2010 | year == 2015)
 
@@ -547,7 +664,9 @@ bartik_final_2 %<>% mutate(year = ifelse(year == 2000, 1995, year)) %>%
   mutate(year = ifelse(year == 2015, 2017, year))
 
 
-agro_struc_1 <- inner_join(agro_struc, dplyr::select(bartik_final_1, -"municip"),
+
+
+agro_struc_baseline <- inner_join(agro_struc, dplyr::select(bartik_final_1, -"municip"),
                                 by = c("cod", "year"))
 
 agro_struc_2 <- inner_join(agro_struc, dplyr::select(bartik_final_2, -"municip"),
@@ -556,16 +675,17 @@ agro_struc_2 <- inner_join(agro_struc, dplyr::select(bartik_final_2, -"municip")
 
 # Writing to STATA
 
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
 
-write.dta(agro_struc_1, "agro_struc1.dta")
+write.dta(agro_struc_baseline, "agro_struc_baseline.dta")
+
 write.dta(agro_struc_2, "agro_struc2.dta")
 
 
 ######### 2. Check Census for useful data for Structural Transformation ########################################
 
 
-atlas_mun <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Atlas PNUD/atlas2013_dadosbrutos_pt.xlsx",
+atlas_mun <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Atlas PNUD/atlas2013_dadosbrutos_pt.xlsx",
                         sheet = "MUN 91-00-10", col_names = TRUE)
 
 
@@ -585,7 +705,7 @@ pop_struc %<>% mutate(P_AGRO = as.double(P_AGRO)) %>%  mutate(P_SERV = as.double
   mutate(P_TRANSF = as.double(P_TRANSF))
 
 
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/bartik_final.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/bartik_final.Rdata")
 
 bartik_final <- bartik_final %>% filter(year == 2000| year == 2010)
 
@@ -596,7 +716,7 @@ pop_struc_final %<>% rename(municip = "municip.x")
 
 pop_struc_final2 <- bind_rows(pop_struc_final, filter(pop_struc, year==1991))
 
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
 
 write.dta(pop_struc_final, "pop_struc.dta")
 write.dta(pop_struc_final2, "pop_struc_controls.dta")
@@ -607,17 +727,18 @@ write.dta(pop_struc_final2, "pop_struc_controls.dta")
 ##### AGRO STRUC 3 WITH  ######
 
 pop_aux_3 <- filter(atlas_mun, year == 1991) %>% mutate(year = ifelse(year == 1991, 1995, year))
-agro_struc_3 <- inner_join(agro_struc_1, pop_aux_3, by = "cod")
 
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
+agro_struc_3 <- inner_join(agro_struc_baseline, pop_aux_3, by = "cod")
 
-write.dta(agro_struc_3, "agro_struc3.dta")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
+
+write.dta(agro_struc_3, "agro_struc_baseline.dta")
 
 
 
 
 agro_struc_4 <- inner_join(agro_struc_2, pop_aux_3, by = "cod")
 
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
 
 write.dta(agro_struc_4, "agro_struc4.dta")

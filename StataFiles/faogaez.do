@@ -21,7 +21,7 @@ set more off
 ***** FAO-GAEZ dataset
 clear all
 
-use "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/full_fao.dta"
+use "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/full_fao.dta"
 
 *drop if total_quant ==.
 
@@ -48,7 +48,7 @@ twoway scatter banana pr_banana || lfit banana pr_banana
 ********
 
 clear all 
-use "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/fao_pr.dta"
+use "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/fao_pr.dta"
 
 rename pq_orange pr_orange
 rename sugar_cane sugarcane
@@ -70,6 +70,31 @@ foreach v of varlist banana-tea {
 }
 
 
+********* AKM Correction *******************************************************
 
+
+clear all
+
+use "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/fao_akm.dta"
+
+*drop if total_quant ==.
+
+local fao_int banana_int barley_int citrus_int cocoa_int coffee_int cotton_int ///
+			  maize_int rice_int soybean_int sugarcane_int tea_int ///
+			  tobacco_int wheat_int
+			  
+local q_shares banana barley orange cocoa coffee cotton maize rice soybean ///
+			   sugar_cane tea tobacco wheat
+
+
+fmlogit `q_shares' , eta(`fao_int')
+
+
+
+predict pr_banana pr_barley pr_orange pr_cocoa pr_coffee pr_cotton pr_maize ///
+		pr_rice pr_soybean pr_sugarcane pr_tea pr_tobacco pr_wheat
+		
+		
+save "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/full_pr_akm.dta"
 
 

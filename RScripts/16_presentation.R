@@ -1,5 +1,5 @@
 # Set Working Directory
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
 
 #Load packaages
 source("./0_load_packages.R")
@@ -9,7 +9,7 @@ source("./0_load_packages.R")
 ######### 1. Reads data for temperature and rainfall. #############################################################
 
 
-raintemp<- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/Controles/Daniel_raintemp/base_clima_br_1950_2017_13.dta")
+raintemp<- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/IPEA/Controles/Daniel_raintemp/base_clima_br_1950_2017_13.dta")
 
 raintemp %<>% as_tibble() %>% rename(cod2 = "codigo_IBGE") %>%
   dplyr::select(c("cod2", "uf", "ano", "lat", "longit", "v_rain", "v_temp"))
@@ -24,7 +24,7 @@ raintemp %<>% group_by(cod2) %>% mutate(rain = sum(v_rain, na.rm = TRUE)) %>%
 
 
 ## Load previous controls
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/controls.RData")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/controls.RData")
 
 controls %<>% group_by(cod) %>% 
   mutate(rain_sum = sum(rain_primavera + rain_inverno + rain_verao + rain_outono, na.rm = TRUE)) %>% 
@@ -61,9 +61,9 @@ controls_final %<>% dplyr::select(-c("v_rain", "v_temp", "rain", "temp"))
 
 
 #### Addign shares
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/shares_fao_1995.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/shares_fao_1995.Rdata")
 
-fao_pr <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/full_fao.dta")
+fao_pr <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/full_fao.dta")
 
 # select only both shares
 fao_pr %<>% dplyr::select(-c(21:62)) %>% as_tibble() %>% mutate(cod = as.integer(cod))
@@ -73,18 +73,18 @@ controls_baseline <- inner_join(controls_final, fao_pr, by = "cod")
 
 
 ##### Saving
-save(controls_baseline, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/controls_baseline.Rdata")
+save(controls_baseline, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/controls_baseline.Rdata")
 
 
 
 ######### 2. Adding rural and urban population, literacy rate, income and population density in 1991 ###########
 
 # Load again controls
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/controls_baseline.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/controls_baseline.Rdata")
 
 
 # Read Atlas Mun and take the variables
-atlas_1991 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Atlas PNUD/atlas2013_dadosbrutos_pt.xlsx",
+atlas_1991 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Atlas PNUD/atlas2013_dadosbrutos_pt.xlsx",
                         sheet = "MUN 91-00-10", col_names = TRUE)
 
 
@@ -101,7 +101,7 @@ atlas_1991 %<>% rename(year = "ANO", cod = "Codmun7", municip = "Município",
 
 
 ### Filter for year 1991
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/baseline_gini.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/baseline_gini.Rdata")
 
 atlas_1991 %<>% filter(year == 1991 ) %>% dplyr::select(-"year")
 
@@ -115,21 +115,21 @@ baseline_full <- inner_join(baseline_gini, atlas_1991, by = "cod")
 baseline_full %<>% mutate(pop_dens_1991 = pesotot_1991/geo_area_2000)
 
 
-save(baseline_full, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/baseline_full.Rdata")
-save(controls_baseline, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/controls_baseline.Rdata")
+save(baseline_full, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/baseline_full.Rdata")
+save(controls_baseline, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/controls_baseline.Rdata")
 
 
 
 # Load population
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/pop_sidra.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/baseline_full.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/pop_sidra.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/baseline_full.Rdata")
 
 baseline_full <- inner_join(baseline_full, pop_sidra, by = c("cod", "year"))
-save(baseline_full, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/baseline_full.Rdata")
+save(baseline_full, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/baseline_full.Rdata")
 
 
 ## Assigning land inequality
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/land_gini.RData")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/land_gini.RData")
 
 aux_land1 <- land_gini %>% mutate(year = ifelse(year == 1995, 2000, year)) %>%
   mutate(year = ifelse(year == 2006, 2010, year)) %>% filter(year != 2017) %>%
@@ -140,20 +140,20 @@ aux_land2 <- land_gini %>% mutate(year = ifelse(year == 2006, 2000, year)) %>%
   mutate(year = ifelse(year == 2017, 2010, year)) %>% filter(year != 1995) %>%
   rename(gini_land2 = "gini_land")
 
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/baseline_full.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/baseline_full.Rdata")
 
 baseline_full<- full_join(baseline_full, aux_land1, by = c("cod", "year"))
 baseline_full <- full_join(baseline_full, aux_land2, by = c("cod", "year"))
 
-save(baseline_full, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/baseline_full.Rdata")
+save(baseline_full, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/baseline_full.Rdata")
 
 
 
 ######### 3. Constructing revenues and expenditures dataset ##################################################
 
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/baseline_full.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/exp_real_long.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/rev_final.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/baseline_full.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/exp_real_long.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/rev_final.Rdata")
 
 rev_final <- rev_final %>% mutate(cod = as.integer(cod), year = as.integer(year)) %>% arrange(cod)
 exp_real_long <- exp_real_long %>% mutate(cod = as.integer(cod), year = as.integer(year)) %>% arrange(cod)
@@ -164,32 +164,33 @@ pres_fin <- inner_join(baseline_full, rev_final, by = c("cod", "year"))
 pres_fin <- inner_join(pres_fin, exp_real_long, by = c("cod", "year"))
 
 # Saving
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
 
 write.dta(pres_fin, "pres_fin.dta")
 
 
 ######### 4. Constructing municipalities GDP dataset ##################################################
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/municip_pib_real.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/baseline_full.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/municip_pib_real.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/baseline_full.Rdata")
 
 pres_pib <- inner_join(baseline_full, municip_pib_real, by = c("cod", "year"))
 
 
 # Saving
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
 
 write.dta(pres_pib , "pres_pib .dta")
 
 
-######### 5. Constructing censo pop structural transformation dataset ##################################################
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/baseline_full.Rdata")
+######### 5. Constructing censo pop structural transformation dataset ##########
+
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/baseline_full.Rdata")
 
 
-### Getting employment shares ans wages #####################################################################
+### Getting employment shares ans wages
 
 ## 2000
-wages_2000 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Demo/2000/Wages/wages_2000.xlsx", 
+wages_2000 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/2000/Wages/wages_2000.xlsx", 
                       skip = 4, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 colnames(wages_2000) <- c("cod", "municip", "sector", "wage")
@@ -222,7 +223,7 @@ wages_2000 %<>% rename(w_trans = "indust_trans") %>%
 wages_2000 %<>% mutate(year = 2000)
 
 # Deflating
-ipca <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Prices/ipca_anual.xls", 
+ipca <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/ipca_anual.xls", 
                    sheet = "Séries", col_names = TRUE, na = "")
 
 ipca_2000 <- ipca %>% filter(Date == 2000)
@@ -235,7 +236,7 @@ wages_2000_real <- wages_2000 %>% mutate_at(c("agro", "pesca", "indust_ex",
 wages_2000_real %<>% dplyr::select(-"pesca")
 
 ## 2010
-wages_2010 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Censo Demo/2010/Wages/wages_2010.xlsx", 
+wages_2010 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/2010/Wages/wages_2010.xlsx", 
                          skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 colnames(wages_2010) <- c("cod", "municip", "sector", "wage")
@@ -274,7 +275,7 @@ sector_wages <- bind_rows(wages_2000_real, wages_2010)
 
 
 ## Now getting employment shares from PNUD
-atlas_shares <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Atlas PNUD/atlas2013_dadosbrutos_pt.xlsx",
+atlas_shares <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Atlas PNUD/atlas2013_dadosbrutos_pt.xlsx",
                         sheet = "MUN 91-00-10", col_names = TRUE)
 
 
@@ -304,15 +305,15 @@ popstruc_pres <- inner_join(sector_wages, atlas_shares, by = c("cod", "year"))
 popstruc_pres <- inner_join(popstruc_pres, baseline_full, by = c("cod", "year"))
 
 # Saving
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
 write.dta(popstruc_pres, "popstruc_pres.dta")
 
 
 
 ######### 6. Constructing censo agro structural transformation dataset ##################################################
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/baseline_full.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/agro_struc.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/land_gini.RData")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/baseline_full.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/agro_struc.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/land_gini.RData")
 
 agro_struc %<>% mutate(cod = as.integer(cod)) %>% mutate(year = as.integer(year))
 
@@ -332,22 +333,22 @@ baseline_full_2 %<>% mutate(year = ifelse(year == 2000, 1995, year)) %>%
   mutate(year = ifelse(year == 2015, 2017, year))
 
 
-agrostruc_pres1 <- full_join(agro_struc, baseline_full_1 , by = c("cod", "year"))
+agrostruc_baseline <- full_join(agro_struc, baseline_full_1 , by = c("cod", "year"))
 
 agrostruc_pres2 <- full_join(agro_struc, baseline_full_2, by = c("cod", "year"))
 
 
 
 # Saving
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
-write.dta(agrostruc_pres1, "agrostruc_pres1.dta")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
+write.dta(agrostruc_baseline, "agrostruc_baseline.dta")
 write.dta(agrostruc_pres2, "agrostruc_pres2.dta")
 
 
-######### 7.ITR Agreement ##################################################
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/itr_conv_final.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/baseline_full.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/land_gini.RData")
+######### 7.ITR Agreement ######################################################
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/itr_conv_final.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/baseline_full.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/land_gini.RData")
 
 
 baseline_full %<>% filter(year==2000 | year==2010| year==2015)
@@ -371,13 +372,13 @@ itr_pres <- inner_join(itr_pres, baseline_full, by = "cod")
 
 itr_pres <- inner_join(itr_pres, gini_itr, by = "cod")
 
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
 write.dta(itr_pres, "itr_pres.dta")
 
 
-######### 8. Some Graphs ##################################################
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/agro_struc.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/land_gini.RData")
+######### 8. Some Graphs #######################################################
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/agro_struc.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/land_gini.RData")
 
 agro_struc %<>% mutate(year = as.integer(year))
 
@@ -420,17 +421,17 @@ linten_ineq <- ggplot(aux_graph1, aes(x = gini_land, y = log_linten)) +
 linten_ineq
 
   
-# ggsave(filename = "com_prices.png", plot = graph_7, path = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures")
+# ggsave(filename = "com_prices.png", plot = graph_7, path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
 
 
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
 
 ggsave("agrprod_ineq.png")
 ggsave("linten_ineq.png")
 
 
 
-pop_graph <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/popstruc_pres.dta")
+pop_graph <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/popstruc_pres.dta")
 
 pop_graph %<>% mutate(log_wagro = log(w_agro))
 

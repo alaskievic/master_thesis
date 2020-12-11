@@ -1,5 +1,5 @@
 # Set Working Directory
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
 
 #Load packaages
 source("./0_load_packages.R")
@@ -9,13 +9,13 @@ source("./0_load_packages.R")
 ######### 1. Read and explore FAO-GAEZ dataset ################################################################################################
 
 #Reading all the ASCII grid files
-list_files_low = list.files("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/FAO-GAEZ/ASCII Grid Data/Low",
+list_files_low = list.files("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/FAO-GAEZ/ASCII Grid Data/Low",
                         full.names = TRUE)
 
-list_files_int = list.files("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/FAO-GAEZ/ASCII Grid Data/Intermediate",
+list_files_int = list.files("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/FAO-GAEZ/ASCII Grid Data/Intermediate",
                             full.names = TRUE)
 
-list_files_high = list.files("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/FAO-GAEZ/ASCII Grid Data/High",
+list_files_high = list.files("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/FAO-GAEZ/ASCII Grid Data/High",
                             full.names = TRUE)
 
 low <- map(list_files_low, raster)
@@ -42,7 +42,7 @@ names(high) <- names_high
 
 
 #Reads shapefile for municipalities borders
-shp_ibge <-  readOGR("C:/Users/Andrei/Desktop/Dissertation/Dados/Shapefiles/br_municipios_2019", "BR_Municipios_2019",
+shp_ibge <-  readOGR("C:/Users/Andrei/Desktop/Dissertation/Analysis/Shapefiles/br_municipios_2019", "BR_Municipios_2019",
                      stringsAsFactors = F)
 
 
@@ -72,7 +72,7 @@ high_sum <- high_sum@data %>% as_tibble()
 
 
 #Writing to Stata
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
 
 tmp <- full_join(low_mean, int_mean)
 
@@ -86,12 +86,11 @@ write.dta(fao_mean, "fao_mean.dta")
 
 ###################
 
-fao_mean <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/fao_mean.dta") %>%
+fao_mean <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/fao_mean.dta") %>%
   dplyr::select(-c("oat_low", "oat_int", "oat_high", "rye_low", "rye_int", "rye_high"))
 
 
-
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/shares_fao_1995.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/shares_fao_1995.Rdata")
 
 
 full_fao <- inner_join(shares_fao_1995, fao_mean, by = "cod")
@@ -100,12 +99,14 @@ full_fao <- inner_join(shares_fao_1995, fao_mean, by = "cod")
 write.dta(full_fao, "full_fao.dta")
 
 
-######### 2. Getting back from STATA and constructing the index ####################################################
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/prices_real_bartik_2010.Rdata")
+######### 2. Getting back from STATA and constructing the index ################
+
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/prices_real_bartik_2010.Rdata")
+
 prices <- cpi_prices_2010 %>% filter(Years >= 2000)
 prices[-1] <- log(prices[-1])
 
-fao_pr <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/full_fao.dta")
+fao_pr <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/full_fao.dta")
 
 #banana
 fao_banana <- NULL
@@ -353,18 +354,18 @@ fao_final <- fao_final_index_wider %>% pivot_longer(-c("cod", "municip"), names_
   arrange(cod)
 
 # Saving the dataset
-#write_xlsx(fao_final_index_wider, 'C:/Users/Andrei/Desktop/Dissertation/Dados/fao_final_index_wider.xlsx')
+#write_xlsx(fao_final_index_wider, 'C:/Users/Andrei/Desktop/Dissertation/Analysis/fao_final_index_wider.xlsx')
 
 # Saving
-save(fao_final_index, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/fao_final_index_widerx.Rdata")
-save(fao_final, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/fao_final.Rdata")
+save(fao_final_index, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/fao_final_index_widerx.Rdata")
+save(fao_final, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/fao_final.Rdata")
 
 ##########################################################################################
 
 # Baseline for most things
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/controls_baseline.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/fao_final.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/pq_shares_log.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/controls_baseline.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/fao_final.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/pq_shares_log.Rdata")
 
 pq_final_shares_log %<>% mutate(cod = as.integer(cod)) %>% mutate(year = as.integer(year))
 
@@ -375,14 +376,14 @@ baseline <- inner_join(baseline, pq_final_shares_log, by = c("cod", "year"))
 
 
 # Load land gini
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/land_gini.RData")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/land_gini.RData")
 
 
 land_gini %<>% mutate(year = ifelse(year==1995, 2000, year)) %>%
   mutate(year = ifelse(year==2017, 2015, year))
 
 baseline_gini <- full_join(baseline, land_gini, by = c("cod", "year"))
-save(baseline_gini, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/baseline_gini.Rdata")
+save(baseline_gini, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/baseline_gini.Rdata")
 
 
 
@@ -391,38 +392,38 @@ save(baseline_gini, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_th
 
 #########################################################################################################
 
-tmp2 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/municip_pib_final.dta")
+tmp2 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/municip_pib_final.dta")
 
 fao_pib <- inner_join(fao_final, tmp2, by = c("cod", "year"))
 
 
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
 
 write.dta(fao_pib, "fao_pib.dta")
 
 
 #########
 
-tmp3 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/andrei_tmp.dta")
+tmp3 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/andrei_tmp.dta")
 
 fao_andrei <- inner_join(fao_final, tmp3, by = c("cod", "year"))
 
 
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
 
 write.dta(fao_andrei, "fao_andrei.dta")
 
 ######### Full Bartik
 
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/fao_final.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/fao_final.Rdata")
 
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/pq_bartik_final.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/pq_bartik_final.Rdata")
 
 
 bartik_final <- full_join(fao_final, dplyr::select(pq_bartik_final, -c("municip")), by = c("cod", "year"))
 
 
-save(bartik_final, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/bartik_final.Rdata")
+save(bartik_final, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/bartik_final.Rdata")
 
 
 
@@ -434,8 +435,8 @@ save(bartik_final, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_the
 
 # #Checking
 # #maize and soy
-# maize_low <- raster ("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/FAO-GAEZ/ASCII Grid Data/Low/maize_low.asc")
-# soy_low <- raster ("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/FAO-GAEZ/ASCII Grid Data/Low/soybean_low.asc")
+# maize_low <- raster ("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/FAO-GAEZ/ASCII Grid Data/Low/maize_low.asc")
+# soy_low <- raster ("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/FAO-GAEZ/ASCII Grid Data/Low/soybean_low.asc")
 # 
 # 
 # maize_low[is.na(maize_low[])] <- 0
@@ -460,8 +461,6 @@ save(bartik_final, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_the
 # teste_soy_2 <- extract(brick(soy_low), shp_ibge, fun = sum, sp = TRUE)
 # 
 # teste_soy_2 <- teste_soy_2 %>% as_tibble(teste_soy_2@data)
-
-
 
 
 

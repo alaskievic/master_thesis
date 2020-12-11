@@ -17,7 +17,9 @@ shp_ibge <-  readOGR("C:/Users/Andrei/Desktop/Dissertation/Dados/Shapefiles/br_m
 # Reads shapefiles for state borders
 shp_ufs <- readOGR("C:/Users/Andrei/Desktop/Dissertation/Dados/Shapefiles/uf_2019", "BR_UF_2019", stringsAsFactors = F)
 
-# 1995
+
+#### 1995
+
 # Reads from Stata
 stata_agro_1995 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/agro_1995.dta")
 
@@ -46,7 +48,7 @@ map_land_1995 <- tm_shape(shp_ibge_gini_1995) +
   tm_layout(legend.text.size=1.25,
             legend.title.size=1.55,
             legend.position = c("left","bottom"), 
-            legend.height=1.0, #capped?
+            legend.height=1.0, 
             frame = FALSE) +
   tm_compass(position = c("right", "bottom")) +
   tm_scale_bar(position = c("right", "bottom"), text.size = 1) 
@@ -64,6 +66,7 @@ tmap_save(map_land_1995, "C:/Users/Andrei/Desktop/teste.png")
 
 
 ######### 2006
+
 # Reads from Stata
 stata_agro_2006 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/agro_2006.dta")
 
@@ -100,7 +103,9 @@ map_land_2006
 tmap_save(map_land_2006, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_land_2006.png")
 
 
-################## 2017
+######## 2017
+
+
 
 # Reads from Stata
 stata_agro_2017 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/agro_2017.dta")
@@ -134,7 +139,7 @@ map_land_2017 <- tm_shape(shp_ibge_gini_2017) +
             legend.height=1.0,
             frame = FALSE) +
   tm_compass(position = c("right", "bottom")) +
-  tm_scale_bar(position = c("right", "bottom")) 
+  tm_scale_bar(position = c("right", "bottom"), text.size = 1) 
 
 
 

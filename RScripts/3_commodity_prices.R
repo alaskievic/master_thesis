@@ -1,6 +1,6 @@
 
 # Set Working Directory
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
 
 #Load packaages
 source("./0_load_packages.R")
@@ -11,34 +11,34 @@ source("./0_load_packages.R")
 # Set commodities names that match the excel file
 comm_names <- c("...1", "COCOA", "COFFEE_ARABIC", "COFFEE_ROBUS", "TEA_AVG" , "TEA_COLOMBO", "TEA_KOLKATA", "TEA_MOMBASA", "SOYBEANS", 
                 "BARLEY", "MAIZE", "SORGHUM", "RICE_05", "RICE_25", "RICE_A1", "RICE_05_VNM", "WHEAT_US_SRW", "WHEAT_US_HRW", 
-                "BANANA_EU", "BANANA_US", "ORANGE", "SUGAR_EU", "SUGAR_US", "SUGAR_WLD", "TOBAC_US", "COTTON_A_INDX", "RUBBER_TSR20",
+                "BANANA_EU", "BANANA_US", "ORANGE", "BEEF", "SUGAR_EU", "SUGAR_US", "SUGAR_WLD", "TOBAC_US", "COTTON_A_INDX", "RUBBER_TSR20",
                 "RUBBER1_MYSG")
 
 # Reads BRL(R$)/US$ exchange rate data. Some transformations were done in the excel file to facilitate the coding
-cambio <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Prices/cambio_nominal.xls", 
+cambio <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/cambio_nominal.xls", 
                           sheet = "Séries", col_names = TRUE, na = "") %>%
   filter(Date >= 1990 &  Date <= 2015)
 
 # Reads Brazilian IPCA inflation data with 1990 = 100
-ipca <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Prices/IPCA_anual.xls", 
+ipca <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/IPCA_anual.xls", 
                    sheet = "Séries", col_names = TRUE, na = "") %>%
   filter(Date >= 1990 &  Date <= 2015)
 
 
 # Reds CPI data with 1990 = 100
-cpi <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Prices/cpi_annual.xls", sheet = "FRED Graph", 
+cpi <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/cpi_annual.xls", sheet = "FRED Graph", 
                   col_names = TRUE, na = "")
 cpi$Date <- year(cpi$Date)
 cpi <- cpi %>% filter (Date >= 1990 & Date <= 2015)
 
 
 # Reads the Pink Sheet prices
-pink_prices <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Prices/CMOHistoricalDataMonthly.xlsx", 
+pink_prices <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/CMOHistoricalDataMonthly.xlsx", 
                           sheet = "Monthly Prices", col_names = TRUE, na = "..", skip = 6) %>% 
   dplyr::select(comm_names)
 
 
-#pink_prices2 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Prices/CMOHistoricalDataMonthly.xlsx", 
+#pink_prices2 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/CMOHistoricalDataMonthly.xlsx", 
                           #sheet = "Monthly Prices", col_names = TRUE, na = "..", skip = 6) %>%
   #select(1, 12, 13, 14, 15, 16, 17, 18, 25, 30, 31, 32, 33, 34, 35, 36, 37, 38 ,39, 40, 41, 46, 47, 48, 49, 56, 57, 58)
 
@@ -68,6 +68,7 @@ pink_prices <- pink_prices %>% mutate(COCOA = COCOA*1000,
                         BANANA_EU = BANANA_EU*1000,
                         BANANA_US = BANANA_US*1000,
                         ORANGE = ORANGE*1000,
+                        BEEF = BEEF*1000,
                         SUGAR_EU = SUGAR_EU*1000,
                         SUGAR_US = SUGAR_US*1000,
                         SUGAR_WLD = SUGAR_WLD*1000,
@@ -129,7 +130,7 @@ graph_1 <- ggplot(indexes, aes(x=Years)) +
 
 graph_1
 # Saving the graph
-#ggsave(filename = "com_prices_1.eps", plot = graph_1, path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Figures")
+#ggsave(filename = "com_prices_1.eps", plot = graph_1, path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/Figures")
 
 
 # Taking out rubber
@@ -145,7 +146,7 @@ graph_2 <- ggplot(indexes_norubber, aes(x=Years)) +
 
 graph_2
 
-#ggsave(filename = "com_prices_2_norubber.eps", plot = graph_2, path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Figures")
+#ggsave(filename = "com_prices_2_norubber.eps", plot = graph_2, path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/Figures")
 
 
 
@@ -179,7 +180,7 @@ graph_3 <- ggplot(indexes, aes(x=Years)) +
   ggtitle("Individual Commodity Prices")
 
 graph_3
-#ggsave(filename = "com_prices_3.eps", plot = graph_3, path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Figures")
+#ggsave(filename = "com_prices_3.eps", plot = graph_3, path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/Figures")
 
 
 graph_4 <- ggplot(indexes_norubber, aes(x=Years)) +
@@ -192,7 +193,7 @@ graph_4 <- ggplot(indexes_norubber, aes(x=Years)) +
 
 graph_4
 
-#ggsave(filename = "com_prices_4_norubber.eps", plot = graph_2, path = "C:/Users/Andrei/Desktop/Dissertation/Dados/Figures")
+#ggsave(filename = "com_prices_4_norubber.eps", plot = graph_2, path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/Figures")
 
 
 ########## 3. Deflating and converting series to BRL(R$) and plotting them ############################################
@@ -213,7 +214,7 @@ pink_prices_final <- pink_prices_avg %>%
   dplyr::select(-c("TEA_COLOMBO", "TEA_MOMBASA", "TEA_KOLKATA", "RICE_25", "SUGAR_EU", "SUGAR_US")) %>%
   rename("Banana" = BANANA_US, "Cocoa" = COCOA, "Coffee Arabic" = COFFEE_ARABIC, "Coffee Robust" = COFFEE_ROBUS, "Tea" = TEA_AVG, "Soy" = SOYBEANS, 
          "Barley" = BARLEY, "Maize" = MAIZE, "Sorghum" = SORGHUM, "Rice 05" = RICE_05, "Rice A1" = RICE_A1, "Wheat H" = WHEAT_US_HRW, 
-         "Wheat S" = WHEAT_US_SRW, "Orange" = ORANGE, "Sugar" = SUGAR_WLD, "Tobacco" = TOBAC_US, "Cotton" = COTTON_A_INDX, "Rubber" = RUBBER1_MYSG) %>%
+         "Wheat S" = WHEAT_US_SRW, "Orange" = ORANGE, "Beef" = BEEF, "Sugar" = SUGAR_WLD, "Tobacco" = TOBAC_US, "Cotton" = COTTON_A_INDX, "Rubber" = RUBBER1_MYSG) %>%
   as_tibble()
 
 
@@ -291,14 +292,14 @@ graph_6 <- ggplot(prices_graph1, aes(x=Years)) +
 graph_6
 
 #Saving prices dataset
-save(pink_prices_final, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/prices_nominal_bartik.Rdata")
-save(cpi_prices, file ="C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/prices_real_bartik.Rdata")
-save(cpi_prices_2010, file ="C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/prices_real_bartik_2010.Rdata")
+save(pink_prices_final, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/prices_nominal_bartik.Rdata")
+save(cpi_prices, file ="C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/prices_real_bartik.Rdata")
+save(cpi_prices_2010, file ="C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/prices_real_bartik_2010.Rdata")
 
 # Plot the deflated prices in US$ with 2010=100
 # final graph
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/prices_real_bartik_2010.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/prices_nominal_bartik.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/prices_real_bartik_2010.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/prices_nominal_bartik.Rdata")
 
 
 graph_aux2 <- cpi_prices_2010 %>% dplyr::select(-c("Coffee Robust", "Rice A1",
@@ -321,8 +322,8 @@ graph_7 <- ggplot(prices_graph2, aes(x=Years)) +
 
 graph_7
 
-ggsave(filename = "com_prices.eps", plot = graph_7, path = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures")
-ggsave(filename = "com_prices.png", plot = graph_7, path = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures")
+ggsave(filename = "com_prices.eps", plot = graph_7, path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
+ggsave(filename = "com_prices.png", plot = graph_7, path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
 
 
   

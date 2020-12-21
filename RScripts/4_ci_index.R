@@ -5,7 +5,7 @@ setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts")
 #Load packaages
 source("./0_load_packages.R")
 
-########## 1. Builds the Commodity Index, i.e, Bartik (shift-share) instrument ############################################################################
+########## 1. Builds the Commodity Index, i.e, Bartik (shift-share) instrument #
 
 #Loading the datasets
 load("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/prices_real_bartik_2010.Rdata")

@@ -37,7 +37,7 @@ fmlogit `q_shares' , eta(`fao_int') difficult technique(dfp)
 
 
 
-predict pr_banana pr_barley pq_orange pr_cocoa pr_coffee pr_cotton pr_maize ///
+predict pr_banana pr_barley pr_orange pr_cocoa pr_coffee pr_cotton pr_maize ///
 		pr_rice pr_sorghum pr_soybean pr_sugarcane pr_tea pr_tobacco pr_wheat
 
 
@@ -45,7 +45,7 @@ predict pr_banana pr_barley pq_orange pr_cocoa pr_coffee pr_cotton pr_maize ///
 twoway scatter banana pr_banana || lfit banana pr_banana
 
 
-********
+******** Graphing
 
 clear all 
 use "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/fao_pr.dta"
@@ -68,6 +68,60 @@ foreach v of varlist banana-tea {
 	reg pr_`v' `v'
 
 }
+********* Cattle and Actual Shares *********************************************
+set more off
+
+
+*** Pre-Shares
+clear all
+use "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/full_fao_cat_1995.dta"
+
+* Replace order?
+
+local fao_int banana_int barley_int citrus_int cocoa_int coffee_int cotton_int ///
+			  maize_int rice_int sorghum_int soybean_int sugarcane_int tea_int ///
+			  tobacco_int wheat_int grass_high
+			  
+local q_shares banana barley orange cocoa coffee cotton maize rice sorghum soybean ///
+			   sugar_cane tea tobacco wheat cattle
+
+
+fmlogit `q_shares' , eta(`fao_int') difficult technique(dfp)
+
+predict pr_banana pr_barley pr_orange pr_cocoa pr_coffee pr_cotton pr_maize ///
+		pr_rice pr_sorghum pr_soybean pr_sugarcane pr_tea pr_tobacco pr_wheat ///
+		pr_cattle
+
+save "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/fao_pr_cattle_1995.dta"
+
+
+* Graphing		
+*twoway scatter banana pr_banana || lfit banana pr_banana
+
+
+
+
+
+*** Actual Shares
+clear all
+use "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/full_fao_cat_actual.dta"
+
+
+local fao_int banana_int barley_int citrus_int cocoa_int coffee_int cotton_int ///
+			  maize_int rice_int sorghum_int soybean_int sugarcane_int tea_int ///
+			  tobacco_int wheat_int grass_high
+			  
+local q_shares banana barley orange cocoa coffee cotton maize rice sorghum soybean ///
+			   sugar_cane tea tobacco wheat cattle
+
+
+fmlogit `q_shares' , eta(`fao_int') difficult technique(dfp)
+
+predict pr_banana pr_barley pr_orange pr_cocoa pr_coffee pr_cotton pr_maize ///
+		pr_rice pr_sorghum pr_soybean pr_sugarcane pr_tea pr_tobacco pr_wheat ///
+		pr_cattle
+
+save "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/fao_pr_cattle_actual.dta"
 
 
 ********* AKM Correction *******************************************************

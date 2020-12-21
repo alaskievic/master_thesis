@@ -430,7 +430,6 @@ ggsave("agrprod_ineq.png")
 ggsave("linten_ineq.png")
 
 
-
 pop_graph <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/popstruc_pres.dta")
 
 pop_graph %<>% mutate(log_wagro = log(w_agro))
@@ -462,3 +461,138 @@ emp_ineq <- ggplot(pop_graph, aes(x = gini_land1, y = P_AGRO)) +
 emp_ineq 
 
 
+######### Add Shares of Women that are PEA #####################################
+
+# Muitos NA não dá certo
+pea <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/IPEA/Controles/pea_demo.xlsx", 
+                               skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+pea %<>% slice(-5571) %>%
+  dplyr::select(1:13) %>% set_names(c("cod", "municip", "x", "y", 
+                                             "tot", "men", "women", "tot_pea",
+                                             "men_pea", "women_pea", "tot_npea",
+                                             "men_npea", "women_npea")) %>%
+  mutate(share_womenpea_1991 = women_pea/tot_pea) %>%
+  dplyr::select(cod, municip, share_womenpea_1991)
+
+
+teste <- filter(pea, is.na(pea$share_womenpea_1991))
+
+######### Add Micro, Mesoregion and Sates ######################################
+
+microreg <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Código Municípios/cod_ibge/mun_microreg.xlsx", 
+                      sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+mesoreg <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Código Municípios/cod_ibge/mun_mesoreg.xlsx", 
+                      sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+state <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Código Municípios/cod_ibge/mun_state.xlsx", 
+                      sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+microreg %<>% set_names(c("codmicro", "microreg", "cod", "municip"))
+mesoreg %<>% set_names(c("codmeso", "mesoreg", "cod", "municip"))
+state %<>% set_names(c("codstate", "state", "cod", "municip"))
+
+# Count unique entries to check
+teste <- microreg %>% distinct(codmicro, .keep_all = TRUE)
+teste2 <- mesoreg %>% distinct(codmeso, .keep_all = TRUE)
+teste3 <- state %>% distinct(codstate, .keep_all = TRUE)
+# All ok!
+
+# Merge
+mun_codes <- inner_join(microreg, mesoreg, by = c("cod", "municip"))
+mun_codes <- inner_join(mun_codes, state, by = c("cod", "municip"))
+
+# Merge with final datasets
+
+pop_struc <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/popstruc_pres.dta")
+
+agro_struc <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/agro_struc_baseline.dta")
+
+
+pop_struc <- inner_join(pop_struc, mun_codes, by = "cod")
+agro_struc <- inner_join(agro_struc, mun_codes, by = "cod")
+
+
+# Saving
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
+write.dta(pop_struc, "pop_struc.dta")
+write.dta(agro_struc, "agro_struc_baseline.dta")
+
+
+
+######### 10. Mapping ##########################################################
+
+# Reads IBGE's 2019 shapefile containing 5570 municipalities
+shp_ibge <-  readOGR("C:/Users/Andrei/Desktop/Dissertation/Analysis/Shapefiles/br_municipios_2019", "BR_Municipios_2019", stringsAsFactors = F)
+
+# Reads shapefiles for state borders
+shp_ufs <- readOGR("C:/Users/Andrei/Desktop/Dissertation/Analysis/Shapefiles/uf_2019", "BR_UF_2019", stringsAsFactors = F)
+
+
+# Get unique values for each municipality
+popstruc <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/pop_struc.dta")
+
+popstruc %<>% as_tibble() %>% dplyr::select(cod, year, municip, pq_sum, sum_fao, 
+                                            sum_faoc95, sum_faocact) %>% 
+  arrange(cod)
+
+
+popstruc %<>% group_by(cod) %>% mutate(fao_diffc95 = sum_faoc95 - shift(sum_faoc95)) %>%
+  mutate(fao_diffcact = sum_faocact - shift(sum_faocact))
+
+
+popstruc_2000 <- filter(popstruc, year ==2000)
+popstruc_2010 <- filter(popstruc, year ==2010)
+
+
+# Merging with IBGE data
+names(shp_ibge@data)[1] = "cod"
+pq_aux_2000 <- merge(shp_ibge,popstruc_2000 , all.x = TRUE)
+pq_aux_2010 <- merge(shp_ibge,popstruc_2010 , all.x = TRUE)
+
+
+# Plotting Difference
+map_diffc95  <- tm_shape(pq_aux_2010) +
+  tm_polygons(col = "fao_diffc95",  style = "quantile", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Difference in Pre-Shares\nExposure 2000-2010") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.text.size=1.25,
+            legend.title.size=1.55,
+            legend.position = c("left","bottom"), 
+            legend.height=1.0, #capped?
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom"), text.size = 1) 
+
+map_diffc95
+
+tmap_save(map_diffc95,
+          "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures/map_diffc95.png")
+
+
+
+map_diffcact  <- tm_shape(pq_aux_2010) +
+  tm_polygons(col = "fao_diffcact",  style = "quantile", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Difference in Actual Shares\nExposure 2000-2010") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.text.size=1.25,
+            legend.title.size=1.55,
+            legend.position = c("left","bottom"), 
+            legend.height=1.0, 
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom"), text.size = 1) 
+
+map_diffcact
+
+
+tmap_save(map_diffcact,
+          "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures/map_diffcact.png")

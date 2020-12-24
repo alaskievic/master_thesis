@@ -51,8 +51,8 @@ quantities_actual <- actual_map %>% setNames(c("cod", "year", crops_names)) %>%
 save(quantities_actual, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/quantities_actual.Rdata")
 
 ########## 2. Construct a measure for the share of each commodity in a given
-# location in relation to the total produced quantity in that same location 
 
+# Location in relation to the total produced quantity in that same location 
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/quantities_actual.Rdata")
 
 
@@ -141,20 +141,6 @@ write.dta(popstruc_actual, "popstruc_pres.dta")
 
 
 
-
-### Adding price shocks
-popstruc <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/popstruc_pres.dta")
-
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/prices_real_bartik_2010.RData")
-
-
-
-
-
-
-
-
-
 ######### 4. AKM Correction ####################################################
 
 ### Take out sorghum
@@ -223,17 +209,14 @@ shares_1995_akm %<>% mutate(total_quant = rowSums(.[1:13])) %>%
 #save(shares_1995, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/shares_1995_bartik.Rdata")
 
 
+
 # Merging with FAO for Stata
-
-
-
 fao_akm <- inner_join(shares_1995_akm, fao_mean, by = "cod")
 
 #Writing to Stata
 setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
 
 write.dta(fao_akm, "fao_akm.dta")
-
 
 
 ### Creating the Measure ######################
@@ -516,7 +499,7 @@ write.dta(popstruc_akm , "popstruc_pres.dta")
 
 ######### 5. Actual Shares and Cattle ##########################################
 
-fao_mean <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/fao_mean.dta") %>%
+fao_mean <- read_dta("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/fao_mean.dta") %>%
   dplyr::select(-c("oat_low", "oat_int", "oat_high", "rye_low", "rye_int", "rye_high"))
 
 
@@ -562,6 +545,8 @@ full_fao_cat_actual <- inner_join(shares_fao_actual, fao_mean_cat, by = "cod")
 
 
 
+
+
 #Writing to Stata
 setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
 
@@ -580,7 +565,7 @@ prices <- cpi_prices_2010 %>% filter(Years >= 2000)
 prices[-1] <- log(prices[-1])
 
 #### First for pre-shares
-fao_pr <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/fao_pr_cattle_1995.dta")
+fao_pr <- read_dta("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/fao_pr_cattle_1995.dta")
 
 
 # Banana
@@ -852,6 +837,9 @@ fao_final_cattle_1995 <- fao_final_index_wider %>% pivot_longer(-c("cod", "munic
                                                                 values_to = "sum_fao_cattle_1995") %>%
   mutate(cod = as.integer(cod), year = as.integer(year)) %>%
   arrange(cod)
+
+
+# Merging with final measures
 
 
 
@@ -1163,6 +1151,12 @@ fao_final_cattle_actual <- fao_final_index_wider %>% pivot_longer(-c("cod", "mun
   mutate(cod = as.integer(cod), year = as.integer(year)) %>%
   arrange(cod)
 
+# Merging with final measures
+final_measures <- full_join(fao_final_cattle_1995, fao_final_cattle_actual, by = c("cod", "year"))
+save(final_measures,
+     file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/final_measures.Rdata")
+
+
 # Merging
 popstruc <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/pop_struc.dta")
 
@@ -1199,6 +1193,7 @@ setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
 write_dta(popstruc, "pop_struc.dta")
 
 write.dta(agro_struc, "agro_struc.dta")
+
 
 ########## AKM Shares
 fao_pr_1995 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/fao_pr_cattle_1995.dta")
@@ -1242,6 +1237,12 @@ akm_actual %<>% set_names(c("cod", "municip","banana_actual", "barley_actual",
 "pr_cotton_actual", "pr_maize_actual", "pr_rice_actual", "pr_sorghum_actual",
 "pr_soybean_actual", "pr_sugarcane_actual", "pr_tea_actual", "pr_tobacco_actual",
 "pr_wheat_actual")) %>% as_tibble() %>% mutate(cod = as.integer(cod))
+
+
+# Creating a consolidated dataset with all the shares
+akm_shares <- full_join(akm_1995, akm_actual, by = "cod")
+save(akm_shares,
+     file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/akm_shares.Rdata")
 
 
 # Merging with population

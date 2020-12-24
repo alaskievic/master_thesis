@@ -506,21 +506,8 @@ teste3 <- state %>% distinct(codstate, .keep_all = TRUE)
 mun_codes <- inner_join(microreg, mesoreg, by = c("cod", "municip"))
 mun_codes <- inner_join(mun_codes, state, by = c("cod", "municip"))
 
-# Merge with final datasets
-
-pop_struc <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/popstruc_pres.dta")
-
-agro_struc <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/agro_struc_baseline.dta")
-
-
-pop_struc <- inner_join(pop_struc, mun_codes, by = "cod")
-agro_struc <- inner_join(agro_struc, mun_codes, by = "cod")
-
-
-# Saving
-setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
-write.dta(pop_struc, "pop_struc.dta")
-write.dta(agro_struc, "agro_struc_baseline.dta")
+save(mun_codes, 
+     file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/mun_codes.RData")
 
 
 

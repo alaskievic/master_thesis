@@ -7,6 +7,7 @@ set more off,permanently
 *use "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\pop_struc_controls.dta"
 
 use "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\pop_struc.dta"
+*use "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\pop_struc_2.dta"
 
 
 *log using "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\pop_struc.log"
@@ -14,9 +15,6 @@ use "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\pop_
 
 **** Preparing Data
 
-*rename municip_x_x_x_x_x_x municip
-rename gini_land1 gini_land2
-rename gini_land1_x gini_land1
 
 
 gsort +cod +year
@@ -34,6 +32,7 @@ replace P_INDUST = P_INDUST/100
 gen log_income_1991 = log(income_1991)
 gen log_popdens_1991 = log(pop_dens_1991)
 gen agr_sh_1991 = pesorur_1991/pesotot_1991
+gen val_outpa_1995 = log(val_outpa)
 
 * anothers
 gen log_area = log(geo_area_2010)
@@ -245,6 +244,41 @@ foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
 eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
 }
 esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 val_outpa_1995, cluster(cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high, cluster(cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_int, cluster(cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_low, cluster(cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_int val_outpa_1995, cluster(cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
 
 eststo clear
 foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{

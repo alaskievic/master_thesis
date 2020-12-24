@@ -24,7 +24,7 @@ gsort +cod +year
 
 *** Measure differences, then drop
 * Difference between 2015-2010 exposure
-gen dfao_short  = sum_fao_log - sum_fao_log[_n-1] if year == 2017 & cod == cod[_n-1]
+gen dfao_short  = sum_fao - sum_fao[_n-1] if year == 2017 & cod == cod[_n-1]
 gen dfao_shortcat95 = sum_fao_cattle_1995 - sum_fao_cattle_1995[_n-1] if year == 2017 & cod == cod[_n-1]
 gen dfao_shortcatact = sum_fao_cattle_actual - sum_fao_cattle_actual[_n-1] if year == 2017 & cod == cod[_n-1]
 *gen dshares_short = pq_sum_log  - pq_sum_log[_n-1] if year == 2017 & cod == cod[_n-1]
@@ -33,14 +33,14 @@ gen dfao_shortcatact = sum_fao_cattle_actual - sum_fao_cattle_actual[_n-1] if ye
 
 * Difference between 2015-2000 exposure
 
-gen dfao_long  = sum_fao_log - sum_fao_log[_n-2] if year == 2017 & cod == cod[_n-1]
+gen dfao_long  = sum_fao - sum_fao[_n-2] if year == 2017 & cod == cod[_n-1]
 gen dfao_longcat95  = sum_fao_cattle_1995 - sum_fao_cattle_1995[_n-2] if year == 2017 & cod == cod[_n-1]
 gen dfao_longcatact  = sum_fao_cattle_actual - sum_fao_cattle_actual[_n-2] if year == 2017 & cod == cod[_n-1]
 *gen dshares_long  = pq_sum_log  - pq_sum_log[_n-2] if year == 2017 & cod == cod[_n-1]
 
 
 * Difference between 2010-2000 exposure - BASELINE
-gen dfao_baseline  = sum_fao_log[_n-1] - sum_fao_log[_n-2] if year == 2017 & cod == cod[_n-1]
+gen dfao_baseline  = sum_fao[_n-1] - sum_fao[_n-2] if year == 2017 & cod == cod[_n-1]
 gen dfao_baselinecat95  = sum_fao_cattle_1995[_n-1] - sum_fao_cattle_1995[_n-2] if year == 2017 & cod == cod[_n-1]
 gen dfao_baselinecatact  = sum_fao_cattle_actual[_n-1] - sum_fao_cattle_actual[_n-2] if year == 2017 & cod == cod[_n-1]
 *gen dshares_baseline  = pq_sum_log[_n-1]  - pq_sum_log[_n-2] if year == 2017 & cod == cod[_n-1]

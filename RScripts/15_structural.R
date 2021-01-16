@@ -4,7 +4,7 @@ setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
 #Load packaages
 source("./0_load_packages.R")
 
-######### 1. Reads and cleans data from Agricultural Census  ############################################################
+######### 1. Reads and cleans data from Agricultural Census  ###################
 
 
 ######### Reading 1995
@@ -423,21 +423,13 @@ agri_2017 %<>% add_column(year = rep("2017", length(agri_2017$cod)), .before = "
 
 
 # Merging with machines
-
-
 agri_2017 <- inner_join(agri_2017, dplyr::select(tab_6869, -"municip"), by = "cod")
 
 agri_2017 <- inner_join(agri_2017, dplyr::select(tab_6872, -"municip"), by = "cod")
 
 
 
-
-
-
-
-
 #### Putting it all together in long format
-
 aux_1995 <- dplyr::select(agri_1995, c("cod", "year", "municip", "totval", "n_workers", 
                                        "total_area", "val_outpw", "l_inten"))
 
@@ -455,7 +447,6 @@ aux_2017 <- dplyr::select(agri_2017, c("cod", "year", "municip", "totval", "n_wo
 
 
 ### Deflating
-
 ipca <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/ipca_anual.xls", 
                    sheet = "Séries", col_names = TRUE, na = "")
 
@@ -562,8 +553,6 @@ adubo_tipo_2017 %<>% mutate(shares_adubo = adubo_yes/total_adubo) %>%
   dplyr::select(cod, adubo_yes, shares_adubo)
 
 
-
-
 agrotox_2017  %<>% set_names(c("cod", "municip", "x", "y", "z", "total_agrotox", "agrotox_yes", "agrotox_n")) %>%
   slice(-5571) %>% dplyr::select(- c("x", "y", "z", "municip")) %>% mutate(cod = as.integer(cod))
 
@@ -572,7 +561,6 @@ agrotox_2017[is.na(agrotox_2017)] = 0
 
 agrotox_2017 %<>% mutate(share_agrotox = agrotox_yes/total_agrotox) %>%
   dplyr::select(cod, agrotox_yes, share_agrotox)
-
 
 
 # Joining
@@ -597,82 +585,254 @@ agro_struc %<>% mutate(ltract_inten = log(n_tract/total_area), lmaq_inten = log(
 save(agro_struc, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/agro_struc.Rdata")
 
 
-####### Joining with controls and Bartik
-agro_struc %<>% mutate(year = as.integer(year))
 
-# Adding population
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/pop_sidra.Rdata")
+##### Seeds, property and agroindustry  ########################################
 
-pop_1996 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/IPEA/Controles/populacao_total.xls", 
-                        sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+### Seeds
+# 2006
+seeds_value_2006 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/seeds/semente_2006.xlsx", 
+                         skip = 6, sheet = 3, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+  
+seeds_area_2006 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/seeds/semente_2006.xlsx", 
+                         skip = 6, sheet = 4, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-pop_1996 %<>% rename(cod = "Codigo", municip = "Município") %>%
-  dplyr:: select(c("cod", "municip", "1996"))
 
-pop_1996 %<>% add_column(year = rep("1995", length(pop_1996$cod)), .before = "municip")
+# In mil reais
+seeds_value_2006 %<>% set_names(c("cod", "municip", "x", "y", "z", "totval_seeds", "cert", "comum",
+                                 "trans_value", "nsab")) %>%
+  slice(-5571) %>% dplyr::select(- c("x", "y", "z", "municip",
+                                     "cert", "comum", "nsab")) %>%
+  mutate(cod = as.integer(cod))
 
-pop_1996 %<>% rename(pesotot = "1996") %>% mutate(cod = as.integer(cod)) %>%
+
+seeds_area_2006 %<>% set_names(c("cod", "municip", "x", "y", "z", "totarea_seeds", "cert", "comum",
+                                  "trans_area", "nsab")) %>%
+  slice(-5571) %>% dplyr::select(- c("x", "y", "z", "municip",
+                                     "cert", "comum", "nsab")) %>%
+  mutate(cod = as.integer(cod))
+
+
+
+seeds_2006 <- full_join(seeds_value_2006, seeds_area_2006, by = "cod")
+
+
+# 2017
+seeds_value_2017 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/seeds/semente_2017.xlsx", 
+                               skip = 5, sheet = 4, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+seeds_area_2017 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/seeds/semente_2017.xlsx", 
+                              skip = 5, sheet = 5, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+seeds_value_2017 %<>% set_names(c("cod", "municip", "tipo", "x", "total"))
+seeds_area_2017 %<>% set_names(c("cod", "municip", "tipo", "x", "total"))
+
+
+# Fills NA values only in the municip column
+seeds_value_2017[1] <- na.locf(seeds_value_2017[1], fromLast = FALSE)
+
+seeds_value_2017[2] <- na.locf(seeds_value_2017[2], fromLast = FALSE)
+
+seeds_value_2017 %<>% dplyr::select(-c("municip", "x")) %>%
+  pivot_wider(values_from = "total", names_from = "tipo")
+
+seeds_value_2017[is.na(seeds_value_2017)] = 0
+
+seeds_value_2017 %<>% set_names(c("cod", "totval_seeds", "com1", "com2", "cert", 
+                                  "trans_value", "na")) %>%
+  dplyr::select(-c("com1", "com2", "cert", "na")) %>%
+  slice(-5571) %>% mutate(cod = as.integer(cod))
+
+
+# Now for the area
+seeds_area_2017[1] <- na.locf(seeds_area_2017[1], fromLast = FALSE)
+
+seeds_area_2017[2] <- na.locf(seeds_area_2017[2], fromLast = FALSE)
+
+seeds_area_2017 %<>% dplyr::select(-c("municip", "x")) %>%
+  pivot_wider(values_from = "total", names_from = "tipo")
+
+seeds_area_2017[is.na(seeds_area_2017)] = 0
+
+seeds_area_2017 %<>% set_names(c("cod", "totarea_seeds", "com1", "com2", "cert", 
+                                  "trans_area", "na")) %>%
+  dplyr::select(-c("com1", "com2", "cert", "na")) %>%
+  slice(-5571) %>% mutate(cod = as.integer(cod))
+
+
+
+## Deflating
+ipca <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/ipca_anual.xls", 
+                   sheet = "Séries", col_names = TRUE, na = "")
+
+ipca_2006 <- ipca %>% filter(Date == 2006)
+ipca_2017 <- ipca %>% filter(Date == 2017)
+
+
+seeds_value_2006 %<>% mutate(trans_value = trans_value/(ipca_2006$Index_2/100)) %>%
+  mutate(totval_seeds = totval_seeds/(ipca_2006$Index_2/100))
+
+seeds_value_2017 %<>% mutate(trans_value = trans_value/(ipca_2017$Index_2/100)) %>%
+  mutate(totval_seeds = totval_seeds/(ipca_2017$Index_2/100))
+
+
+# Adding years and joining
+seeds_value_2006 %<>% mutate(year = 2006)
+seeds_value_2017 %<>% mutate(year = 2017)
+seeds_area_2006 %<>% mutate(year = 2006)
+seeds_area_2017 %<>% mutate(year = 2017)
+
+seeds_value <- bind_rows(seeds_value_2006, seeds_value_2017)
+seeds_area <- bind_rows(seeds_area_2006, seeds_area_2017)
+seeds <- full_join(seeds_value, seeds_area, by = c("cod", "year")) %>%
   mutate(year = as.integer(year))
 
-pop_sidra %<>% filter(year == 2006| year == 2015) %>%
-  mutate(cod = as.integer(cod)) %>% mutate(year = as.integer(year))
 
-pop_sidra %<>% mutate(year = ifelse(year == 2015, 2017, 2006))
+### Agroindustry
+agroind_2006 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/agroindustry/agroind_2006.xlsx", 
+                                               skip = 5, sheet = "Tabela 4", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-pop_aux <- bind_rows(pop_1996, pop_sidra)
-
-
-agro_struc <- inner_join(agro_struc, dplyr::select(pop_aux, -"municip"), by = c("cod", "year"))
+agroind_2017 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/agroindustry/agroind_2017.xlsx", 
+                           skip = 5, sheet = 3, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
+# In mil reais
+agroind_2006 %<>% set_names(c("cod", "municip", "x", "totval_agroind")) %>%
+  slice(-5571) %>% dplyr::select(- c("x", "municip")) %>%
+  mutate(cod = as.integer(cod))
 
 
-
-# Adding Controls
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/controls.RData")
-
-agro_struc <- inner_join(agro_struc, dplyr::select(controls, -"municip"), by = "cod")
+agroind_2017 %<>% set_names(c("cod", "municip", "x", "y", "totval_agroind")) %>%
+  slice(-5571) %>% dplyr::select(- c("x", "y", "municip")) %>%
+  mutate(cod = as.integer(cod))
 
 
-agro_struc %<>% mutate(pop_dens = pesotot/geo_area_2010)
+agroind_2006[is.na(agroind_2006)] = 0
+agroind_2017[is.na(agroind_2017)] = 0
 
 
-# Adding Bartik
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/bartik_final.Rdata")
+# Deflating
+ipca <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/ipca_anual.xls", 
+                   sheet = "Séries", col_names = TRUE, na = "")
 
-bartik_final_1 <- bartik_final %>% filter(year == 2000| year == 2010 | year == 2015)
-
-bartik_final_1 %<>% mutate(year = ifelse(year == 2000, 1995, year)) %>%
-  mutate(year = ifelse(year == 2010, 2006, year)) %>%
-  mutate(year = ifelse(year == 2015, 2017, year))
+ipca_2006 <- ipca %>% filter(Date == 2006)
+ipca_2017 <- ipca %>% filter(Date == 2017)
 
 
-bartik_final_2 <- bartik_final %>% filter(year == 2000| year == 2006|  year == 2015)
+agroind_2006 %<>% mutate(totval_agroind = totval_agroind/(ipca_2006$Index_2/100))
 
-bartik_final_2 %<>% mutate(year = ifelse(year == 2000, 1995, year)) %>%
-  mutate(year = ifelse(year == 2015, 2017, year))
+agroind_2017 %<>% mutate(totval_agroind = totval_agroind/(ipca_2017$Index_2/100))
 
 
 
+# Adding years and joining
+agroind_2006 %<>% mutate(year = 2006)
+agroind_2017 %<>% mutate(year = 2017)
 
-agro_struc_baseline <- inner_join(agro_struc, dplyr::select(bartik_final_1, -"municip"),
-                                by = c("cod", "year"))
-
-agro_struc_2 <- inner_join(agro_struc, dplyr::select(bartik_final_2, -"municip"),
-                           by = c("cod", "year"))
-
-
-# Writing to STATA
-
-setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
-
-write.dta(agro_struc_baseline, "agro_struc_baseline.dta")
-
-write.dta(agro_struc_2, "agro_struc2.dta")
+agroind_val <- bind_rows(agroind_2006, agroind_2017)
 
 
-######### 2. Check Census for useful data for Structural Transformation ########################################
-### Getting employment shares ans wages
+### Type of Property
+# 2006
+prop_num_2006 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/property/proprietario_2006.xlsx", 
+                           skip = 6, sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+prop_area_2006 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/property/proprietario_2006.xlsx", 
+                           skip = 6, sheet = 2, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+
+prop_num_2006 %<>% set_names(c("cod", "municip", "x","y", "tot_num", "prop_num",
+                               "assent", "arrend", "parceiro", "ocup", "narea")) %>%
+  slice(-5571) %>% dplyr::select(- c("x", "y", "municip", "parceiro", "ocup", 
+                                     "narea", "assent", "arrend")) %>%
+  mutate(cod = as.integer(cod))
+
+
+prop_area_2006 %<>% set_names(c("cod", "municip", "x","y", "tot_area", "prop_area",
+                               "assent", "arrend", "parceiro", "ocup", "narea")) %>%
+  slice(-5571) %>% dplyr::select(- c("x", "y", "municip", "parceiro", "ocup", 
+                                     "narea", "assent", "arrend")) %>%
+  mutate(cod = as.integer(cod))
+
+
+prop_num_2006[is.na(prop_num_2006)] = 0
+prop_area_2006[is.na(prop_area_2006)] = 0
+
+
+# 2017
+prop_num_2017 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/property/proprietario_2017.xlsx", 
+                            skip = 5, sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+prop_area_2017 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/property/proprietario_2017.xlsx", 
+                             skip = 5, sheet = 2, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+
+prop_num_2017 %<>% set_names(c("cod", "municip", "tipo", "x", "total"))
+prop_area_2017 %<>% set_names(c("cod", "municip", "tipo", "x", "total"))
+
+
+# Fills NA values only in the municip column
+prop_num_2017[1] <- na.locf(prop_num_2017[1], fromLast = FALSE)
+
+prop_num_2017[2] <- na.locf(prop_num_2017[2], fromLast = FALSE)
+
+prop_num_2017 %<>% dplyr::select(-c("municip", "x")) %>%
+  pivot_wider(values_from = "total", names_from = "tipo")
+
+prop_num_2017[is.na(prop_num_2017)] = 0
+
+prop_num_2017 %<>% set_names(c("cod", "tot_num", "prop_num", "con", "arrend", 
+                                  "parc", "com", "ocup", "narea", "na")) %>%
+  dplyr::select(-c("con", "arrend", "parc", "com", "ocup", "narea", "na")) %>%
+  slice(-5571) %>% mutate(cod = as.integer(cod))
+
+
+# The same for area
+prop_area_2017[1] <- na.locf(prop_area_2017[1], fromLast = FALSE)
+
+prop_area_2017[2] <- na.locf(prop_area_2017[2], fromLast = FALSE)
+
+prop_area_2017 %<>% dplyr::select(-c("municip", "x")) %>%
+  pivot_wider(values_from = "total", names_from = "tipo")
+
+prop_area_2017[is.na(prop_area_2017)] = 0
+
+prop_area_2017 %<>% set_names(c("cod", "tot_area", "prop_area", "con", "arrend", 
+                               "parc", "com", "ocup", "narea", "na")) %>%
+  dplyr::select(-c("con", "arrend", "parc", "com", "ocup", "narea", "na")) %>%
+  slice(-5571) %>% mutate(cod = as.integer(cod))
+
+
+# Adding years and joining
+prop_num_2006 %<>% mutate(year = 2006)
+prop_num_2017 %<>% mutate(year = 2017)
+prop_area_2006 %<>% mutate(year = 2006)
+prop_area_2017 %<>% mutate(year = 2017)
+
+prop_num <- bind_rows(prop_num_2006, prop_num_2017)
+prop_area <- bind_rows(prop_area_2006, prop_area_2017)
+prop <- full_join(prop_num,prop_area, by = c("cod", "year")) %>%
+  mutate(year = as.integer(year))
+
+
+
+##### Joining with full dataset #####
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/agro_struc.Rdata")
+
+agro_struc <- full_join(agro_struc, seeds, by = c("cod", "year"))
+agro_struc <- full_join(agro_struc, prop, by = c("cod", "year"))
+agro_struc <- full_join(agro_struc, agroind_val, by = c("cod", "year"))
+
+# Saving
+save(agro_struc, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/agro_struc.Rdata")
+
+
+
+######### 2. Check Census for useful data for Structural Transformation ########
+
+### Getting employment shares and wages
 
 ## 2000
 wages_2000 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/2000/Wages/wages_2000.xlsx", 

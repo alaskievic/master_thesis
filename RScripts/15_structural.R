@@ -5,8 +5,6 @@ setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
 source("./0_load_packages.R")
 
 ######### 1. Reads and cleans data from Agricultural Census  ###################
-
-
 ######### Reading 1995
 
 # Value of production
@@ -954,4 +952,224 @@ save(popstruc_pres,
 
 
 
+
+##### 3. Adding additional ocupation data from SIDRA Pop. Census ###############
+ocup_new_grupo_2000 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/2000/Occupations/ocup_new_grupo_2000.xlsx", 
+                         skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+ocup_new_setor_2000 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/2000/Occupations/ocup_new_setor_2000.xlsx", 
+                                  skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+ocup_old_grupo_2000 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/2000/Occupations/ocup_old_grupo_2000.xlsx", 
+                                  skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+ocup_old_setor_2000 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/2000/Occupations/ocup_old_setor_2000.xlsx", 
+                                  skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+### New ###
+ocup_new_grupo_2000 %<>% set_names(c("cod", "municip", "tipo", "total"))
+ocup_new_setor_2000 %<>% set_names(c("cod", "municip", "tipo", "total"))
+
+# Fills NA values only in the municip column
+ocup_new_grupo_2000[1] <- na.locf(ocup_new_grupo_2000[1], fromLast = FALSE)
+
+ocup_new_grupo_2000[2] <- na.locf(ocup_new_grupo_2000[2], fromLast = FALSE)
+
+ocup_new_grupo_2000 %<>% dplyr::select(-c("municip")) %>%
+  pivot_wider(values_from = "total", names_from = "tipo")
+
+ocup_new_grupo_2000[is.na(ocup_new_grupo_2000)] = 0
+
+ocup_new_grupo_2000 %<>% set_names(c("cod", "tot_trab", "pub", "ciencia", "tec", 
+                                "adm", "com", "agro_gn", "indust_gn", "manun", 
+                                "cops", "mal", "na")) %>%
+  dplyr::select(c("cod", "tot_trab", "agro_gn", "indust_gn")) %>%
+  slice(-5571) %>% mutate(cod = as.integer(cod))
+
+
+# The same for sectors (the same used in wages before)
+ocup_new_setor_2000[1] <- na.locf(ocup_new_setor_2000[1], fromLast = FALSE)
+
+ocup_new_setor_2000[2] <- na.locf(ocup_new_setor_2000[2], fromLast = FALSE)
+
+ocup_new_setor_2000 %<>% dplyr::select(-c("municip")) %>%
+  pivot_wider(values_from = "total", names_from = "tipo")
+
+ocup_new_setor_2000[is.na(ocup_new_setor_2000)] = 0
+
+ocup_new_setor_2000 %<>% set_names(c("cod", "tot_trab", "agro_ns", "pesca_ns",
+                                     "indust_ex_ns", "indust_trans_ns", "distri", 
+                                     "constru", "comrep", "transp", "aloj", "finan", 
+                                     "imob", "adm", "educ", "saude", "outros",
+                                     "servdom", "int", "mal", "na")) %>%
+  dplyr::select(c("cod", "tot_trab", "agro_ns", "pesca_ns", "indust_ex_ns", "indust_trans_ns")) %>%
+  slice(-5571) %>% mutate(cod = as.integer(cod))
+
+# Summing the sub-sectors
+ocup_new_setor_2000 %<>% mutate(agro_ns = agro_ns + pesca_ns) %>%
+  mutate(indust_ns = indust_ex_ns + indust_trans_ns) %>%
+  dplyr::select(-pesca_ns)
+
+
+
+### Old ###
+colnames(ocup_old_grupo_2000) <- c("cod", "municip", "x", "tot_trab", "adm", 
+                                   "ciencia", "agro_gold", "indust_ex_gold",
+                                   "indust_trans_gold","com", "transp", "serv",
+                                   "def", "mal")
+
+ocup_old_grupo_2000 %<>% slice(-5571) %>% mutate(cod = as.integer(cod))
+
+ocup_old_grupo_2000[is.na(ocup_old_grupo_2000)] = 0
+
+ocup_old_grupo_2000 %<>% dplyr::select(c("cod", "tot_trab", "agro_gold",
+                                         "indust_ex_gold", "indust_trans_gold")) %>%
+  mutate(indust_gold = indust_ex_gold + indust_trans_gold)
+
+
+colnames(ocup_old_setor_2000) <- c("cod", "municip", "x", "tot_trab", "agro_os", 
+                                   "indust_trans_os", "constru", "other_indust_os", 
+                                   "com", "transp", "serv1", "serv2", "social", 
+                                   "pub", "other")
+
+ocup_old_setor_2000 %<>% slice(-5571) %>% mutate(cod = as.integer(cod))
+
+ocup_old_setor_2000[is.na(ocup_old_setor_2000)] = 0
+
+ocup_old_setor_2000 %<>% dplyr::select(c("cod", "tot_trab", "agro_os",
+                                         "indust_trans_os", "other_indust_os")) %>%
+  mutate(indust_os = other_indust_os + indust_trans_os)
+
+
+
+# Joining for 2000
+ocup_2000 <- full_join(ocup_new_grupo_2000,
+                       dplyr::select(ocup_new_setor_2000, -tot_trab), by = "cod")
+
+ocup_2000 <- full_join(ocup_2000,
+                       dplyr::select(ocup_old_setor_2000, -tot_trab), by = "cod")
+
+ocup_2000 <- full_join(ocup_2000,
+                       dplyr::select(ocup_old_grupo_2000, -tot_trab), by = "cod")
+
+
+ocup_2000 %<>% mutate(year = 2000)
+
+
+
+
+### 2010 ###
+ocup_new_grupo_2010 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/2010/Occupations/ocup_new_grupo_2010.xlsx", 
+                                  skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+ocup_new_setor_2010 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/2010/Occupations/ocup_new_setor_2010.xlsx", 
+                                  skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+ocup_old_grupo_2010 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/2010/Occupations/ocup_old_grupo_2010.xlsx", 
+                                  skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+ocup_old_setor_2010 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/2010/Occupations/ocup_old_setor_2010.xlsx", 
+                                  skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+### New ###
+ocup_new_grupo_2010 %<>% set_names(c("cod", "municip", "tipo", "total"))
+ocup_new_setor_2010 %<>% set_names(c("cod", "municip", "tipo", "total"))
+
+# Fills NA values only in the municip column
+ocup_new_grupo_2010[1] <- na.locf(ocup_new_grupo_2010[1], fromLast = FALSE)
+
+ocup_new_grupo_2010[2] <- na.locf(ocup_new_grupo_2010[2], fromLast = FALSE)
+
+ocup_new_grupo_2010 %<>% dplyr::select(-c("municip")) %>%
+  pivot_wider(values_from = "total", names_from = "tipo")
+
+ocup_new_grupo_2010[is.na(ocup_new_grupo_2010)] = 0
+
+ocup_new_grupo_2010 %<>% set_names(c("cod", "tot_trab", "diret", "ciencia", "tec", 
+                                     "adm", "com", "agro_gn", "indust_gn", "manun", 
+                                     "elem", "cops", "mal", "na")) %>%
+  dplyr::select(c("cod", "tot_trab", "agro_gn", "indust_gn")) %>%
+  slice(-5571) %>% mutate(cod = as.integer(cod))
+
+
+# The same for sectors (the same used in wages before)
+ocup_new_setor_2010[1] <- na.locf(ocup_new_setor_2010[1], fromLast = FALSE)
+
+ocup_new_setor_2010[2] <- na.locf(ocup_new_setor_2010[2], fromLast = FALSE)
+
+ocup_new_setor_2010 %<>% dplyr::select(-c("municip")) %>%
+  pivot_wider(values_from = "total", names_from = "tipo")
+
+ocup_new_setor_2010[is.na(ocup_new_setor_2010)] = 0
+
+ocup_new_setor_2010 %<>% set_names(c("cod", "tot_trab", "agro_ns",
+                                     "indust_ex_ns", "indust_trans_ns", "elec", 
+                                     "resid", "constru", "com", "transp", "aloj", 
+                                     "info", "finan", "imob", "ciencia", "adm",
+                                     "pub", "educ", "saude", "artes", "outros",
+                                     "dom", "int", "mal", "na")) %>%
+  dplyr::select(c("cod", "tot_trab", "agro_ns", "indust_ex_ns", "indust_trans_ns")) %>%
+  slice(-5571) %>% mutate(cod = as.integer(cod))
+
+# Summing the sub-sectors
+ocup_new_setor_2010 %<>% mutate(indust_ns = indust_ex_ns + indust_trans_ns)
+
+
+
+### Old ###
+colnames(ocup_old_grupo_2010) <- c("cod", "municip", "x", "tot_trab", "pub", 
+                                   "ciencia", "tec", "adm", "serv", "agro_gold",
+                                   "indust_gold","manu", "cops", "mal")
+
+ocup_old_grupo_2010 %<>% slice(-5571) %>%
+  dplyr::select(c("cod", "tot_trab", "agro_gold", "indust_gold"))
+
+ocup_old_grupo_2010 %<>% mutate(cod = as.integer(cod))
+
+ocup_old_grupo_2010[is.na(ocup_old_grupo_2010)] = 0
+
+
+
+colnames(ocup_old_setor_2010) <- c("cod", "municip", "x", "tot_trab", "agro_os", 
+                                   "pesca_os", "indust_ex_os", "indust_trans_os",
+                                   "elec", "constru", "com", "aloj", "transp", 
+                                   "finan", "imob", "adm", "educ", "saude", 
+                                   "other", "dom", "int", "mal")
+
+
+ocup_old_setor_2010 %<>% slice(-5571) %>%
+  dplyr::select(c("cod", "tot_trab", "agro_os", "pesca_os", "indust_trans_os", "indust_ex_os")) %>%
+  mutate(cod = as.integer(cod))
+
+ocup_old_setor_2010[is.na(ocup_old_setor_2010)] = 0
+
+ocup_old_setor_2010 %<>%
+  mutate(agro_os = agro_os + pesca_os) %>%
+  mutate(indust_os = indust_ex_os + indust_trans_os) %>%
+  dplyr::select(-pesca_os)
+
+
+
+# Joining for 2010
+ocup_2010 <- full_join(ocup_new_grupo_2010,
+                       dplyr::select(ocup_new_setor_2010, -tot_trab), by = "cod")
+
+ocup_2010 <- full_join(ocup_2010,
+                       dplyr::select(ocup_old_setor_2010, -tot_trab), by = "cod")
+
+ocup_2010 <- full_join(ocup_2010,
+                       dplyr::select(ocup_old_grupo_2010, -tot_trab), by = "cod")
+
+
+ocup_2010 %<>% mutate(year = 2010)
+
+
+
+# Joining all and saving
+ocup_sidra <- bind_rows(ocup_2000, ocup_2010)
+
+save(ocup_sidra,
+     file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/ocup_sidra.RData")
 

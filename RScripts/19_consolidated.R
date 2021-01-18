@@ -138,7 +138,9 @@ load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/pop_struc.RDat
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/final_measures.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/shares.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/controls.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/ocup_sidra.RData")
 
+final_measures %<>% filter(year == 2000| year == 2010)
 
 pop_struc <- full_join(popstruc_pres, dplyr::select(final_measures, -"municip"), 
                         by = c("cod", "year"))
@@ -149,9 +151,13 @@ pop_struc <- full_join(pop_struc, akm_shares,
 pop_struc <- full_join(pop_struc, dplyr::select(controls, -"municip"), 
                         by = c("cod"))
 
+pop_struc <- full_join(pop_struc, ocup_sidra, 
+                       by = c("cod", "year"))
 
-pop_struc %<>% dplyr::select(-c("municip.x.x", "municip.y.x", "municip.y.y", 
-                                "municip.x.y"))
+
+pop_struc %<>% dplyr::select(-c("municip.y.x", "municip.y.y", 
+                                "municip.x.y")) %>%
+  rename(municip = municip.x.x)
 
 # Saving
 write_dta(pop_struc,

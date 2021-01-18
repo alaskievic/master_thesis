@@ -1,23 +1,15 @@
+
+***** Population Structural Change Dataset *************************************
+
 clear all
 
 set more off,permanently
 
-*set maxvar 50000
-
-*use "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\pop_struc_controls.dta"
-
 use "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\pop_struc.dta"
-*use "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\pop_struc_2.dta"
-
-
-*log using "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\pop_struc.log"
-
 
 **** Preparing Data
-
-
-
 gsort +cod +year
+
 
 replace P_AGRO = P_AGRO/100
 replace P_SERV = P_SERV/100
@@ -28,30 +20,196 @@ replace P_TRANSF = P_TRANSF/100
 replace P_INDUST = P_INDUST/100
 
 
-* controls
+* Controls
 gen log_income_1991 = log(income_1991)
 gen log_popdens_1991 = log(pop_dens_1991)
 gen agr_sh_1991 = pesorur_1991/pesotot_1991
-gen val_outpa_1995 = log(val_outpa)
+gen log_val_outpa_1995 = log(val_outpa_1995)
 
-* anothers
+* Others
 gen log_area = log(geo_area_2010)
 
-* Measures *DO NOT PASS LOGS
 
-* Outcomes
+** Outcomes
 gen log_wtrans = log(w_trans)
 gen log_wext = log(indust_ex)
 gen log_wagro = log(w_agro)
 gen log_windust = log(w_indust)
 
+* Sidra
+gen log_tot_trab = log(tot_trab)
+gen log_agro_gn = log(agro_gn)
+gen log_indust_gn = log(indust_gn)
+gen log_agro_ns = log(agro_ns)
+gen log_indust_ns = log(indust_ns)
+gen log_agro_os = log(agro_os)
+gen log_indust_os = log(indust_os)
+gen log_agro_gold = log(agro_gold)
+gen log_indust_gold = log(indust_gold)
 
-* Interaction
-*gen ineq_shares1 = gini_land1 * pq_sum
-*gen ineq_shares2 = gini_land2 * pq_sum
-*gen ineq_fao1 = gini_land1 * sum_fao
-*gen ineq_fao2 = gini_land2 * sum_fao
+gen sagro_gn = agro_gn/tot_trab 
+gen sindust_gn = indust_gn/tot_trab
+gen sagro_ns = agro_ns/tot_trab
+gen sindust_ns = indust_ns/tot_trab
+gen sagro_os = agro_os/tot_trab
+gen sindust_os = indust_os/tot_trab
+gen sagro_gold = agro_gold/tot_trab
+gen sindust_gold = indust_gold/tot_trab
 
+
+
+
+
+******************* Differences ************************************************
+
+* Measures
+gen dfao  = sum_fao - sum_fao[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dshares  = pq_sum  - pq_sum[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dfaoc95 = sum_fao_cattle_1995 - sum_fao_cattle_1995[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dfaocact = sum_fao_cattle_actual - sum_fao_cattle_actual[_n-1] if year == 2010 & cod == cod[_n-1]
+
+
+
+
+
+* Shares - PNUD
+gen dagro_sh = P_AGRO - P_AGRO[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dserv_sh = P_SERV - P_SERV[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dcom_sh = P_COM - P_COM[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dconstr_sh = P_CONSTR - P_CONSTR[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dextr_sh = P_EXTR - P_EXTR[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dtransf_sh = P_TRANSF - P_TRANSF[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dindust_sh = P_INDUST - P_INDUST[_n-1] if year == 2010 & cod == cod[_n-1]
+
+
+* Shares - Sidra
+gen dlog_tot_trab = log_tot_trab - log_tot_trab[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_agro_gn = log_agro_gn - log_agro_gn[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_indust_gn = log_indust_gn - log_indust_gn[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_agro_ns = log_agro_ns - log_agro_ns[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_indust_ns = log_indust_ns - log_indust_ns[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_agro_os = log_agro_os - log_agro_os[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_indust_os = log_indust_os  - log_indust_os[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_agro_gold = log_agro_gold  - log_agro_gold[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_indust_gold = log_indust_gold - log_indust_gold[_n-1] if year == 2010 & cod == cod[_n-1]
+
+gen dsagro_gn = sagro_gn - sagro_gn[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dsindust_gn = sindust_gn - sindust_gn[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dsagro_ns = sagro_ns - sagro_ns[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dsindust_ns = sindust_ns - sindust_ns[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dsagro_os = sagro_os - sagro_os[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dsindust_os = sindust_os - sindust_os[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dsagro_gold = sagro_gold  - sagro_gold[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dsindust_gold = sindust_gold  - sindust_gold[_n-1] if year == 2010 & cod == cod[_n-1]
+
+* Wages
+gen dlog_wagro = log_wagro- log_wagro[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_windust = log_windust- log_windust[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_wtrans = log_wtrans- log_wtrans[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_wext = log_wext- log_wext[_n-1] if year == 2010 & cod == cod[_n-1]
+
+
+
+
+********************************************************************************
+
+*Summary Statistics
+
+drop if log_windust==.
+drop if lat == .
+drop if longit ==.
+
+sort  year
+
+
+by year: summarize P_AGRO P_INDUST P_SERV log_wagro log_windust sum_faoc95
+
+
+drop if dlog_windust==.
+summarize dagro_sh dindust_sh  dserv_sh dlog_wagro dlog_windust dfaoc95
+
+********************************************************************************
+
+***** Baseline Regressions *****************************************************
+
+drop if lat == .
+drop if longit ==.
+drop if dlog_windust==.
+
+* Main Regression
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* FPC and State FE
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* Total Employment
+eststo clear
+foreach v in dlog_tot_trab dlog_agro_gn dlog_agro_ns dlog_agro_os dlog_agro_gold{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dlog_tot_trab dlog_indust_gn dlog_indust_ns dlog_indust_os dlog_indust_gold{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* Sidra Shares 
+eststo clear
+foreach v in dsagro_gn dsagro_ns dsagro_os dsagro_gold{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dsindust_gn dsindust_ns dsindust_os dsindust_gold{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+********************************************************************************
+************************** AKM *************************************************
+
+drop pr_barley_1995
+
+local controls log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991
+reg_ss dagro_sh, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
+reg_ss dagro_sh, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
+
+
+local controls log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991
+reg_ss dindust_sh, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
+reg_ss dindust_sh, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
+
+
+local controls log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991
+reg_ss dserv_sh, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
+reg_ss dserv_sh, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
+
+
+local controls log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991
+reg_ss dlog_wagro, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
+reg_ss dlog_wagro, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
+
+
+local controls log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991
+reg_ss dlog_windust, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
+reg_ss dlog_windust, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
+
+
+********************************************************************************
+************************** Dummies *********************************************
 
 *** Alternative measures
 ** First considering the whole sample (both years) to calcualte the distribution
@@ -112,88 +270,59 @@ replace faobmedy=0 if faobmedy==.
 
 
 
-******************* Differences ***************************
-
-* Measures
-gen dfao  = sum_fao - sum_fao[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dshares  = pq_sum  - pq_sum[_n-1] if year == 2010 & cod == cod[_n-1]
-*gen dactual = sum_actual  - sum_actual[_n-1] if year == 2010 & cod == cod[_n-1]
-*gen dakm = sum_fao_akm - sum_fao_akm[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dfaoc95 = sum_faoc95 - sum_faoc95[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dfaocact = sum_faocact - sum_faocact[_n-1] if year == 2010 & cod == cod[_n-1]
-
-
-drop if year == 2000 
-
-* Top 10%
-xtile pct_dfao_10 = dfaoc95, n(9)
-gen dfaodt10 = 1 if pct_dfao_10==9
-replace dfaodt10=0 if dfaodt10==.
-
-* Top 25%
-xtile pct_dfao_25 = dfaoc95, n(4)
-gen dfaodt25 = 1 if pct_dfao_25==4
-replace dfaodt25=0 if dfaodt25==.
-
-* Bottom 10%
-gen dfaodb10 = 1 if pct_dfao_10==1
-replace dfaodb10=0 if dfaodb10==.
-
-* Bottom 25%
-gen dfaodb25 = 1 if pct_dfao_25==1
-replace dfaodb25=0 if dfaodb25==.
-
-* Above and below the median
-egen dfao_median = median(dfaoc95)
-gen dfaotmed = 1 if dfaoc95 > dfao_median
-replace dfaotmed=0 if dfaotmed==.
-
-
-
-* Shares
-gen dagro_sh = P_AGRO - P_AGRO[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dserv_sh = P_SERV - P_SERV[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dcom_sh = P_COM - P_COM[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dconstr_sh = P_CONSTR - P_CONSTR[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dextr_sh = P_EXTR - P_EXTR[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dtransf_sh = P_TRANSF - P_TRANSF[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dindust_sh = P_INDUST - P_INDUST[_n-1] if year == 2010 & cod == cod[_n-1]
-
-* Wages
-gen dlog_wagro = log_wagro- log_wagro[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dlog_windust = log_windust- log_windust[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dlog_wtrans = log_wtrans- log_wtrans[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dlog_wext = log_wext- log_wext[_n-1] if year == 2010 & cod == cod[_n-1]
-
-* Land Inequality
-gen dgini_land1 = gini_land1 - gini_land1[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dgini_land2 = gini_land2 - gini_land2[_n-1] if year == 2010 & cod == cod[_n-1]
-
-
-* Interactions
-*gen dineq_shares1 = ineq_shares1 - ineq_shares1[_n-1] if year == 2010 & cod == cod[_n-1]
-*gen dineq_shares2 = ineq_shares2 - ineq_shares2[_n-1] if year == 2010 & cod == cod[_n-1]
-*gen dineq_fao1 = ineq_fao1 - ineq_fao1[_n-1] if year == 2010 & cod == cod[_n-1]
-*gen dineq_fao2 = ineq_fao2 - ineq_fao2[_n-1] if year == 2010 & cod == cod[_n-1]
 
 
 
 ********************************************************************************
+********************** Spatial Correlation *************************************
 
-*Summary Statistics
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster codmicro)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
-drop if log_windust==.
-drop if lat == .
-drop if longit ==.
+* 50 KM
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
+eststo: qui acreg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
+spatial latitude(lat) longitude (longit) dist (50)
+}
 
-sort  year
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* 100 KM
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
+eststo: qui acreg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
+spatial latitude(lat) longitude (longit) dist (100)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* 150 KM
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
+eststo: qui acreg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
+spatial latitude(lat) longitude (longit) dist (150)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* 200 KM
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
+eststo: qui acreg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
+spatial latitude(lat) longitude (longit) dist (200)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
-by year: summarize P_AGRO P_INDUST P_SERV log_wagro log_windust sum_faoc95
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
+eststo: qui acreg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
+spatial latitude(lat) longitude (longit) dist (700)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
-
-drop if dlog_windust==.
-summarize dagro_sh dindust_sh  dserv_sh dlog_wagro dlog_windust dfaoc95
 
 ********************************************************************************
 * Using only FAO
@@ -333,7 +462,9 @@ esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compres
 
 
 reg dagro_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 lat longit rain_daniel temp_daniel capital_dummy dist_federal dist_state altitude i.codstate, cluster(cod)
+
 *********************** Alternative Measures ***********************************
+
 eststo clear
 eststo: qui reg dagro_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
 eststo: qui reg dindust_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
@@ -361,58 +492,6 @@ esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compres
 
 
 
-
-
-
-
-eststo clear
-eststo: qui reg dagro_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(codmicro)
-eststo: qui reg dindust_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(codmicro)
-eststo: qui reg dserv_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(codmicro)
-eststo: qui reg dlog_wagro dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(codmicro)
-eststo: qui reg dlog_windust dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(codmicro)
-
-esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
-
-eststo clear
-foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
-eststo: qui acreg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (50)
-}
-
-esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-eststo clear
-foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
-eststo: qui acreg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (100)
-}
-esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-eststo clear
-foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
-eststo: qui acreg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (150)
-}
-esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-eststo clear
-foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
-eststo: qui acreg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (200)
-}
-esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-eststo clear
-foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
-eststo: qui acreg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (700)
-}
-esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 ************************* Dummies **********************************************
 xtset cod year, delta(10)
@@ -560,17 +639,6 @@ foreach v in P_AGRO P_INDUST P_SERV log_wagro log_windust{
 esttab, se ar2 stat (r2_a N) keep(faodt10) compress
 
 
-
-eststo clear
-eststo: qui reg dagro_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(codmicro)
-eststo: qui reg dindust_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(codmicro)
-eststo: qui reg dserv_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(codmicro)
-eststo: qui reg dlog_wagro dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(codmicro)
-eststo: qui reg dlog_windust dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(codmicro)
-
-esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
 ********************************************************************************
 
 eststo clear
@@ -624,36 +692,7 @@ esttab, se ar2 stat (r2_a N) keep(dfaoc95) compress
 
 
 
-********* AKM ******************************************************************
 
-drop pr_barley_1995
-
-local controls log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991
-reg_ss dagro_sh, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
-reg_ss dagro_sh, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
-
-
-local controls log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991
-reg_ss dindust_sh, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
-reg_ss dindust_sh, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
-
-
-local controls log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991
-reg_ss dserv_sh, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
-reg_ss dserv_sh, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
-
-
-local controls log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991
-reg_ss dlog_wagro, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
-reg_ss dlog_wagro, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
-
-
-local controls log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991
-reg_ss dlog_windust, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
-reg_ss dlog_windust, shiftshare_var(dfaoc95) control_varlist(`controls') share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
-
-
-********************************************************************************
 eststo clear
 eststo: qui reg dagro_sh dfaocact log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
 eststo: qui reg dindust_sh dfaocact log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
@@ -778,102 +817,6 @@ c.temp_daniel#i.year c.rain_daniel#i.year i.year, fe vce (cluster cod)
 
 
 
-eststo clear
-eststo: qui acreg dagro_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (50)
-
-eststo: qui acreg dindust_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (50)
-
-eststo: qui acreg dserv_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (50)
-
-eststo: qui acreg dlog_wagro dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (50)
-
-eststo: qui acreg dlog_windust dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (50)
-
-esttab, se ar2 stat ( r2_a N) keep(dfao) compress
-
-
-eststo clear
-eststo: qui acreg dagro_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-eststo: qui acreg dindust_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-eststo: qui acreg dserv_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-eststo: qui acreg dlog_wagro dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-eststo: qui acreg dlog_windust dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-esttab, se ar2 stat ( r2_a N) keep(dfao) compress
-
-
-eststo clear
-eststo: qui acreg dagro_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (150)
-
-eststo: qui acreg dindust_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (150)
-
-eststo: qui acreg dserv_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (150)
-
-eststo: qui acreg dlog_wagro dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (150)
-
-eststo: qui acreg dlog_windust dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (150)
-
-esttab, se ar2 stat ( r2_a N) keep(dfao) compress
-
-
-eststo clear
-eststo: qui acreg dagro_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-eststo: qui acreg dindust_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-eststo: qui acreg dserv_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-eststo: qui acreg dlog_wagro dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-eststo: qui acreg dlog_windust dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-esttab, se ar2 stat ( r2_a N) keep(dfao) compress
-
-
-
-
-eststo clear
-eststo: qui acreg dagro_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (300)
-
-eststo: qui acreg dindust_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (300)
-
-eststo: qui acreg dserv_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (300)
-
-eststo: qui acreg dlog_wagro dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (300)
-
-eststo: qui acreg dlog_windust dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, ///
-spatial latitude(lat) longitude (longit) dist (300)
-
-esttab, se ar2 stat ( r2_a N) keep(dfao) compress
-
 
 ********************************************************************************
 
@@ -903,1198 +846,22 @@ eststo: qui xtreg log_windust pq_sum, fe vce (cluster cod)
 esttab, se ar2 stat (r2_a N) keep(pq_sum) compress
 
 
-eststo clear
-eststo: qui ivreg2 dagro_sh (dshares= dfao), cluster(cod) ffirst savefirst
-eststo: qui ivreg2 dindust_sh (dshares= dfao), cluster(cod) ffirst savefirst
-eststo: qui ivreg2 dserv_sh (dshares= dfao), cluster(cod) ffirst savefirst
-eststo: qui ivreg2 dlog_wagro (dshares= dfao), cluster(cod) ffirst savefirst
-eststo: qui ivreg2 dlog_windust (dshares= dfao), cluster(cod) ffirst savefirst
 
-eststo: estimates restore _ivreg2_dshares
 
-esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares) compress
 
 
-eststo clear
-eststo: qui acreg dagro_sh (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (50)
 
-eststo: qui acreg dindust_sh (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (50)
 
-eststo: qui acreg dserv_sh (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (50)
 
-eststo: qui acreg dlog_wagro (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (50)
 
-eststo: qui acreg dlog_windust (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (50)
 
-esttab, se ar2 stat ( r2_a N) keep(dshares) compress
 
 
 
-eststo clear
-eststo: qui acreg dagro_sh (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (100)
 
-eststo: qui acreg dindust_sh (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (100)
 
-eststo: qui acreg dserv_sh (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (100)
 
-eststo: qui acreg dlog_wagro (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (100)
 
-eststo: qui acreg dlog_windust (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-esttab, se ar2 stat ( r2_a N) keep(dshares) compress
-
-
-
-
-eststo clear
-eststo: qui acreg dagro_sh (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-eststo: qui acreg dindust_sh (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-eststo: qui acreg dserv_sh (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-eststo: qui acreg dlog_wagro (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-eststo: qui acreg dlog_windust (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-esttab, se ar2 stat ( r2_a N) keep(dshares) compress
-
-
-* Missing values
-eststo clear
-eststo: qui acreg dagro_sh (dshares= dfao), ///
-spatial latitude(latitude) longitude (longitude) dist (200)
-
-eststo: qui acreg dindust_sh (dshares= dfao), ///
-spatial latitude(latitude) longitude (longitude) dist (200)
-
-eststo: qui acreg dserv_sh (dshares= dfao), ///
-spatial latitude(latitude) longitude(longitude) dist (200)
-
-eststo: qui acreg dlog_wagro (dshares= dfao), ///
-spatial latitude(latitude) longitude (longitude) dist (200)
-
-eststo: qui acreg dlog_windust (dshares= dfao), ///
-spatial latitude(latitude) longitude (longitude) dist (200)
-
-esttab, se ar2 stat ( r2_a N) keep(dshares) compress
-
-
-********************************************************************************
-
-
-
-reg dagro_sh dshares log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
-
-
-reg dagro_sh dfao, cluster(cod)
-reg dagro_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
-
-
-eststo clear
-eststo: qui reg dagro_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
-eststo: qui reg dindust_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
-eststo: qui reg dserv_sh dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
-eststo: qui reg dlog_wagro dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
-eststo: qui reg  dlog_windust dfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
-
-esttab, se ar2 stat (r2_a N) keep(dfao) compress
-
-
-* Baseline Controls
-eststo clear
-
-eststo: qui xtreg P_AGRO pq_sum c.log_income_1991#i.year c.log_popdens_1991#i.year ///
-c.agr_sh_1991#i.year c.analf_1991#i.year i.year, fe vce (cluster cod)
-
-eststo: qui xtreg P_INDUST pq_sum c.log_income_1991#i.year c.log_popdens_1991#i.year ///
-c.agr_sh_1991#i.year c.analf_1991#i.year i.year, fe vce (cluster cod)
-
-eststo: qui xtreg P_SERV pq_sum c.log_income_1991#i.year c.log_popdens_1991#i.year ///
-c.agr_sh_1991#i.year c.analf_1991#i.year i.year, fe vce (cluster cod)
-
-eststo: qui xtreg log_wagro pq_sum c.log_income_1991#i.year c.log_popdens_1991#i.year ///
-c.agr_sh_1991#i.year c.analf_1991#i.year i.year, fe vce (cluster cod)
-
-eststo: qui xtreg log_windust pq_sum c.log_income_1991#i.year c.log_popdens_1991#i.year ///
-c.agr_sh_1991#i.year c.analf_1991#i.year i.year, fe vce (cluster cod)
-
-esttab, se ar2 stat (r2_a N) keep(pq_sum) compress
-
-
-
-
-
-eststo clear
-eststo: qui ivreg2 dagro_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
-(dshares= dfao), cluster(cod) ffirst savefirst
-
-eststo: qui ivreg2 dindust_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
-(dshares= dfao), cluster(cod) ffirst savefirst
-
-eststo: qui ivreg2 dserv_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
-(dshares= dfao), cluster(cod) ffirst savefirst
-
-eststo: qui ivreg2 dlog_wagro log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
-(dshares= dfao), cluster(cod) ffirst savefirst
-
-eststo: qui ivreg2 dlog_windust log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
-(dshares= dfao), cluster(cod) ffirst savefirst
-
-eststo: estimates restore _ivreg2_dshares
-
-esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares) compress
-
-
-eststo clear
-eststo: qui acreg dagro_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (50)
-
-eststo: qui acreg dindust_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (50)
-
-eststo: qui acreg dserv_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (50)
-
-eststo: qui acreg dlog_wagro log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (50)
-
-eststo: qui acreg dlog_windust log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (50)
-
-esttab, se ar2 stat ( r2_a N) keep(dshares) compress
-
-
-
-eststo clear
-eststo: qui acreg dagro_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-eststo: qui acreg dindust_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-eststo: qui acreg dserv_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-eststo: qui acreg dlog_wagro log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-eststo: qui acreg dlog_windust log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-esttab, se ar2 stat ( r2_a N) keep(dshares) compress
-
-
-
-
-eststo clear
-eststo: qui acreg dagro_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-eststo: qui acreg dindust_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-eststo: qui acreg dserv_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-eststo: qui acreg dlog_wagro log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-eststo: qui acreg dlog_windust log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-esttab, se ar2 stat ( r2_a N) keep(dshares) compress
-
-
-
-
-
-
-
-
-
-* All Controls
-eststo clear
-
-eststo: qui xtreg P_AGRO pq_sum c.log_income_1991#i.year c.log_popdens_1991#i.year ///
-c.agr_sh_1991#i.year c.analf_1991#i.year c.altitude#i.year c.dist_federal#i.year ///
-c.dist_state#i.year i.capital_dummy#i.year c.rain_daniel#i.year c.temp_daniel#i.year ///
-c.lat#i.year c.longit#i.year c.log_area#i.year i.year, fe vce (cluster cod)
-
-eststo: qui xtreg P_INDUST pq_sum c.log_income_1991#i.year c.log_popdens_1991#i.year ///
-c.agr_sh_1991#i.year c.analf_1991#i.year c.altitude#i.year c.dist_federal#i.year ///
-c.dist_state#i.year i.capital_dummy#i.year c.rain_daniel#i.year c.temp_daniel#i.year ///
-c.lat#i.year c.longit#i.year c.log_area#i.year i.year, fe vce (cluster cod)
-
-eststo: qui xtreg P_SERV pq_sum c.log_income_1991#i.year c.log_popdens_1991#i.year ///
-c.agr_sh_1991#i.year c.analf_1991#i.year c.altitude#i.year c.dist_federal#i.year ///
-c.dist_state#i.year i.capital_dummy#i.year c.rain_daniel#i.year c.temp_daniel#i.year ///
-c.lat#i.year c.longit#i.year c.log_area#i.year i.year, fe vce (cluster cod)
-
-eststo: qui xtreg log_wagro pq_sum c.log_income_1991#i.year c.log_popdens_1991#i.year ///
-c.agr_sh_1991#i.year c.analf_1991#i.year c.altitude#i.year c.dist_federal#i.year ///
-c.dist_state#i.year i.capital_dummy#i.year c.rain_daniel#i.year c.temp_daniel#i.year ///
-c.lat#i.year c.longit#i.year c.log_area#i.year i.year, fe vce (cluster cod)
-
-eststo: qui xtreg log_windust pq_sum c.log_income_1991#i.year c.log_popdens_1991#i.year ///
-c.agr_sh_1991#i.year c.analf_1991#i.year c.altitude#i.year c.dist_federal#i.year ///
-c.dist_state#i.year i.capital_dummy#i.year c.rain_daniel#i.year c.temp_daniel#i.year ///
-c.lat#i.year c.longit#i.year c.log_area#i.year i.year, fe vce (cluster cod)
-
-
-esttab, se ar2 stat (r2_a N) keep(pq_sum) compress
-
-
-
-
-********* With Land Inequality *************************************************
-
-eststo clear
-eststo: qui ivreg2 dagro_sh dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
-(dshares dineq_shares1= dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-eststo: qui ivreg2 dindust_sh dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
-(dshares dineq_shares1= dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-eststo: qui ivreg2 dserv_sh dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
-(dshares dineq_shares1= dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-eststo: qui ivreg2 dlog_wagro dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
-(dshares dineq_shares1= dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-eststo: qui ivreg2 dlog_windust dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
-(dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-eststo: estimates restore _ivreg2_dshares
-eststo: estimates restore _ivreg2_dineq_shares1
-
-esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares dineq_shares1 dgini_land1) compress
-
-
-eststo clear
-eststo: qui acreg dagro_sh dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1= dfao dineq_fao1), ///
-spatial latitude(lat) longitude (longit) dist (50)
-
-eststo: qui acreg dindust_sh dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1= dfao dineq_fao1), ///
-spatial latitude(lat) longitude (longit) dist (50)
-
-eststo: qui acreg dserv_sh dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1= dfao dineq_fao1), ///
-spatial latitude(lat) longitude (longit) dist (50)
-
-eststo: qui acreg dlog_wagro dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1= dfao dineq_fao1), ///
-spatial latitude(lat) longitude (longit) dist (50)
-
-eststo: qui acreg dlog_windust dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1= dfao dineq_fao1), ///
-spatial latitude(lat) longitude (longit) dist (50)
-
-esttab, se ar2 stat ( r2_a N) keep(dshares dineq_shares1) compress
-
-
-
-eststo clear
-eststo: qui acreg dagro_sh dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1= dfao dineq_fao1), ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-eststo: qui acreg dindust_sh dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1= dfao dineq_fao1), ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-eststo: qui acreg dserv_sh dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1= dfao dineq_fao1), ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-eststo: qui acreg dlog_wagro dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1= dfao dineq_fao1), ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-eststo: qui acreg dlog_windust dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1= dfao dineq_fao1), ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-esttab, se ar2 stat ( r2_a N) keep(dshares dineq_shares1) compress
-
-
-
-
-eststo clear
-eststo: qui acreg dagro_sh dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1= dfao dineq_fao1), ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-eststo: qui acreg dindust_sh dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1= dfao dineq_fao1), ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-eststo: qui acreg dserv_sh dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1= dfao dineq_fao1), ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-eststo: qui acreg dlog_wagro dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1= dfao dineq_fao1), ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-eststo: qui acreg dlog_windust dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1= dfao dineq_fao1), ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-esttab, se ar2 stat ( r2_a N) keep(dshares dineq_shares1) compress
-
-
-
-
-********************************************************************************
-
-reg dagro_sh dshares log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
-ivreg2 dagro_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), cluster(cod) ffirst savefirst
-
-ivreg2 dagro_sh (dshares= dfao), cluster(cod) ffirst savefirst
-
-*Are the same when using full panel data?
-tsset cod year, delta(10)
-
-ivreg2 dagro_sh (dshares= dfao), cluster(cod) ffirst savefirst
-ivreg2 d.P_AGRO log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (d.pq_sum=d.sum_fao), cluster(cod) ffirst savefirst
-
-
-*egen zsum = std(pq_sum)
-*egen zfao = std(sum_fao)
-*egen zagsh = std(P_AGRO)
-
-bysort cod: egen zagsh = std(P_AGRO)
-bysort cod: egen zfao = std(sum_fao)
-bysort cod: egen zsum = std(pq_sum)
-
-
-sum zsum zfao zagsh
-
-xtivreg2 P_AGRO (pq_sum = sum_fao), fe small first
-xtivreg2 zagsh (zsum = zfao), fe small first
-
-xtreg P_AGRO pq_sum, fe vce (cluster cod)
-xtreg zagsh zsum, fe vce (cluster cod)
-
-*De fato, são iguais
-xtivreg2 P_AGRO (pq_sum = sum_fao), fd small first
-
-ivreg2 d.P_AGRO log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (d.pq_sum=d.sum_fao), cluster(cod) small first
-
-
-* Standardized
-egen zdshares = std(dshares)
-egen zdfao = std(dfao)
-
-ivreg2 d.P_AGRO log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (zdshares=zdfao), cluster(cod) small first
-
-
-
-****** Using acreg
-* net install acreg, from(https://acregstata.weebly.com/uploads/2/9/1/6/29167217) replace
-
-acreg dagro_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), ///
-spatial latitude(lat) longitude (longit) dist (50)
-
-acreg dagro_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), id(cod) time(year) ///
-spatial latitude(lat) longitude (longit) dist (100)
-
-
-acreg dagro_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares=dfao), id(cod) time(year) ///
-spatial latitude(lat) longitude (longit) dist (200)
-
-
-acreg dagro_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), id(cod) time(year) ///
-spatial latitude(lat) longitude (longit) dist (300)
-
-
-acreg dagro_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), id(cod) time(year) ///
-spatial latitude(lat) longitude (longit) dist (500)
-
-
-*********** AKM Correction *****************************************************
-local controls log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991
-
-reg_ss dagro_sh, shiftshare_var(dshares) control_varlist(`controls') share_varlist(banana-tea) akmtype(0)
-
-reg_ss dagro_sh, shiftshare_var(dakm) control_varlist(`controls') share_varlist(akm_banana-akm_wheat) akmtype(1)
-
-ivreg_ss dagro_sh, endogenous_var(dshares) shiftshare_iv(dakm) control_varlist(`controls') share_varlist(akm_banana-akm_wheat) akmtype(1)
-
-
-
-ivreg2 dagro_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
-(dshares= dakm), cluster(cod) ffirst savefirst
-
-
-********************************************************************************
-
-
-*********************** ssaggregate ********************************************
-
-clear all
-
-set more off,permanently
-
-cd "C:\Users\Andrei\Desktop\ADH\Data"
-
-use location_level
-
-merge 1:1 czone year using Lshares_wide, assert(3) nogen
-
-* Example
-ssaggregate y x z l_sh_routine33 [aw=wei], n(aaaa) t(year) s(ind_share) controls("t2 Lsh_manuf")
-
-
-* Second Step
-merge 1:1 sic87dd year using shocks, assert(1 3) nogen
-merge m:1 sic87dd using industries, assert(1 3) nogen
-
-
-
-
-
-* Now trying
-clear all
-
-set more off,permanently
-
-use "C:\Users\Andrei\Desktop\Dissertation\Dados\master_thesis\StataFiles\popstruc_pres.dta"
-
-
-rename pr_banana pr_1
-rename pr_barley pr_2
-rename pq_orange pr_3
-rename pr_cocoa pr_4
-rename pr_coffee pr_5
-rename pr_cotton pr_6
-rename pr_maize pr_7
-rename pr_rice pr_8
-rename pr_sorghum pr_9
-rename pr_soybean pr_10
-rename pr_sugarcane pr_11
-rename pr_tea pr_12
-rename pr_tobacco pr_13
-rename pr_wheat pr_14
-
-
-
-* It Works!!!!
-ssaggregate P_AGRO pq_sum sum_fao, n(crops) t(year) s(pr_)
-
-
-controls("log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991")
-*************************************************
-
-ivreg_ss dagro_sh, endogenous_var(dshares) shiftshare_iv(dfao) control_varlist(`controls') ///
-share_varlist(pr_banana-pr_wheat) akmtype(1) firststage(1)
-
-ivreg_ss dagro_sh, endogenous_var(dshares) shiftshare_iv(dfao) control_varlist(`controls') ///
-share_varlist(banana-tea) akmtype(1) firststage(1)
-
-eststo clear
-eststo: qui reg dagro_sh dshares log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
-
-eststo: qui ivreg2 dagro_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), cluster(cod) ffirst savefirst
-
-
-eststo: estimates restore _ivreg2_dshares
-
-
-esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares) compress
-
-
-
-
-eststo clear
-eststo: qui ivreg2 dagro_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dactual= dfao), cluster(cod) ffirst savefirst
-
-
-eststo: estimates restore _ivreg2_dshares
-
-
-esttab, se ar2 stat (widstat r2_a N) keep(dfao dactual) compress
-
-
-reg dagro_sh dactual log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
-
-
-
-
-
-eststo clear
-eststo: qui ivreg2 dindust_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares= dfao), cluster(cod) ffirst savefirst
-
-
-eststo: estimates restore _ivreg2_dshares
-
-
-esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares) compress
-
-
-
-eststo clear
-eststo: qui ivreg2 dindust_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dactual= dfao), cluster(cod) ffirst savefirst
-
-
-eststo: estimates restore _ivreg2_dshares
-
-
-esttab, se ar2 stat (widstat r2_a N) keep(dfao dactual) compress
-
-
-
-
-
-
-
-
-
-
-
-
-***     ***************
-
-*********** Regressions *******************************************************
-eststo clear
-eststo: qui ivreg2 dagro_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-
-eststo: estimates restore _ivreg2_dshares
-eststo: estimates restore _ivreg2_dineq_shares1
-
-esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares dineq_shares1 dineq_fao1) compress
-
-
-
-
-
-eststo clear
-eststo: qui ivreg2 dlog_wagro log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-
-eststo: estimates restore _ivreg2_dshares
-eststo: estimates restore _ivreg2_dineq_shares1
-
-esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares dineq_shares1 dineq_fao1) compress
-
-
-
-
-eststo clear
-eststo: qui ivreg2 dindust_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-
-eststo: estimates restore _ivreg2_dshares
-eststo: estimates restore _ivreg2_dineq_shares1
-
-esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares dineq_shares1 dineq_fao1) compress
-
-
-
-
-eststo clear
-eststo: qui ivreg2 dtransf_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-
-eststo: estimates restore _ivreg2_dshares
-eststo: estimates restore _ivreg2_dineq_shares1
-
-esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares dineq_shares1 dineq_fao1) compress
-
-
-
-eststo clear
-eststo: qui ivreg2 dextr_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-
-eststo: estimates restore _ivreg2_dshares
-eststo: estimates restore _ivreg2_dineq_shares1
-
-esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares dineq_shares1 dineq_fao1) compress
-
-
-
-
-
-eststo clear
-eststo: qui ivreg2 dlog_windust log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-
-eststo: estimates restore _ivreg2_dshares
-eststo: estimates restore _ivreg2_dineq_shares1
-
-esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares dineq_shares1 dineq_fao1) compress
-
-
-
-eststo clear
-eststo: qui ivreg2 dlog_wtrans log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-
-eststo: estimates restore _ivreg2_dshares
-eststo: estimates restore _ivreg2_dineq_shares1
-
-esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares dineq_shares1 dineq_fao1) compress
-
-
-
-eststo clear
-eststo: qui ivreg2 dlog_wext log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-
-eststo: estimates restore _ivreg2_dshares
-eststo: estimates restore _ivreg2_dineq_shares1
-
-esttab, se ar2 stat (widstat r2_a N) keep(dfao dshares dineq_shares1 dineq_fao1) compress
-
-
-
-
-ivreg2 dlog_windust log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-ivreg2 dlog_windust dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-
-ivreg2 dagro_sh  log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-ivreg2 dagro_sh dgini_land1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-
-
-***********
-	
-reg dagro_sh dshares dineq_shares1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
-
-
-ivreg2 dagro_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.uf (dshares = dfao), cluster(cod) ffirst savefirst
-
-ivreg2 dagro_sh (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-ivreg2 dagro_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.uf (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-*eststo: estimates restore _ivreg2_dlog_shares_dineq_shares1
-
-*esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares dineq_shares1 dlog_fao dineq_fao1) compress
-
-
-***************************
-reg dindust_sh dshares dineq_shares1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
-
-ivreg2 dindust_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.uf (dshares = dfao), cluster(cod) ffirst savefirst
-
-ivreg2 dindust_sh (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-ivreg2 dindust_sh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.uf (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-*****************************
-
-reg dlog_wagro dshares dineq_shares1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
-
-ivreg2 dlog_wagro log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.uf (dshares = dfao), cluster(cod) ffirst savefirst
-
-ivreg2 dlog_wagro (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-ivreg2 dlog_wagro log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.uf (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-
-
-
-reg dlog_windust dshares dineq_shares1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
-
-ivreg2 dlog_windust log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.uf (dshares = dfao), cluster(cod) ffirst savefirst
-
-ivreg2 dlog_windust (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-ivreg2 dlog_windust log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.uf (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-
-reg dlog_wtrans dshares dineq_shares1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
-
-ivreg2 dlog_wtrans log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.uf (dshares = dfao), cluster(cod) ffirst savefirst
-
-ivreg2 dlog_wtrans (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-
-**** TEST
-eststo clear
-
-eststo: qui reg dlog_windust dshares dineq_shares1 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
-
-eststo: qui ivreg2 dlog_windust log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares = dfao), cluster(cod) ffirst savefirst
-
-eststo: qui ivreg2 dlog_windust (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-eststo: qui ivreg2 dlog_windust log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-eststo: estimates restore _ivreg2_dshares
-eststo: estimates restore _ivreg2_dineq_shares1
-
-esttab, se ar2 stat (widstat) keep(dfao dshares dineq_shares1 dineq_fao1) compress
-*******
-
-
-eststo clear
-eststo: qui ivreg2 dlog_wtrans log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.cod (dshares dineq_shares1 = dfao dineq_fao1), cluster(cod) ffirst savefirst
-
-eststo: estimates restore _ivreg2_dlog_shares_dineq_shares1
-
-esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares dineq_shares1 dlog_fao dineq_fao1) compress
-
-*****************************
-eststo clear
-
-eststo: qui ivreg2 dlog_rdpc (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dlog_rdpc rural_sh_c pop_dens_c  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dlog_rdpc dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
- 
-eststo: qui ivreg2 dlog_rdpc  rural_sh_c pop_dens_c dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-eststo: estimates restore _ivreg2_dlog_shares
-
-esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
-
-
-
-
-******************************************************************
-eststo clear	
-eststo: qui reg dlog_rdpct dlog_fao, robust
-
-eststo: qui reg dlog_rdpct dlog_fao dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-eststo: qui reg dlog_rdpct dlog_shares, robust
-
-eststo: qui reg dlog_rdpct dlog_shares dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-esttab, se ar2 keep(dlog_fao dlog_shares) compress
-
-*******
-eststo clear
-
-eststo: qui ivreg2 dlog_rdpct (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dlog_rdpct rural_sh_c pop_dens_c  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dlog_rdpct dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
- 
-eststo: qui ivreg2 dlog_rdpct  rural_sh_c pop_dens_c dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-eststo: estimates restore _ivreg2_dlog_shares
-
-esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
-
-
-
-
-
-******************************************************************
-eststo clear	
-eststo: qui reg dlog_popd2 dlog_fao, robust
-
-eststo: qui reg dlog_popd2 dlog_fao dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-eststo: qui reg dlog_popd2 dlog_shares, robust
-
-eststo: qui reg dlog_popd2 dlog_shares dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-esttab, se ar2 keep(dlog_fao dlog_shares) compress
-
-*******
-eststo clear
-
-eststo: qui ivreg2 dlog_popd2 (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dlog_popd2 rural_sh_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dlog_popd2 dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
- 
-eststo: qui ivreg2 dlog_popd2  rural_sh_c rdpc_c dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-eststo: estimates restore _ivreg2_dlog_shares
-
-esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-******************************************************************
-eststo clear	
-eststo: qui reg drur_share dlog_fao, robust
-
-eststo: qui reg drur_share dlog_fao dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-eststo: qui reg drur_share dlog_shares, robust
-
-eststo: qui reg drur_share dlog_shares dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-esttab, se ar2 keep(dlog_fao dlog_shares) compress
-
-*******
-eststo clear
-
-eststo: qui ivreg2 drur_share (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 drur_share pop_dens_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 drur_share dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
- 
-eststo: qui ivreg2 drur_share pop_dens_c rdpc_c dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-eststo: estimates restore _ivreg2_dlog_shares
-
-esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
-
-
-
-
-
-
-
-
-
-
-
-
-******************************************************************
-eststo clear	
-eststo: qui reg durb_share dlog_fao, robust
-
-eststo: qui reg durb_share dlog_fao dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-eststo: qui reg durb_share dlog_shares, robust
-
-eststo: qui reg durb_share dlog_shares dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-esttab, se ar2 keep(dlog_fao dlog_shares) compress
-
-*******
-eststo clear
-
-eststo: qui ivreg2 durb_share (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 durb_share pop_dens_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 durb_share dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
- 
-eststo: qui ivreg2 durb_share pop_dens_c rdpc_c dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-eststo: estimates restore _ivreg2_dlog_shares
-
-esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
-
-
-
-
-
-
-
-
-
-* Agro share
-******************************************************************
-eststo clear	
-eststo: qui reg dagro_sh dlog_fao, robust
-
-eststo: qui reg dagro_sh dlog_fao dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-eststo: qui reg dagro_sh dlog_shares, robust
-
-eststo: qui reg dagro_sh dlog_shares dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-esttab, se ar2 keep(dlog_fao dlog_shares) compress
-
-*******
-eststo clear
-
-eststo: qui ivreg2 dagro_sh (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dagro_sh rural_sh_c pop_dens_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dagro_sh dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
- 
-eststo: qui ivreg2 dagro_sh  rural_sh_c pop_dens_c rdpc_c dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-eststo: estimates restore _ivreg2_dlog_shares
-
-esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
-
-
-
-
-
-
-
-
-******************************************************************
-eststo clear	
-eststo: qui reg dserv_sh dlog_fao, robust
-
-eststo: qui reg dserv_sh dlog_fao dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-eststo: qui reg dserv_sh dlog_shares, robust
-
-eststo: qui reg dserv_sh dlog_shares dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-esttab, se ar2 keep(dlog_fao dlog_shares) compress
-
-*******
-eststo clear
-
-eststo: qui ivreg2 dserv_sh (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dserv_sh rural_sh_c pop_dens_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dserv_sh dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
- 
-eststo: qui ivreg2 dserv_sh  rural_sh_c pop_dens_c rdpc_c dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-eststo: estimates restore _ivreg2_dlog_shares
-
-esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
-
-
-
-
-
-
-
-
-
-
-******************************************************************
-eststo clear	
-eststo: qui reg dcom_sh dlog_fao, robust
-
-eststo: qui reg dcom_sh dlog_fao dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-eststo: qui reg dcom_sh dlog_shares, robust
-
-eststo: qui reg dcom_sh dlog_shares dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-esttab, se ar2 keep(dlog_fao dlog_shares) compress
-
-*******
-eststo clear
-
-eststo: qui ivreg2 dcom_sh (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dcom_sh rural_sh_c pop_dens_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dcom_sh dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
- 
-eststo: qui ivreg2 dcom_sh  rural_sh_c pop_dens_c rdpc_c dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-eststo: estimates restore _ivreg2_dlog_shares
-
-esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
-
-
-
-
-
-
-
-
-
-******************************************************************
-eststo clear	
-eststo: qui reg dconstr_sh dlog_fao, robust
-
-eststo: qui reg dconstr_sh dlog_fao dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-eststo: qui reg dconstr_sh dlog_shares, robust
-
-eststo: qui reg dconstr_sh dlog_shares dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-esttab, se ar2 keep(dlog_fao dlog_shares) compress
-
-*******
-eststo clear
-
-eststo: qui ivreg2 dconstr_sh (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dconstr_sh rural_sh_c pop_dens_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dconstr_sh dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
- 
-eststo: qui ivreg2 dconstr_sh  rural_sh_c pop_dens_c rdpc_c dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-eststo: estimates restore _ivreg2_dlog_shares
-
-esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
-
-
-
-
-
-
-
-
-
-******************************************************************
-eststo clear	
-eststo: qui reg dextr_sh dlog_fao, robust
-
-eststo: qui reg dextr_sh dlog_fao dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-eststo: qui reg dextr_sh dlog_shares, robust
-
-eststo: qui reg dextr_sh dlog_shares dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-esttab, se ar2 keep(dlog_fao dlog_shares) compress
-
-*******
-eststo clear
-
-eststo: qui ivreg2 dextr_sh (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dextr_sh rural_sh_c pop_dens_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dextr_sh dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
- 
-eststo: qui ivreg2 dextr_sh  rural_sh_c pop_dens_c rdpc_c dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-eststo: estimates restore _ivreg2_dlog_shares
-
-esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
-
-
-
-
-
-
-******************************************************************
-eststo clear	
-eststo: qui reg dtransf_sh dlog_fao, robust
-
-eststo: qui reg dtransf_sh dlog_fao dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-eststo: qui reg dtransf_sh dlog_shares, robust
-
-eststo: qui reg dtransf_sh dlog_shares dist_state dist_federal ///
-	log_area  latitude longitude altitude ///
-	capital_dummy, robust
-
-esttab, se ar2 keep(dlog_fao dlog_shares) compress
-
-*******
-eststo clear
-
-eststo: qui ivreg2 dtransf_sh (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dtransf_sh rural_sh_c pop_dens_c rdpc_c  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-
-eststo: qui ivreg2 dtransf_sh dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
- 
-eststo: qui ivreg2 dtransf_sh  rural_sh_c pop_dens_c rdpc_c dist_state dist_federal latitude ///
- longitude altitude capital_dummy  (dlog_shares = dlog_fao), robust ffirst savefirst
-
-eststo: estimates restore _ivreg2_dlog_shares
-
-esttab, se ar2 stat (widstat) keep(dlog_fao dlog_shares) compress
-
-
-
-log close
 
 
 

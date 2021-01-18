@@ -31,6 +31,7 @@ gen dfao_baselinecat95  = sum_fao_cattle_1995[_n-1] - sum_fao_cattle_1995[_n-2] 
 gen dfao_baselinecatact  = sum_fao_cattle_actual[_n-1] - sum_fao_cattle_actual[_n-2] if year == 2017 & cod == cod[_n-1]
 *gen dshares_baseline  = pq_sum_log[_n-1]  - pq_sum_log[_n-2] if year == 2017 & cod == cod[_n-1]
 
+
 * Land Inequality
 gen dgini_land_baseline = gini_land - gini_land[_n-1] if year == 2017 & cod == cod[_n-1]
 gen dgini_land_short = gini_land[_n-1] - gini_land[_n-2] if year == 2017 & cod == cod[_n-1]
@@ -46,6 +47,7 @@ gen log_popdens_1991 = log(pop_dens_1991)
 gen agr_sh_1991 = pesorur_1991/pesotot_1991
 gen log_valpw_1995 = log(val_outpw)
 replace log_valpw_1995 = log_valpw_1995[_n-2] if year == 2017 & cod == cod[_n-1]
+
 *** Others
 gen log_area = log(geo_area_2010)
 
@@ -58,6 +60,14 @@ gen log_seeds = log(totval_seeds)
 gen seedspa = log(totval_seeds/total_area)
 gen log_trans = log(trans_value)
 gen transpa = log(trans_value/total_area)
+gen seedsarea = totarea_seeds/total_area
+gen transarea = trans_area/total_area
+gen propnshare = prop_num/tot_num
+gen propashare = prop_area/total_area
+gen log_agroind = log(totval_agroind)
+gen log_agroindpa = log(totval_agroind/total_area)
+gen log_agroindpw = log(totval_agroind/n_workers)
+
 
 replace n_maq = 0 if n_maq == .
 gen lmaqteste = log(n_maq+1)
@@ -81,6 +91,23 @@ gen dlmaq = lmaq_inten2 - lmaq_inten2[_n-1 ] if year == 2017 & cod == cod[_n-1]
 
 gen dmaqteste = lmaqteste - lmaqteste[_n-1 ] if year == 2017 & cod == cod[_n-1]
 gen dlandteste = land_teste - land_teste[_n-1 ] if year == 2017 & cod == cod[_n-1]
+
+
+gen dlog_seeds = log_seeds - log_seeds[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dseedspa = seedspa - seedspa[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dlog_trans = log_trans - log_trans[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dtranspa = transpa - transpa[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dseedsarea = seedsarea - seedsarea[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dtransarea = transarea - transarea[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dpropnshare = propnshare - propnshare[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dpropashare = propashare - propashare[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dlog_agroind = log_agroind - log_agroind[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dlog_agroindpa = log_agroindpa - log_agroindpa[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dlog_agroindpw = log_agroindpw - log_agroindpw[_n-1 ] if year == 2017 & cod == cod[_n-1]
+
+
+
+
 ********************************************************************************
 *** Using only FAO
 drop if year == 2006
@@ -136,6 +163,34 @@ by year: summarize gini_land log_landinten lmaq_inten2
 
 drop if missing(dgini_land_baseline)
 summarize dgini_land_baseline dlog_landinten  dlmaq
+
+
+***** Baseline Regressions *****************************************************
+
+gen dlog_seeds = log_seeds - log_seeds[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dseedspa = seedspa - seedspa[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dlog_trans = log_trans - log_trans[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dtranspa = transpa - transpa[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dseedsarea = seedsarea - seedsarea[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dtransarea = transarea - transarea[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dpropnshare = propnshare - propnshare[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dlog_agroind = log_agroind - log_agroind[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dlog_agroindpa = log_agroindpa - log_agroindpa[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dlog_agroindpw = log_agroindpw - log_agroindpw[_n-1 ] if year == 2017 & cod == cod[_n-1]
+
+
+eststo clear
+foreach v in dlog_seeds dseedspa dlog_trans dtranspa dseedsarea dtransarea{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dpropnshare dpropashare dlog_agroind dlog_agroindpa dlog_agroindpw{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 

@@ -158,3 +158,36 @@ write_dta(pop_struc,
           path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/pop_struc.dta")
 
 
+
+
+######### 3. Municipal GDPs ####################################################
+
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/municip_pib_real.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/final_measures.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/shares.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/controls.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/pop_tot.Rdata")
+
+municip_pib_real <- full_join(municip_pib_real, dplyr::select(final_measures, -"municip"), 
+                       by = c("cod", "year"))
+
+municip_pib_real <- full_join(municip_pib_real, akm_shares, 
+                       by = c("cod"))
+
+municip_pib_real <- full_join(municip_pib_real, dplyr::select(controls, -"municip"), 
+                       by = c("cod"))
+
+municip_pib_real <- full_join(municip_pib_real, dplyr::select(pop_sidra, -"municip"), 
+                              by = c("cod", "year"))
+
+
+municip_pib_real %<>% dplyr::select(-c("municip.x", "municip.y"))
+
+
+
+# Saving
+write_dta(municip_pib_real,
+          path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/municip_gdp.dta")
+
+
+

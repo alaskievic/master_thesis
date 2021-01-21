@@ -9,33 +9,31 @@ use "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\agro
 gsort +cod +year
 
 
-*** Measure differences, then drop
-* Difference between 2015-2010 exposure
-gen dfao_short  = sum_fao - sum_fao[_n-1] if year == 2017 & cod == cod[_n-1]
-gen dfao_shortcat95 = sum_fao_cattle_1995 - sum_fao_cattle_1995[_n-1] if year == 2017 & cod == cod[_n-1]
-gen dfao_shortcatact = sum_fao_cattle_actual - sum_fao_cattle_actual[_n-1] if year == 2017 & cod == cod[_n-1]
-*gen dshares_short = pq_sum_log  - pq_sum_log[_n-1] if year == 2017 & cod == cod[_n-1]
-
-
-
-*** Difference between 2015-2000 exposure ***
-gen dfao_long  = sum_fao - sum_fao[_n-2] if year == 2017 & cod == cod[_n-1]
-gen dfao_longcat95  = sum_fao_cattle_1995 - sum_fao_cattle_1995[_n-2] if year == 2017 & cod == cod[_n-1]
-gen dfao_longcatact  = sum_fao_cattle_actual - sum_fao_cattle_actual[_n-2] if year == 2017 & cod == cod[_n-1]
-*gen dshares_long  = pq_sum_log  - pq_sum_log[_n-2] if year == 2017 & cod == cod[_n-1]
+***** Measure differences *****
 
 
 *** Difference between 2010-2000 exposure - BASELINE ***
 gen dfao_baseline  = sum_fao[_n-1] - sum_fao[_n-2] if year == 2017 & cod == cod[_n-1]
 gen dfao_baselinecat95  = sum_fao_cattle_1995[_n-1] - sum_fao_cattle_1995[_n-2] if year == 2017 & cod == cod[_n-1]
 gen dfao_baselinecatact  = sum_fao_cattle_actual[_n-1] - sum_fao_cattle_actual[_n-2] if year == 2017 & cod == cod[_n-1]
-*gen dshares_baseline  = pq_sum_log[_n-1]  - pq_sum_log[_n-2] if year == 2017 & cod == cod[_n-1]
-
 
 * Land Inequality
 gen dgini_land_baseline = gini_land - gini_land[_n-1] if year == 2017 & cod == cod[_n-1]
 gen dgini_land_short = gini_land[_n-1] - gini_land[_n-2] if year == 2017 & cod == cod[_n-1]
 gen dgini_land_long = gini_land - gini_land[_n-2] if year == 2017 & cod == cod[_n-1]
+
+
+
+* Difference between 2015-2010 exposure
+gen dfao_short  = sum_fao - sum_fao[_n-1] if year == 2017 & cod == cod[_n-1]
+gen dfao_shortcat95 = sum_fao_cattle_1995 - sum_fao_cattle_1995[_n-1] if year == 2017 & cod == cod[_n-1]
+gen dfao_shortcatact = sum_fao_cattle_actual - sum_fao_cattle_actual[_n-1] if year == 2017 & cod == cod[_n-1]
+
+
+*** Difference between 2015-2000 exposure ***
+gen dfao_long  = sum_fao - sum_fao[_n-2] if year == 2017 & cod == cod[_n-1]
+gen dfao_longcat95  = sum_fao_cattle_1995 - sum_fao_cattle_1995[_n-2] if year == 2017 & cod == cod[_n-1]
+gen dfao_longcatact  = sum_fao_cattle_actual - sum_fao_cattle_actual[_n-2] if year == 2017 & cod == cod[_n-1]
 
 
 * Now drop
@@ -77,7 +75,7 @@ drop if year == 1995
 
 ******************* Differences ************************************************
 
-* Outcomes
+*** Outcomes ***
 gen dlog_linten = log_linten - log_linten[_n-1] if year == 2017 & cod == cod[_n-1]
 gen dlog_valpw = log_valpw - log_valpw[_n-1] if year == 2017 & cod == cod[_n-1]
 
@@ -109,7 +107,6 @@ gen dlog_agroindpw = log_agroindpw - log_agroindpw[_n-1 ] if year == 2017 & cod 
 
 
 ********************************************************************************
-*** Using only FAO
 drop if year == 2006
 drop if missing(dlog_valpw)
 drop if missing(dlog_linten)
@@ -121,41 +118,7 @@ drop if missing(agr_sh_1991)
 drop if missing(analf_1991)
 
 ********************************************************************************
-* Top 10%
-xtile pct_dfao_10 = dfao_baselinecat95, n(9)
-gen dfaodt10 = 1 if pct_dfao_10==9
-replace dfaodt10=0 if dfaodt10==.
-
-* Top 25%
-xtile pct_dfao_25 = dfao_baselinecat95, n(4)
-gen dfaodt25 = 1 if pct_dfao_25==4
-replace dfaodt25=0 if dfaodt25==.
-
-* Bottom 10%
-gen dfaodb10 = 1 if pct_dfao_10==1
-replace dfaodb10=0 if dfaodb10==.
-
-* Bottom 25%
-gen dfaodb25 = 1 if pct_dfao_25==1
-replace dfaodb25=0 if dfaodb25==.
-
-* Above and below the median
-egen dfao_median = median(dfao_baselinecat95)
-gen dfaotmed = 1 if dfao_baselinecat95 > dfao_median
-replace dfaotmed=0 if dfaotmed==.
-
-
-* Top 10%
-xtile pct_dfao_10_2 = dfao_baseline, n(9)
-gen dfaodt10_base = 1 if pct_dfao_10_2==9
-replace dfaodt10_base=0 if dfaodt10_base==.
-
-* Top 25%
-xtile pct_dfao_25_2 = dfao_baselinecat95, n(4)
-gen dfaodt25_base = 1 if pct_dfao_25_2==4
-replace dfaodt25_base=0 if dfaodt25_base==.
-
-
+************************ Summary Statistics ************************************ 
 
 sort  year
 
@@ -165,18 +128,7 @@ drop if missing(dgini_land_baseline)
 summarize dgini_land_baseline dlog_landinten  dlmaq
 
 
-***** Baseline Regressions *****************************************************
-
-gen dlog_seeds = log_seeds - log_seeds[_n-1 ] if year == 2017 & cod == cod[_n-1]
-gen dseedspa = seedspa - seedspa[_n-1 ] if year == 2017 & cod == cod[_n-1]
-gen dlog_trans = log_trans - log_trans[_n-1 ] if year == 2017 & cod == cod[_n-1]
-gen dtranspa = transpa - transpa[_n-1 ] if year == 2017 & cod == cod[_n-1]
-gen dseedsarea = seedsarea - seedsarea[_n-1 ] if year == 2017 & cod == cod[_n-1]
-gen dtransarea = transarea - transarea[_n-1 ] if year == 2017 & cod == cod[_n-1]
-gen dpropnshare = propnshare - propnshare[_n-1 ] if year == 2017 & cod == cod[_n-1]
-gen dlog_agroind = log_agroind - log_agroind[_n-1 ] if year == 2017 & cod == cod[_n-1]
-gen dlog_agroindpa = log_agroindpa - log_agroindpa[_n-1 ] if year == 2017 & cod == cod[_n-1]
-gen dlog_agroindpw = log_agroindpw - log_agroindpw[_n-1 ] if year == 2017 & cod == cod[_n-1]
+************************* Baseline Regressions *********************************
 
 
 eststo clear
@@ -263,6 +215,44 @@ esttab, se ar2 stat (r2_a N) keep(dfaodb10) star(* 0.10 ** 0.05 *** 0.01) compre
 
 ********************************************************************************
 
+******************************* Dummies ****************************************
+
+* Top 10%
+xtile pct_dfao_10 = dfao_baselinecat95, n(9)
+gen dfaodt10 = 1 if pct_dfao_10==9
+replace dfaodt10=0 if dfaodt10==.
+
+* Top 25%
+xtile pct_dfao_25 = dfao_baselinecat95, n(4)
+gen dfaodt25 = 1 if pct_dfao_25==4
+replace dfaodt25=0 if dfaodt25==.
+
+* Bottom 10%
+gen dfaodb10 = 1 if pct_dfao_10==1
+replace dfaodb10=0 if dfaodb10==.
+
+* Bottom 25%
+gen dfaodb25 = 1 if pct_dfao_25==1
+replace dfaodb25=0 if dfaodb25==.
+
+* Above and below the median
+egen dfao_median = median(dfao_baselinecat95)
+gen dfaotmed = 1 if dfao_baselinecat95 > dfao_median
+replace dfaotmed=0 if dfaotmed==.
+
+
+* Top 10%
+xtile pct_dfao_10_2 = dfao_baseline, n(9)
+gen dfaodt10_base = 1 if pct_dfao_10_2==9
+replace dfaodt10_base=0 if dfaodt10_base==.
+
+* Top 25%
+xtile pct_dfao_25_2 = dfao_baselinecat95, n(4)
+gen dfaodt25_base = 1 if pct_dfao_25_2==4
+replace dfaodt25_base=0 if dfaodt25_base==.
+
+
+********************************************************************************
 
 eststo clear
 foreach v in dlog_valpw dlog_linten dlog_landinten dadubo dagrotox dlmaq{
@@ -707,18 +697,6 @@ eststo: qui reg dgini_land_short dfao_short log_income_1991 log_popdens_1991 agr
 eststo: qui reg dgini_land_long dfao_short log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
 esttab, se ar2 stat ( r2_a N) keep(dfao_short) compress
 
-
-
-**** Some Tests
-
-ivreg2 dlog_linten log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
-(dshares_baseline= dfao_baseline), cluster(cod) ffirst savefirst
-
-ivreg2 dlog_linten log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
-(dshares_short= dfao_short), cluster(cod) ffirst savefirst
-
-ivreg2 dlog_linten log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
-(dshares_long = dfao_long), cluster(cod) ffirst savefirst
 
 ********************************************************************************
 

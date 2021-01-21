@@ -6,7 +6,7 @@ source("./0_load_packages.R")
 
 
 
-######### 1. Reads data for temperature and rainfall. #############################################################
+######### 1. Reads data for temperature and rainfall. ##########################
 
 
 raintemp<- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/IPEA/Controles/Daniel_raintemp/base_clima_br_1950_2017_13.dta")

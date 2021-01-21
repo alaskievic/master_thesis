@@ -102,7 +102,7 @@ indexes <- lmap(pink_prices_avg[-1], ~{.x/ .x[[1]][1]*100}) %>%
   add_column (Years = pink_prices_avg[[1]], .before = "BANANA_US")
 
 
-######### 2. Making graphs of the results ######################################################################################
+######### 2. Making graphs of the results ######################################
 
 # Transform de dataframe to plot it
 indexes <- indexes %>%

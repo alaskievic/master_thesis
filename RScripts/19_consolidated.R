@@ -166,7 +166,7 @@ write_dta(pop_struc,
 
 
 
-######### 3. Municipal GDPs ####################################################
+######### 4. Municipal GDPs ####################################################
 
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/municip_pib_real.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/final_measures.Rdata")
@@ -196,4 +196,33 @@ write_dta(municip_pib_real,
           path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/municip_gdp.dta")
 
 
+######### 4. RAIS ##############################################################
 
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/rais_shares.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/final_measures.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/shares.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/controls.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/pop_tot.Rdata")
+
+rais_shares %<>% filter(year >= 2000 & year <= 2015)
+
+rais <- full_join(rais_shares, dplyr::select(final_measures, -"municip"), 
+                              by = c("cod", "year"))
+
+rais <- full_join(rais, akm_shares, 
+                              by = c("cod"))
+
+rais <- full_join(rais, dplyr::select(controls, -"municip"), 
+                              by = c("cod"))
+
+rais <- full_join(rais, dplyr::select(pop_sidra, -"municip"), 
+                              by = c("cod", "year"))
+
+
+rais %<>% dplyr::select(-c("municip.x", "municip.y"))
+
+
+
+# Saving
+write_dta(rais,
+          path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/rais.dta")

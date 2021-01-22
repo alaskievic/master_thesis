@@ -9,8 +9,6 @@ memory.limit(size = 50000)
 
 
 ######### 1. Reads cleaned RAIS Data for Municipalities and Calculates Shares ##
-
-
 rais <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/RAIS/rais_municip.xlsx", 
                        col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
@@ -45,6 +43,8 @@ rais_shares <- rais %>% mutate(agriculture = agriculture/total_emp,
   rename(agriculture_rais = "agriculture", manufacturing_rais = "manufacturing", 
          manufc_rais = "manufacturing_construc", services_rais = "services",
          servicesc_rais = "services_complete") %>% arrange(cod,year)
+
+rais_shares <- full_join(rais_shares, dplyr::select(rais, -"municip"), by = c("cod", "year"))
 
 # Saving
 save(rais_shares, 

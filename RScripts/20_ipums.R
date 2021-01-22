@@ -193,7 +193,7 @@ save(share_final,
 
 
 ################ 2. Making a Graph #############################################
-load("C:/Users/Andrei/Desktop/share_final.RData")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/share_final.RData")
 
 # Summing up service sectors
 

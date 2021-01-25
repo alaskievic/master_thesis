@@ -9,6 +9,122 @@ memory.limit(size = 50000)
 
 
 ######### 1. Reads cleaned RAIS Data for Municipalities and Calculates Shares ##
+
+# PASSO 1: criar usuário e projeto no BigQuery
+
+# PASSO 2: criar arquivo de credenciais e salvar numa pasta
+# https://console.cloud.google.com/apis/credentials/serviceaccountkey?project=<project_id>
+# service account name: admin
+# role: project owner
+
+# Apontar a autenticação para o arquivo json
+bq_auth(path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RAIS SQL/RAIS-66fc2cf2df60.json")
+
+# Criar conexão com o BigQuery
+con <- dbConnect(
+  bigrquery::bigquery(),
+  billing = "rais-301720",
+  project = "basedosdados"
+)
+
+query = "WITH rais_totemp AS (SELECT id_municipio, ano, COUNT(*) as total_emp
+FROM `basedosdados.br_me_rais.agregado_vinculos_municipio_vinculo_ativo_cbo_cnae_natureza_juridica_idade_sexo_raca`
+WHERE ano >= 1990
+GROUP BY id_municipio, ano
+ORDER BY id_municipio, ano
+),
+rais_agri AS (
+SELECT id_municipio, ano, COUNT(cnae_1) as agriculture
+FROM `basedosdados.br_me_rais.agregado_vinculos_municipio_vinculo_ativo_cbo_cnae_natureza_juridica_idade_sexo_raca`
+WHERE ano >= 1990 AND 
+    cnae_1 LIKE '01%'OR
+    cnae_1 LIKE '02%'
+GROUP BY id_municipio, ano
+ORDER BY id_municipio, ano
+),
+rais_manu AS (
+SELECT id_municipio, ano, COUNT(cnae_1) as manufacturing
+FROM `basedosdados.br_me_rais.agregado_vinculos_municipio_vinculo_ativo_cbo_cnae_natureza_juridica_idade_sexo_raca`
+WHERE ano >= 1990 AND 
+    cnae_1 LIKE '10%' OR
+    cnae_1 LIKE '11%' OR
+    cnae_1 LIKE '12%' OR
+    cnae_1 LIKE '13%' OR
+    cnae_1 LIKE '14%' OR
+    cnae_1 LIKE '15%' OR
+    cnae_1 LIKE '16%' OR
+    cnae_1 LIKE '17%' OR
+    cnae_1 LIKE '18%' OR
+    cnae_1 LIKE '19%' OR
+    cnae_1 LIKE '2%' OR
+    cnae_1 LIKE '3%' 
+GROUP BY id_municipio, ano
+ORDER BY id_municipio, ano
+),
+rais_manuc AS (
+SELECT id_municipio, ano, COUNT(cnae_1) as manufacturing_construc
+FROM `basedosdados.br_me_rais.agregado_vinculos_municipio_vinculo_ativo_cbo_cnae_natureza_juridica_idade_sexo_raca`
+WHERE ano >= 1990 AND 
+    cnae_1 LIKE '10%' OR
+    cnae_1 LIKE '11%' OR
+    cnae_1 LIKE '12%' OR
+    cnae_1 LIKE '13%' OR
+    cnae_1 LIKE '14%' OR
+    cnae_1 LIKE '15%' OR
+    cnae_1 LIKE '16%' OR
+    cnae_1 LIKE '17%' OR
+    cnae_1 LIKE '18%' OR
+    cnae_1 LIKE '19%' OR
+    cnae_1 LIKE '2%' OR
+    cnae_1 LIKE '3%' OR
+    cnae_1 LIKE '45%'  /*Construction*/
+GROUP BY id_municipio, ano
+ORDER BY id_municipio, ano
+),
+rais_serv AS (
+SELECT id_municipio, ano, COUNT(cnae_1) as services
+FROM `basedosdados.br_me_rais.agregado_vinculos_municipio_vinculo_ativo_cbo_cnae_natureza_juridica_idade_sexo_raca`
+WHERE ano >= 1990 AND 
+    cnae_1 LIKE '5%' OR
+    cnae_1 LIKE '6%' OR
+    cnae_1 LIKE '7%' OR
+    cnae_1 LIKE '8%' OR
+    cnae_1 LIKE '9%' 
+GROUP BY id_municipio, ano
+ORDER BY id_municipio, ano
+),
+rais_servcomp AS (
+SELECT id_municipio, ano, COUNT(cnae_1) as services_complete
+FROM `basedosdados.br_me_rais.agregado_vinculos_municipio_vinculo_ativo_cbo_cnae_natureza_juridica_idade_sexo_raca`
+WHERE ano >= 1990 AND 
+    cnae_1 LIKE '40%' OR
+    cnae_1 LIKE '41%' OR
+    cnae_1 LIKE '5%' OR
+    cnae_1 LIKE '6%' OR
+    cnae_1 LIKE '7%' OR
+    cnae_1 LIKE '8%' OR
+    cnae_1 LIKE '9%' 
+GROUP BY id_municipio, ano
+ORDER BY id_municipio, ano
+)
+SELECT *
+FROM rais_totemp
+FULL OUTER JOIN rais_agri
+ON rais_totemp.id_municipio = rais_agri.id_municipio AND rais_totemp.ano = rais_agri.ano
+FULL OUTER JOIN rais_manu
+ON rais_totemp.id_municipio = rais_manu.id_municipio AND rais_totemp.ano = rais_manu.ano
+FULL OUTER JOIN rais_manuc
+ON rais_totemp.id_municipio = rais_manuc.id_municipio AND rais_totemp.ano = rais_manuc.ano
+FULL OUTER JOIN rais_serv
+ON rais_totemp.id_municipio = rais_serv.id_municipio AND rais_totemp.ano = rais_serv.ano
+FULL OUTER JOIN rais_servcomp
+ON rais_totemp.id_municipio = rais_servcomp.id_municipio AND rais_totemp.ano = rais_servcomp.ano;"
+
+teste_rais = dbGetQuery(con, query)
+
+# Observe that teste_rais equals the excel file below after filtering for year >= 1994
+
+
 rais <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/RAIS/rais_municip.xlsx", 
                        col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 

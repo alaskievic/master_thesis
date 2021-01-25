@@ -17,7 +17,8 @@ list.of.packages <- c("rgdal", "sf", "ggplot2", "data.table", "tidyverse", "read
                       "viridis", "readstata13", "lubridate", "plm", "haven", "RColorBrewer",
                       "ineq", "writexl", "xlsx", "foreign", "knitr", "stargazer", "glue",
                       "zoo", "stringi", "magick", "devtools", "Rdpack", "installr", "magrittr", 
-                      "janitor", "ggpmisc", "ipumsr", "survey", "srvyr")
+                      "janitor", "ggpmisc", "ipumsr", "survey", "srvyr", "DBI", 
+                      "bigrquery")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages, type = "source", dependencies = TRUE)
 
@@ -62,8 +63,9 @@ library(ggpmisc)
 library(ipumsr)
 library(survey)
 library(srvyr)
+library(DBI)
+library(bigrquery)
 
 #Updates R
 
 #updateR()
-

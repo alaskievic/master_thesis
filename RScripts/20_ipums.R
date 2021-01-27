@@ -248,7 +248,7 @@ devtools::install_github('Mikata-Project/ggthemr')
 library(ggthemr)
 ggthemr('fresh')
 
-sh_graph <- ggplot(share_final, aes(x=year)) +
+sh_graph_1 <- ggplot(share_final, aes(x=year)) +
   geom_line(data = share_final, aes(y=shares, color = Sector, group = Sector), lwd = 1)+
   scale_color_manual(values=c25, 
                      labels = c("Agriculture", "Manufacturing",
@@ -258,7 +258,9 @@ sh_graph <- ggplot(share_final, aes(x=year)) +
   ggtitle("Employment Shares in Brazil (IPUMS Census Data)") +
   theme(legend.text=element_text(size=13))
 
-sh_graph <- ggplot(share_final, aes(x=year)) +
+
+
+sh_graph_2 <- ggplot(share_final, aes(x=year)) +
   geom_line(data = share_final, aes(y=shares, color = Sector, group = Sector), lwd = 1)+
   scale_color_manual(values=c25, 
                      labels = c("Agriculture", "Manufacturing",
@@ -266,8 +268,22 @@ sh_graph <- ggplot(share_final, aes(x=year)) +
   geom_point(data = share_final, aes(x=year, y=shares, color = Sector), size=2)+
   labs(x = "Year", y = "Employment Shares") +
   ggtitle("Employment Shares in Brazil (IPUMS Census Data)") +
-  theme(legend.text=element_text(size=13))+
-  theme_bw(base_size = 13)
+  theme(legend.text=element_text(size=14))+
+  theme_bw(base_size = 14)
+
+# No Title
+
+share_final_2 <- share_final %>% filter(Sector != "Manufacturing + Construction") 
+
+sh_graph <- ggplot(share_final_2, aes(x=year)) +
+  geom_line(data = share_final_2, aes(y=shares, color = Sector, group = Sector), lwd = 1)+
+  scale_color_manual(values=c25, 
+                     labels = c("Agriculture", "Manufacturing", "Services"))+
+  geom_point(data = share_final_2, aes(x=year, y=shares, color = Sector), size=2)+
+  labs(x = "Year", y = "Employment Shares") +
+  theme_bw(base_size = 13) +
+  theme(legend.text=element_text(size=13), legend.position = c(0.85, 0.6), 
+        legend.box.background = element_blank(), legend.title = element_blank())
 
 sh_graph
 ggsave(filename = "empshares.png", plot = sh_graph, 

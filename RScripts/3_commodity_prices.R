@@ -326,8 +326,57 @@ ggsave(filename = "com_prices.eps", plot = graph_7, path = "C:/Users/Andrei/Desk
 ggsave(filename = "com_prices.png", plot = graph_7, path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
 
 
+
+
+############################## Plotting ########################################
+com_prices <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/ExternalData.xlsx",
+                         sheet = "Values", col_names = TRUE)
+
+
+com_prices %<>% rename(date = "Commodity") %>% slice(-c(1:3))
+
+
+com_prices %<>% mutate(date = str_replace_all(date, "M", "-0")) %>%
+  mutate(date = paste0(date, "-01")) %>%
+  mutate(date = str_replace_all(date, "-012", "-12")) %>%
+  mutate(date = str_replace_all(date, "-011", "-11")) %>%
+  mutate(date = str_replace_all(date, "-010", "-10"))
+
+com_prices %<>% mutate(date = parse_date(date, "%Y-%m-%d"))
+
+
+com_prices %<>% .[, 1:10]
+
+com_prices %<>% set_names(c("date", "all_comm", "all_nolgold", "nfuel", "foodbev", "food", "bev", "indust",
+                            "agro", "agroraw"))
+
+
+
+
+com_graph <- com_prices %>% filter(year(date) >=1992) %>% mutate(agro = as.double(agro)) %>%
+  mutate(foodbev = as.double(foodbev)) %>% mutate(all_comm = as.double(all_comm))
+
+
+prices_plot <- ggplot(data = com_graph, aes(x = date, y = agro, lty = "Commodity Index")) + 
+  geom_line(lwd = 1.2, color = "blue") +
+  labs(y = "Agricultural Price Index (2016=100)", x = "Year") +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_bw(base_size = 13) +
+  theme(legend.text=element_text(size=13), legend.position = c(0.85, 0.3), 
+        legend.box.background = element_blank(), legend.title = element_blank())
   
 
+prices_plot
 
 
-
+# ggsave(filename = "prices_plot.png", 
+#        plot = prices_plot, 
+#        path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
+# 
+# 
+# prices_plot <- ggplot(data = com_graph, aes(x = date, y = agro)) + 
+#   geom_line(lwd = 1, color = "blue") +
+#   labs(title = "Commodity Price Index (Agricultural Sector in US$)",
+#        y = "Agricultural Price Index (2016=100)", x = "Year") +
+#   scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+#   theme_bw(base_size = 13)

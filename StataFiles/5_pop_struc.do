@@ -143,6 +143,12 @@ eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1
 }
 esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
 * FPC and State FE
 eststo clear
 foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{

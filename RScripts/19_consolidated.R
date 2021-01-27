@@ -222,6 +222,8 @@ rais <- full_join(rais, dplyr::select(pop_sidra, -"municip"),
 rais %<>% dplyr::select(-c("municip.x", "municip.y"))
 
 
+# full_join(data1, data2, by = "ID") %>%              # Full outer join of multiple data frames
+#   full_join(., data3, by = "ID") 
 
 # Saving
 write_dta(rais,

@@ -139,21 +139,21 @@ load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/shares.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/controls.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/ocup_sidra.RData")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/pop_tot.RData")
 
 final_measures %<>% filter(year == 2000| year == 2010)
+pop_sidra %<>% filter(year == 2000| year == 2010)
 
 pop_struc <- full_join(popstruc_pres, dplyr::select(final_measures, -"municip"), 
-                        by = c("cod", "year"))
-
-pop_struc <- full_join(pop_struc, akm_shares, 
-                        by = c("cod"))
-
-pop_struc <- full_join(pop_struc, dplyr::select(controls, -"municip"), 
-                        by = c("cod"))
-
-pop_struc <- full_join(pop_struc, ocup_sidra, 
-                       by = c("cod", "year"))
-
+                        by = c("cod", "year")) %>%
+  full_join(., akm_shares, 
+            by = c("cod")) %>%
+  full_join(., dplyr::select(controls, -"municip"), 
+            by = c("cod")) %>%
+  full_join(., ocup_sidra, 
+            by = c("cod", "year")) %>%
+  full_join(., dplyr::select(pop_sidra, -"municip"), 
+            by = c("cod", "year"))
 
 pop_struc %<>% dplyr::select(-c("municip.y.x", "municip.y.y", 
                                 "municip.x.y")) %>%
@@ -162,8 +162,6 @@ pop_struc %<>% dplyr::select(-c("municip.y.x", "municip.y.y",
 # Saving
 write_dta(pop_struc,
           path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/pop_struc.dta")
-
-
 
 
 ######### 4. Municipal GDPs ####################################################
@@ -196,7 +194,7 @@ write_dta(municip_pib_real,
           path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/municip_gdp.dta")
 
 
-######### 4. RAIS ##############################################################
+################################### 5. RAIS ####################################
 
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/rais_shares.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/final_measures.Rdata")
@@ -220,10 +218,6 @@ rais <- full_join(rais, dplyr::select(pop_sidra, -"municip"),
 
 
 rais %<>% dplyr::select(-c("municip.x", "municip.y"))
-
-
-# full_join(data1, data2, by = "ID") %>%              # Full outer join of multiple data frames
-#   full_join(., data3, by = "ID") 
 
 # Saving
 write_dta(rais,

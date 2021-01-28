@@ -200,7 +200,7 @@ c25 <- c(
   "darkorange4", "brown"
 )
 
-
+# No Good
 sh_graph <- ggplot(gdp_shares, aes(x=year)) +
   geom_line(data = gdp_shares, aes(y=shares, color = Sector, group = Sector), lwd = 1)+
   scale_color_manual(values=c25, 

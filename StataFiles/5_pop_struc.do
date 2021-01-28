@@ -32,9 +32,10 @@ gen log_area = log(geo_area_2010)
 
 ** Outcomes
 gen log_wtrans = log(w_trans)
-gen log_wext = log(indust_ex)
 gen log_wagro = log(w_agro)
 gen log_windust = log(w_indust)
+gen log_wserv = log(w_serv)
+gen sharepop = tot_trab/pesotot
 
 * Sidra
 gen log_tot_trab = log(tot_trab)
@@ -80,6 +81,7 @@ gen dconstr_sh = P_CONSTR - P_CONSTR[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dextr_sh = P_EXTR - P_EXTR[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dtransf_sh = P_TRANSF - P_TRANSF[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dindust_sh = P_INDUST - P_INDUST[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dtrab_sh =sharepop - sharepop[_n-1] if year == 2010 & cod == cod[_n-1]
 
 
 * Shares - Sidra
@@ -106,7 +108,7 @@ gen dsindust_gold = sindust_gold  - sindust_gold[_n-1] if year == 2010 & cod == 
 gen dlog_wagro = log_wagro- log_wagro[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dlog_windust = log_windust- log_windust[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dlog_wtrans = log_wtrans- log_wtrans[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dlog_wext = log_wext- log_wext[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_wserv = log_wserv- log_wserv[_n-1] if year == 2010 & cod == cod[_n-1]
 
 
 
@@ -138,26 +140,83 @@ drop if dlog_windust==.
 
 * Main Regression
 eststo clear
-foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
+foreach v in dagro_sh dindust_sh dserv_sh dtrab_sh dlog_wagro dlog_windust dlog_wserv{
 eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
 }
 esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
+* No Controls
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dtrab_sh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* Only FPC High
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dtrab_sh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* Only State FE
 eststo clear
 foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
-eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area, vce (cluster cod)
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codstate, vce (cluster cod)
 }
 esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 * FPC and State FE
 eststo clear
-foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
+foreach v in dagro_sh dindust_sh dserv_sh dtrab_sh dlog_wagro dlog_windust dlog_wserv{
 eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high i.codstate, vce (cluster cod)
 }
 esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
-* Total Employment
+* Full Set of Controls
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dtrab_sh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+***** Total Employment *****
+*Lets use first ns (afeter use old sectors)
+
+* Baseline Controls
+eststo clear
+foreach v in dlog_tot_trab dlog_agro_ns dlog_indust_ns{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* FPC High
+eststo clear
+foreach v in dlog_tot_trab dlog_agro_ns dlog_indust_ns{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* FPC High and State FE
+eststo clear
+foreach v in dlog_tot_trab dlog_agro_ns dlog_indust_ns{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* Full Controls
+eststo clear
+foreach v in dlog_tot_trab dlog_agro_ns dlog_indust_ns{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+********************************************************************************
+
+
 eststo clear
 foreach v in dlog_tot_trab dlog_agro_gn dlog_agro_ns dlog_agro_os dlog_agro_gold{
 eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
@@ -169,6 +228,7 @@ foreach v in dlog_tot_trab dlog_indust_gn dlog_indust_ns dlog_indust_os dlog_ind
 eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
 }
 esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
 
 * Sidra Shares 
 eststo clear

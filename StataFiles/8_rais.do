@@ -67,7 +67,7 @@ drop if missing(analf_1991)
 
 *** Baseline Regression ***
 eststo clear
-foreach v in dagrosh dmanush dmanucsh dservsh dservcsh{
+foreach v in dagrosh dmanush dservsh{
     eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991, vce (cluster cod)
 }
 esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
@@ -79,29 +79,56 @@ foreach v in dtotemp dagr dmanu dmanuc dserv dservc{
 esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
-*** Location Fixed Effects ***
+*** FPC High ***
 
 eststo clear
-foreach v in dagrosh dmanush dmanucsh dservsh dservcsh{
-    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 i.codstate, vce (cluster cod)
-}
-esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-
-*** Low and High First Principal components Controls ***
-
-eststo clear
-foreach v in dagrosh dmanush dmanucsh dservsh dservcsh{
-    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 pc1_low, vce (cluster cod)
-}
-esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
-
-eststo clear
-foreach v in dagrosh dmanush dmanucsh dservsh dservcsh{
+foreach v in dagrosh dmanush dservsh{
     eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 pc1_high, vce (cluster cod)
 }
 esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dtotemp dagr dmanu dmanuc dserv dservc{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 pc1_high, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+*** FPC High and State FE ***
+
+eststo clear
+foreach v in dagrosh dmanush dservsh{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dtotemp dagr dmanu dmanuc dserv dservc{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+* Full Controls
+eststo clear
+foreach v in dagrosh dmanush dservsh{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dtotemp dagr dmanu dmanuc dserv dservc{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
 
 
 *** AKM Correction ***
@@ -167,6 +194,25 @@ drop if missing(analf_1991)
 *** Baseline Controls
 
 * Year <= 2010
+
+************************* Main Regressions *************************************
+eststo clear
+foreach v in agriculture_rais manufacturing_rais  services_rais{
+eststo: qui reghdfe `v' sum_fao_cattle_1995 c.log_income_1991#i.year c.log_popdens_1991#i.year ///
+c.rur_sh_1991#i.year c.analf_1991#i.year if year <=2010, absorb (cod year) vce(cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(sum_fao_cattle_1995) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in log_total_emp log_agriculture log_manufacturing  log_services{
+eststo: qui reghdfe `v' sum_fao_cattle_1995 c.log_income_1991#i.year c.log_popdens_1991#i.year ///
+c.rur_sh_1991#i.year c.analf_1991#i.year if year <=2010, absorb (cod year) vce(cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(sum_fao_cattle_1995) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
 eststo clear
 foreach v in agriculture_rais manufacturing_rais manufc_rais services_rais servicesc_rais{
 eststo: qui reghdfe `v' sum_fao_cattle_1995 c.log_income_1991#i.year c.log_popdens_1991#i.year ///
@@ -199,17 +245,17 @@ esttab, se ar2 stat ( r2_a N) keep(sum_fao_cattle_1995) star(* 0.10 ** 0.05 *** 
 
 * Full Set Controls
 eststo clear
-foreach v in agriculture_rais manufacturing_rais manufc_rais services_rais servicesc_rais{
+foreach v in agriculture_rais manufacturing_rais  services_rais{
 eststo: qui reghdfe `v' sum_fao_cattle_1995 c.log_income_1991#i.year c.log_popdens_1991#i.year ///
 c.rur_sh_1991#i.year c.analf_1991#i.year c.dist_state#i.year c.dist_federal#i.year c.log_area#i.year c.latitude#i.year ///
-c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year if year <= 2010, absorb (cod year) vce (cluster cod)
+c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year c.pc1_high#i.year i.codstate if year <= 2010, absorb (cod year) vce (cluster cod)
 }
 esttab, se ar2 stat ( r2_a N) keep(sum_fao_cattle_1995) star(* 0.10 ** 0.05 *** 0.01) compress
 
 eststo clear
-foreach v in log_total_emp log_agriculture log_manufacturing log_manufacturing_construc log_services log_services_complete{
+foreach v in log_total_emp log_agriculture log_manufacturing  log_services{
 eststo: qui reghdfe `v' sum_fao_cattle_1995 c.log_income_1991#i.year c.log_popdens_1991#i.year ///
 c.rur_sh_1991#i.year c.analf_1991#i.year c.dist_state#i.year c.dist_federal#i.year c.log_area#i.year c.latitude#i.year ///
-c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year if year <= 2010, absorb (cod year) vce (cluster cod)
+c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year c.pc1_high#i.year if year <= 2010, absorb (cod year) vce (cluster cod)
 }
 esttab, se ar2 stat ( r2_a N) keep(sum_fao_cattle_1995) star(* 0.10 ** 0.05 *** 0.01) compress

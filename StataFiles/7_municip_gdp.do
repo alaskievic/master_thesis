@@ -58,6 +58,8 @@ drop if missing(log_income_1991)
 drop if missing(log_popdens_1991)
 drop if missing(agr_sh_1991)
 drop if missing(analf_1991)
+drop if missing(temp_daniel)
+drop if missing(rain_daniel)
 
 
 *** Baseline Regression ***
@@ -68,29 +70,29 @@ foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
 esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
-*** Location Fixed Effects ***
-
-eststo clear
-foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
-    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codstate, vce (cluster cod)
-}
-esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-
-*** Low and High First Principal components Controls ***
-
-eststo clear
-foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
-    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_low, vce (cluster cod)
-}
-esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
-
+*** FPC High ***
 eststo clear
 foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
     eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high, vce (cluster cod)
 }
 esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+*** FPC High and State FE ***
+eststo clear
+foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+*** Full Controls
+eststo clear
+foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 *** AKM Correction ***

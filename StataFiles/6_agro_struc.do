@@ -59,12 +59,14 @@ gen seedspa = log(totval_seeds/total_area)
 gen log_trans = log(trans_value)
 gen transpa = log(trans_value/total_area)
 gen seedsarea = totarea_seeds/total_area
+replace trans_area = 0 if trans_area == .
 gen transarea = trans_area/total_area
 gen propnshare = prop_num/tot_num
 gen propashare = prop_area/total_area
-gen log_agroind = log(totval_agroind)
-gen log_agroindpa = log(totval_agroind/total_area)
-gen log_agroindpw = log(totval_agroind/n_workers)
+replace totval_agroind = 0 if totval_agroind == .
+gen log_agroind = log(totval_agroind + 1)
+gen log_agroindpa = log(totval_agroind + 1/total_area)
+gen log_agroindpw = log(totval_agroind + 1/n_workers)
 
 
 replace n_maq = 0 if n_maq == .
@@ -116,27 +118,91 @@ drop if missing(log_income_1991)
 drop if missing(log_popdens_1991)
 drop if missing(agr_sh_1991)
 drop if missing(analf_1991)
-
+drop if missing(lat)
+drop if missing(longit)
+drop if missing(rain_daniel)
+drop if missing(temp_daniel)
 ********************************************************************************
 ************************ Summary Statistics ************************************ 
 
 sort  year
 
-by year: summarize gini_land log_landinten lmaq_inten2
+by year: summarize gini_land log_landinten lmaq_inten2 transarea log_agroind
 
 drop if missing(dgini_land_baseline)
 summarize dgini_land_baseline dlog_landinten  dlmaq
 
 
 ************************* Baseline Regressions *********************************
+***** Land Inequality *****
 
-
+* Baseline Controls
 eststo clear
-foreach v in dlog_seeds dseedspa dlog_trans dtranspa dseedsarea dtransarea{
-eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+foreach v in dgini_land_baseline dgini_land_long dgini_land_short{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
 }
 esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
 
+
+
+* FPC High
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long dgini_land_short{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* FPC High and State FE
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long dgini_land_short{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* Full Controls
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long dgini_land_short{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+********************************************************************************
+***** Input Usage *****
+
+* Baseline Controls
+eststo clear
+foreach v in dlog_landinten dlmaq dtransarea dagrotox{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* FPC High
+eststo clear
+foreach v in dlog_landinten dlmaq dtransarea dagrotox{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* FPC High and State FE
+eststo clear
+foreach v in dlog_landinten dlmaq dtransarea dagrotox{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* Full Controls
+eststo clear
+foreach v in dlog_landinten dlmaq dtransarea dagrotox{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+*****
 
 eststo clear
 foreach v in dpropnshare dpropashare dlog_agroind dlog_agroindpa dlog_agroindpw{
@@ -145,73 +211,12 @@ eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1
 esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
-
 eststo clear
-foreach v in dgini_land_baseline dgini_land_long dgini_land_short dlog_landinten dlmaq dmaqteste dlandteste{
-    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+foreach v in dlog_seeds dseedspa dlog_trans dtranspa dseedsarea dtransarea{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
 }
 esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
 
-
-
-eststo clear
-foreach v in dgini_land_baseline dgini_land_long dgini_land_short dlog_landinten dlmaq dmaqteste dlandteste{
-    eststo: qui reg `v' dfao_baseline log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-}
-esttab, se ar2 stat (r2_a N) keep(dfao_baseline) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-eststo clear
-foreach v in dgini_land_baseline dgini_land_long dgini_land_short dlog_landinten dlmaq dmaqteste dlandteste{
-    eststo: qui reg `v' dfaodt10_base log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-}
-esttab, se ar2 stat (r2_a N) keep(dfaodt10_base) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-
-
-
-eststo clear
-foreach v in dgini_land_baseline dgini_land_long dgini_land_short dlog_landinten dlmaq dlog_linten dmaqteste dlandteste{
-    eststo: qui reg `v' dfaodt10 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-}
-esttab, se ar2 stat (r2_a N) keep(dfaodt10) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-
-eststo clear
-foreach v in dgini_land_baseline dgini_land_long dgini_land_short dlog_landinten dlmaq dmaqteste dlandteste{
-    eststo: qui reg `v' dfaodt25 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-}
-esttab, se ar2 stat (r2_a N) keep(dfaodt25) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-
-eststo clear
-foreach v in dgini_land_baseline dgini_land_long dgini_land_short dlog_landinten dlmaq dmaqteste{
-    eststo: qui reg `v' dfaodb10 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-}
-esttab, se ar2 stat (r2_a N) keep(dfaodb10) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-eststo clear
-foreach v in dgini_land_baseline dgini_land_long dgini_land_short dlog_landinten dlmaq{
-    eststo: qui reg `v' dfaodb25 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-}
-esttab, se ar2 stat (r2_a N) keep(dfaodb25) star(* 0.10 ** 0.05 *** 0.01) compress
-
-eststo clear
-foreach v in dgini_land_baseline dgini_land_long dgini_land_short dlog_landinten dlmaq dmaqteste dlandteste{
-    eststo: qui reg `v' dfaotmed log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-}
-esttab, se ar2 stat (r2_a N) keep(dfaotmed) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-eststo clear
-foreach v in dgini_land_baseline dgini_land_long dgini_land_short dlog_landinten dlmaq dmaqteste dlandteste{
-    eststo: qui reg `v' dfaodb10 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-}
-esttab, se ar2 stat (r2_a N) keep(dfaodb10) star(* 0.10 ** 0.05 *** 0.01) compress
 
 ********************************************************************************
 
@@ -259,8 +264,6 @@ foreach v in dlog_valpw dlog_linten dlog_landinten dadubo dagrotox dlmaq{
     eststo: qui reg `v' dfao_baseline log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
 }
 esttab, se ar2 stat ( r2_a N) keep(dfao_baseline) compress
-
-
 
 
 
@@ -431,54 +434,6 @@ foreach v in dlog_valpw dlog_linten dlog_landinten dadubo dagrotox dlmaq{
 }
 esttab, se ar2 stat ( r2_a N) keep(dfao_baselinecatact) compress
 
-
-
-
-
-
-********************************************************************************
-********* Testing if raw quantities = shares_adubo
-eststo clear
-eststo: qui reg dlog_valpw dshares_short, vce (cluster cod)
-eststo: qui reg dlog_linten dshares_short, vce (cluster cod)
-eststo: qui reg dlog_landinten dshares_short, vce (cluster cod)
-eststo: qui reg dadubo dshares_short, vce (cluster cod)
-eststo: qui reg dagrotox dshares_short, vce (cluster cod)
-eststo: qui reg dmaq dshares_short, vce (cluster cod)
-
-esttab, se ar2 stat ( r2_a N) keep(dshares_short) compress
-
-eststo clear
-eststo: qui reg dlog_valpw dquant_short, vce (cluster cod)
-eststo: qui reg dlog_linten dquant_short, vce (cluster cod)
-eststo: qui reg dlog_landinten dquant_short, vce (cluster cod)
-eststo: qui reg dadubo dquant_short, vce (cluster cod)
-eststo: qui reg dagrotox dquant_short, vce (cluster cod)
-eststo: qui reg dmaq dquant_short, vce (cluster cod)
-
-esttab, se ar2 stat ( r2_a N) keep(dquant_short) compress
-
-
-
-eststo clear
-eststo: qui reg dlog_valpw dfao_baseline, vce (cluster cod)
-eststo: qui reg dlog_linten dfao_baseline, vce (cluster cod)
-eststo: qui reg dlog_landinten dfao_baseline, vce (cluster cod)
-eststo: qui reg dadubo dfao_baseline, vce (cluster cod)
-eststo: qui reg dagrotox dfao_baseline, vce (cluster cod)
-eststo: qui reg dmaq dfao_baseline, vce (cluster cod)
-
-esttab, se ar2 stat ( r2_a N) keep(dfao_baseline) compress
-
-
-eststo clear
-eststo: qui reg dlog_valpw dfao_baseline log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-eststo: qui reg dlog_linten dfao_baseline log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-eststo: qui reg dlog_landinten dfao_baseline log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-eststo: qui reg dadubo dfao_baseline log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-eststo: qui reg dagrotox dfao_baseline log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-eststo: qui reg dlmaq dfao_baseline log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-esttab, se ar2 stat ( r2_a N) keep(dfao_baseline) compress
 
 ********************************************************************************
 
@@ -672,29 +627,6 @@ eststo: qui reg dlog_landinten dfao_short log_income_1991 log_popdens_1991 agr_s
 eststo: qui reg dadubo dfao_short log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
 eststo: qui reg dagrotox dfao_short log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
 eststo: qui reg dlmaq dfao_short log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-esttab, se ar2 stat ( r2_a N) keep(dfao_short) compress
-
-
-
-*** Land Inequality
-
-
-eststo clear
-eststo: qui reg dgini_land_baseline dfao_baseline log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-eststo: qui reg dgini_land_short dfao_baseline log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-eststo: qui reg dgini_land_long dfao_baseline log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-esttab, se ar2 stat ( r2_a N) keep(dfao_baseline) compress
-
-eststo clear
-eststo: qui reg dgini_land_baseline dfao_long log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-eststo: qui reg dgini_land_short dfao_long log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-eststo: qui reg dgini_land_long dfao_long log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-esttab, se ar2 stat ( r2_a N) keep(dfao_long) compress
-
-eststo clear
-eststo: qui reg dgini_land_baseline dfao_short log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-eststo: qui reg dgini_land_short dfao_short log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
-eststo: qui reg dgini_land_long dfao_short log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
 esttab, se ar2 stat ( r2_a N) keep(dfao_short) compress
 
 

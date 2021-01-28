@@ -830,8 +830,7 @@ save(agro_struc, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_th
 
 ######### 2. Check Census for useful data for Structural Transformation ########
 
-### Getting employment shares and wages
-
+### Wages
 ## 2000
 wages_2000 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/2000/Wages/wages_2000.xlsx", 
                          skip = 4, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
@@ -848,19 +847,23 @@ wages_2000 %<>% transform(cod = na.locf(cod, fromLast = FALSE)) %>%
 
 wages_2000 <- pivot_wider(wages_2000, names_from = "sector", values_from = "wage")
 
-colnames(wages_2000) <- c("cod", "municip", "total", "agro", "pesca", "indust_ex", "indust_trans",
-                          "distri","constru", "comrep", "transp", "aloj", "finan", 
-                          "imob", "adm", "educ", "saude", "outros", "servdom", "int", "mal")
+colnames(wages_2000) <- c("cod", "municip", "total", "agro", "pesca", "indust_ex",
+                          "indust_trans", "distri","constru", "comrep", "transp",
+                          "aloj", "finan", "imob", "adm", "educ", "saude",
+                          "outros", "servdom", "int", "mal")
 
 
 # Selecting only the desired ones
-wages_2000 %<>% dplyr::select(c("cod", "municip", "agro", "pesca", "indust_ex", "indust_trans"))
+wages_2000 %<>% dplyr::select(c("cod", "municip", "agro", "pesca", "indust_ex", 
+                                "indust_trans", "comrep", "transp", "aloj", 
+                                "finan", "imob", "adm", "educ", "saude", 
+                                "outros", "servdom"))
 
 # Calculating wages
 wages_2000 %<>% rename(w_trans = "indust_trans") %>%
   mutate(w_agro = rowMeans(.[,3:4], na.rm=TRUE)) %>%
-  mutate(w_indust = rowMeans(.[,5:6], na.rm=TRUE))
-
+  mutate(w_indust = rowMeans(.[,5:6], na.rm=TRUE)) %>%
+  mutate(w_serv = rowMeans(.[,7:16], na.rm=TRUE))
 
 # Adding years
 wages_2000 %<>% mutate(year = 2000)
@@ -873,10 +876,13 @@ ipca_2000 <- ipca %>% filter(Date == 2000)
 
 deflate <- function(x) x/(ipca_2000$Index_2/100)
 
-wages_2000_real <- wages_2000 %>% mutate_at(c("agro", "pesca", "indust_ex", 
-                                              "w_trans", "w_agro", "w_indust"), deflate)
+wages_2000_real <- wages_2000 %>% mutate_at(c("agro", "pesca", "indust_ex",
+                                              "w_trans", "w_agro", "w_indust", "w_serv"), deflate)
 
-wages_2000_real %<>% dplyr::select(-"pesca")
+wages_2000_real %<>% dplyr::select(-c("pesca", "agro", "indust_ex",
+                                      "comrep", "transp", "aloj", 
+                                      "finan", "imob", "adm", "educ", "saude", 
+                                      "outros", "servdom"))
 
 ## 2010
 wages_2010 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/2010/Wages/wages_2010.xlsx", 
@@ -901,17 +907,25 @@ colnames(wages_2010) <- c("cod", "municip", "total", "w_agro", "indust_ex", "ind
 
 
 # Selecting only the desired ones
-wages_2010 %<>% dplyr::select(c("cod", "municip", "w_agro", "indust_ex", "indust_trans"))
+wages_2010 %<>% dplyr::select(c("cod", "municip", "w_agro", "indust_ex",
+                                "indust_trans", "com", "transp", "aloj", "info",
+                                "finan", "imob", "prof", "adm", "admpub", "educ", 
+                                "saude", "art", "dom", "outros"))
 
 
 # Calculating wages
 wages_2010 %<>% rename(w_trans = "indust_trans") %>%
-  mutate(w_indust = rowMeans(.[,4:5], na.rm=TRUE))
+  mutate(w_indust = rowMeans(.[,4:5], na.rm=TRUE)) %>%
+  mutate(w_serv = rowMeans(.[,6:19], na.rm=TRUE))
 
 
 # Adding years
 wages_2010 %<>% mutate(year = 2010)
 
+# Selecting
+wages_2010 %<>% dplyr::select(-c("com", "transp", "aloj", "info", "indust_ex",
+                                 "finan", "imob", "prof", "adm", "admpub", "educ", 
+                                 "saude", "art", "dom", "outros"))
 
 # Joining for wages
 sector_wages <- bind_rows(wages_2000_real, wages_2010)
@@ -953,7 +967,7 @@ save(popstruc_pres,
 
 
 
-##### 3. Adding additional ocupation data from SIDRA Pop. Census ###############
+##### 3. Adding additional occupation data from SIDRA Pop. Census ##############
 ocup_new_grupo_2000 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/2000/Occupations/ocup_new_grupo_2000.xlsx", 
                          skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 

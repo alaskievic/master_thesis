@@ -6,7 +6,7 @@ source("./0_load_packages.R")
 
 
 ######### 1. Reads Censo Agro data on area and numbers of agricultural
-######### establishments by groups of total area
+######### Establishments by groups of total area
 
 # Reads data from Censo Agro IBGE
 num_2017 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/tabela6880_num_def_2017.xlsx",
@@ -90,29 +90,31 @@ area_1995 <- area_1995 %>%
 
 ##### 3. Calculate some inequality measures ####################################
 
-# Percentage of total area appropriate by farm with more than 2.500 hectares
+# Percentage of total area appropriate by farm with more than 1.000 hectares
 
 # 1995
 num_app_95 <- num_1995 %>%
-  dplyr::select(c("cod", "Total", "2.000 a menos de 5.000 ha", 
+  dplyr::select(c("cod", "Total", "1.000 a menos de 2.000 ha", "2.000 a menos de 5.000 ha", 
                   "5.000 a menos de 10.000 ha", "10.000 a menos de 100.000 ha",
                   "100.000 ha e mais"))
 
 area_app_95 <- area_1995 %>% 
-  dplyr::select(c("cod", "Total", "2.000 a menos de 5.000 ha", 
+  dplyr::select(c("cod", "Total", "1.000 a menos de 2.000 ha", "2.000 a menos de 5.000 ha", 
                   "5.000 a menos de 10.000 ha", "10.000 a menos de 100.000 ha",
                   "100.000 ha e mais"))
 
-colnames(num_app_95) <- c("cod", "total_num", "area_1", "area_2", "area_3", "area_4")
-colnames(area_app_95) <- c("cod", "total_area", "area_1", "area_2", "area_3", "area_4")
+colnames(num_app_95) <- c("cod", "total_num", "area_1", "area_2", "area_3",
+                          "area_4", "area_5")
+colnames(area_app_95) <- c("cod", "total_area", "area_1", "area_2", "area_3",
+                           "area_4", "area_5")
 
 num_app_95[is.na(num_app_95)] = 0
 area_app_95[is.na(area_app_95)] = 0
 
-num_app_95 %<>% mutate(napp = (area_1 + area_2 + area_3 + area_4)/total_num) %>% 
+num_app_95 %<>% mutate(napp = (area_1 + area_2 + area_3 + area_4 + area_5)/total_num) %>% 
   dplyr::select(cod, total_num, napp)
 
-area_app_95 %<>% mutate(arapp = (area_1 + area_2 + area_3 + area_4)/total_area) %>%
+area_app_95 %<>% mutate(arapp = (area_1 + area_2 + area_3 + area_4 + area_5)/total_area) %>%
   dplyr::select(cod, total_area, arapp)
 
 app_95 <- full_join(num_app_95, area_app_95, by = "cod")
@@ -120,28 +122,32 @@ app_95 %<>% mutate(year = 1995) %>% mutate(cod = as.integer(cod))
 
 
 # 2006
-num_app_06 <- num_2006 %>% filter (group == "Total" | group =="De 2.500 ha e mais") %>%
+num_app_06 <- num_2006 %>% filter (group == "Total" | group =="De 2.500 ha e mais" |
+                                     group == "De 1.000 a menos de 2.500 ha") %>%
   pivot_wider(names_from = "group", values_from = "num") %>%
   mutate(Total = as.integer(Total)) %>%
   mutate(`De 2.500 ha e mais` = as.integer(`De 2.500 ha e mais`)) %>%
+  mutate(`De 1.000 a menos de 2.500 ha` = as.integer(`De 1.000 a menos de 2.500 ha`)) %>%
   mutate(cod = as.integer(cod))
 
-area_app_06 <- area_2006 %>% filter (group == "Total" | group =="De 2.500 ha e mais") %>%
+area_app_06 <- area_2006 %>% filter (group == "Total" | group =="De 2.500 ha e mais" |
+                                       group == "De 1.000 a menos de 2.500 ha") %>%
   pivot_wider(names_from = "group", values_from = "area")  %>%
   mutate(Total = as.integer(Total)) %>%
   mutate(`De 2.500 ha e mais` = as.integer(`De 2.500 ha e mais`)) %>%
+  mutate(`De 1.000 a menos de 2.500 ha` = as.integer(`De 1.000 a menos de 2.500 ha`)) %>%
   mutate(cod = as.integer(cod))
 
-colnames(num_app_06) <- c("cod", "municip", "total_num", "area_1")
-colnames(area_app_06) <- c("cod", "municip", "total_area", "area_1")
+colnames(num_app_06) <- c("cod", "municip", "total_num", "area_1", "area_2")
+colnames(area_app_06) <- c("cod", "municip", "total_area", "area_1", "area_2")
 
 num_app_06[is.na(num_app_06)] = 0
 area_app_06[is.na(area_app_06)] = 0
 
-num_app_06 %<>% mutate(napp = (area_1)/total_num) %>% 
+num_app_06 %<>% mutate(napp = (area_1 + area_2)/total_num) %>% 
   dplyr::select(cod, total_num, napp)
 
-area_app_06 %<>% mutate(arapp = (area_1)/total_area) %>%
+area_app_06 %<>% mutate(arapp = (area_1 + area_2)/total_area) %>%
   dplyr::select(cod, total_area, arapp)
 
 
@@ -149,35 +155,39 @@ app_06 <- full_join(num_app_06, area_app_06, by = "cod")
 app_06 %<>% mutate(year = 2006) %>% mutate(cod = as.integer(cod))
 
 # 2017
-num_app_17 <- num_2017 %>% filter (group == "Total" | 
+num_app_17 <- num_2017 %>% filter (group == "Total" | group == "De 1.000 a menos de 2.500 ha" |
                                    group == "De 2.500 a menos de 10.000 ha" |
                                    group == "De 10.000 ha e mais")  %>%
   pivot_wider(names_from = "group", values_from = "num") %>%
   mutate(Total = as.integer(Total)) %>%
+  mutate(`De 1.000 a menos de 2.500 ha` = as.integer(`De 1.000 a menos de 2.500 ha`)) %>%
   mutate(`De 2.500 a menos de 10.000 ha` = as.integer(`De 2.500 a menos de 10.000 ha`)) %>%
   mutate(`De 10.000 ha e mais` = as.integer(`De 10.000 ha e mais`)) %>%
   mutate(cod = as.integer(cod))
 
 
-area_app_17 <- area_2017 %>% filter (group == "Total" | 
+area_app_17 <- area_2017 %>% filter (group == "Total" | group == "De 1.000 a menos de 2.500 ha" |
                                      group == "De 2.500 a menos de 10.000 ha" |
                                      group == "De 10.000 ha e mais")  %>%
   pivot_wider(names_from = "group", values_from = "area") %>%
   mutate(Total = as.integer(Total)) %>%
+  mutate(`De 1.000 a menos de 2.500 ha` = as.integer(`De 1.000 a menos de 2.500 ha`)) %>%
   mutate(`De 2.500 a menos de 10.000 ha` = as.integer(`De 2.500 a menos de 10.000 ha`)) %>%
   mutate(`De 10.000 ha e mais` = as.integer(`De 10.000 ha e mais`)) %>%
   mutate(cod = as.integer(cod))
 
-colnames(num_app_17) <- c("cod", "municip", "total_num", "area_1", "area_2")
-colnames(area_app_17) <- c("cod", "municip", "total_area", "area_1", "area_2")
+colnames(num_app_17) <- c("cod", "municip", "total_num", "area_1",
+                          "area_2", "area_3")
+colnames(area_app_17) <- c("cod", "municip", "total_area", "area_1",
+                           "area_2", "area_3")
 
 num_app_17[is.na(num_app_17)] = 0
 area_app_17[is.na(area_app_17)] = 0
 
-num_app_17 %<>% mutate(napp = (area_1 + area_2)/total_num) %>% 
+num_app_17 %<>% mutate(napp = (area_1 + area_2 + area_3)/total_num) %>% 
   dplyr::select(cod, total_num, napp)
 
-area_app_17 %<>% mutate(arapp = (area_1 + area_2)/total_area) %>%
+area_app_17 %<>% mutate(arapp = (area_1 + area_2 + area_3)/total_area) %>%
   dplyr::select(cod, total_area, arapp)
 
 
@@ -193,7 +203,6 @@ land_app$napp[is.nan(land_app$napp)]<-0
 land_app$arapp[is.nan(land_app$arapp)]<-0
 
 # Saving
-
 save(land_app, 
      file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/land_app.Rdata")
 

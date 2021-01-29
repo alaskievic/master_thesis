@@ -105,7 +105,7 @@ load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/shares.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/controls.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/land_gini.Rdata")
-
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/land_app.Rdata")
 
 final_measures %<>% filter(year == 2000| year == 2010 | year == 2015)
 
@@ -114,17 +114,11 @@ final_measures %<>% mutate(year = ifelse(year == 2000, 1995, year)) %>%
   mutate(year = ifelse(year == 2015, 2017, year))
 
 agro_struc <- full_join(agro_struc, dplyr::select(final_measures, -"municip"), 
-                        by = c("cod", "year"))
-
-agro_struc <- full_join(agro_struc, akm_shares, 
-                        by = c("cod"))
-
-agro_struc <- full_join(agro_struc, dplyr::select(controls, -"municip"), 
-                        by = c("cod"))
-
-agro_struc <- full_join(agro_struc, dplyr::select(land_gini, -"municip"), 
-                        by = c("cod", "year"))
-
+                        by = c("cod", "year")) %>%
+  full_join(., akm_shares, by = "cod") %>%
+  full_join(., dplyr::select(controls, -"municip"), by = "cod") %>%
+  full_join(., dplyr::select(land_gini, -"municip"), by = c("cod", "year")) %>%
+  full_join(., dplyr::select(land_app, -"total_area"), by = c("cod", "year"))
 
 agro_struc %<>% dplyr::select(-c("municip.x", "municip.y"))
 
@@ -165,7 +159,6 @@ write_dta(pop_struc,
 
 
 ######### 4. Municipal GDPs ####################################################
-
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/municip_pib_real.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/final_measures.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/shares.Rdata")
@@ -195,7 +188,6 @@ write_dta(municip_pib_real,
 
 
 ################################### 5. RAIS ####################################
-
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/rais_shares.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/final_measures.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/shares.Rdata")

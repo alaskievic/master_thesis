@@ -11,6 +11,8 @@ gsort +cod +year
 
 ***** Measure differences *****
 
+gen arapp2 = log(arapp*total_area)
+replace arapp2 = 0 if arapp2 == .
 
 *** Difference between 2010-2000 exposure - BASELINE ***
 gen dfao_baseline  = sum_fao[_n-1] - sum_fao[_n-2] if year == 2017 & cod == cod[_n-1]
@@ -22,7 +24,18 @@ gen dgini_land_baseline = gini_land - gini_land[_n-1] if year == 2017 & cod == c
 gen dgini_land_short = gini_land[_n-1] - gini_land[_n-2] if year == 2017 & cod == cod[_n-1]
 gen dgini_land_long = gini_land - gini_land[_n-2] if year == 2017 & cod == cod[_n-1]
 
+gen dnapp_baseline = napp - napp[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen dnapp_short = napp[_n-1 ] - napp[_n-2] if year == 2017 & cod == cod[_n-1]
+gen dnapp_long = napp - napp[_n-2] if year == 2017 & cod == cod[_n-1]
 
+
+gen darapp_baseline = arapp - arapp[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen darapp_short = arapp[_n-1 ] - arapp[_n-2] if year == 2017 & cod == cod[_n-1]
+gen darapp_long = arapp - arapp[_n-2] if year == 2017 & cod == cod[_n-1]
+
+gen darapp2_baseline = arapp2 - arapp2[_n-1 ] if year == 2017 & cod == cod[_n-1]
+gen darapp2_short = arapp2[_n-1 ] - arapp2[_n-2] if year == 2017 & cod == cod[_n-1]
+gen darapp2_long = arapp2 - arapp2[_n-2] if year == 2017 & cod == cod[_n-1]
 
 * Difference between 2015-2010 exposure
 gen dfao_short  = sum_fao - sum_fao[_n-1] if year == 2017 & cod == cod[_n-1]
@@ -35,9 +48,6 @@ gen dfao_long  = sum_fao - sum_fao[_n-2] if year == 2017 & cod == cod[_n-1]
 gen dfao_longcat95  = sum_fao_cattle_1995 - sum_fao_cattle_1995[_n-2] if year == 2017 & cod == cod[_n-1]
 gen dfao_longcatact  = sum_fao_cattle_actual - sum_fao_cattle_actual[_n-2] if year == 2017 & cod == cod[_n-1]
 
-
-* Now drop
-*drop if year == 1995
 
 *** Controls
 gen log_income_1991 = log(income_1991)
@@ -136,13 +146,14 @@ summarize dgini_land_baseline dlog_landinten  dlmaq
 ************************* Baseline Regressions *********************************
 ***** Land Inequality *****
 
+
+*** Gini Land
 * Baseline Controls
 eststo clear
 foreach v in dgini_land_baseline dgini_land_long dgini_land_short{
     eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
 }
 esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
-
 
 
 * FPC High
@@ -166,6 +177,97 @@ foreach v in dgini_land_baseline dgini_land_long dgini_land_short{
     eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area pc1_high i.codstate, vce (cluster cod)
 }
 esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+*** Appropriation
+* Baseline Controls
+eststo clear
+foreach v in darapp_baseline darapp_long darapp_short{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in darapp2_baseline darapp2_long darapp2_short{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dnapp_baseline dnapp_long dnapp_short{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+* FPC High
+eststo clear
+foreach v in darapp_baseline darapp_long darapp_short{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in darapp2_baseline darapp2_long darapp2_short{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dnapp_baseline dnapp_long dnapp_short{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* FPC High and State FE
+eststo clear
+foreach v in darapp_baseline darapp_long darapp_short{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in darapp2_baseline darapp2_long darapp2_short{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dnapp_baseline dnapp_long dnapp_short{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* Full Controls
+eststo clear
+foreach v in darapp_baseline darapp_long darapp_short{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in darapp2_baseline darapp2_long darapp2_short{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dnapp_baseline dnapp_long dnapp_short{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area pc1_high i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
+
+
+
 
 
 ********************************************************************************
@@ -200,7 +302,6 @@ foreach v in dlog_landinten dlmaq dtransarea dagrotox{
     eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area pc1_high i.codstate, vce (cluster cod)
 }
 esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
-
 
 *****
 

@@ -63,12 +63,16 @@ gen sindust_gold = indust_gold/tot_trab
 
 ******************* Differences ************************************************
 
+*Standardized
+egen zsum_fao_cattle_1995 = std(sum_fao_cattle_1995)
+
 * Measures
 gen dfao  = sum_fao - sum_fao[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dshares  = pq_sum  - pq_sum[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dfaoc95 = sum_fao_cattle_1995 - sum_fao_cattle_1995[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dfaocact = sum_fao_cattle_actual - sum_fao_cattle_actual[_n-1] if year == 2010 & cod == cod[_n-1]
 
+gen dzfaoc95 = zsum_fao_cattle_1995 - zsum_fao_cattle_1995[_n-1] if year == 2010 & cod == cod[_n-1]
 
 
 
@@ -144,6 +148,14 @@ foreach v in dagro_sh dindust_sh dserv_sh dtrab_sh dlog_wagro dlog_windust dlog_
 eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
 }
 esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* Standardized is cool!
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh dtrab_sh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dzfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dzfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
 
 * No Controls
 eststo clear

@@ -2,7 +2,7 @@
 setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
 
 #Load packaages
-source("./0_load_packages.R")
+source("./00_load_packages.R")
 
 memory.limit(size = NA)
 memory.limit(size = 50000)
@@ -106,6 +106,7 @@ load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/controls.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/land_gini.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/land_app.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/groupa_prop.Rdata")
 
 final_measures %<>% filter(year == 2000| year == 2010 | year == 2015)
 
@@ -118,7 +119,8 @@ agro_struc <- full_join(agro_struc, dplyr::select(final_measures, -"municip"),
   full_join(., akm_shares, by = "cod") %>%
   full_join(., dplyr::select(controls, -"municip"), by = "cod") %>%
   full_join(., dplyr::select(land_gini, -"municip"), by = c("cod", "year")) %>%
-  full_join(., dplyr::select(land_app, -"total_area"), by = c("cod", "year"))
+  full_join(., dplyr::select(land_app, -"total_area"), by = c("cod", "year")) %>%
+  full_join(., groupa_prop, by = c("cod", "year"))
 
 agro_struc %<>% dplyr::select(-c("municip.x", "municip.y"))
 
@@ -188,15 +190,15 @@ write_dta(municip_pib_real,
 
 
 ################################### 5. RAIS ####################################
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/rais_shares.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/rais_shares_2.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/final_measures.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/shares.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/controls.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/pop_tot.Rdata")
 
-rais_shares %<>% filter(year >= 2000 & year <= 2015)
+rais_shares_2 %<>% filter(year >= 2000 & year <= 2015)
 
-rais <- full_join(rais_shares, dplyr::select(final_measures, -"municip"), 
+rais <- full_join(rais_shares_2, dplyr::select(final_measures, -"municip"), 
                               by = c("cod", "year"))
 
 rais <- full_join(rais, akm_shares, 

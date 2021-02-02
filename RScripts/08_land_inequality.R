@@ -2,10 +2,10 @@
 setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
 
 #Load packaages
-source("./0_load_packages.R")
+source("./00_load_packages.R")
 
 
-######### 1. Reads Censo Agro data on area and numbers of agricultural
+##### 1. Reads Censo Agro data on area and numbers of agricultural #############
 ######### Establishments by groups of total area
 
 # Reads data from Censo Agro IBGE
@@ -88,7 +88,7 @@ area_1995 <- area_1995 %>%
   arrange(cod)
 
 
-##### 3. Calculate some inequality measures ####################################
+##### 2. Calculate some inequality measures ####################################
 
 # Percentage of total area appropriate by farm with more than 1.000 hectares
 
@@ -206,7 +206,7 @@ land_app$arapp[is.nan(land_app$arapp)]<-0
 save(land_app, 
      file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/land_app.Rdata")
 
-######### 2. Sets up the data to be used in Stata ##############################
+######### 3. Sets up the data to be used in Stata ##############################
 
 # 2017
 num_2017 <- num_2017 %>% mutate(num = as.numeric(num))
@@ -249,3 +249,170 @@ agro_1995 <- agro_1995 %>% filter(group != "Total") %>%
 write.dta(agro_2006, "agro_2006.dta")
 write.dta(agro_2017, "agro_2017.dta")
 write.dta(agro_1995, "agro_1995.dta")
+
+
+##### 4. Reads area by group and type of property for land inequality ##########
+
+# 1995
+# agroupa_arrend_1995 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/1995/ineq_group/area_arrend_groupa_1995.xlsx",
+#                        skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+# 
+# agroupa_ocup_1995 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/1995/ineq_group/area_ocup_groupa_1995.xlsx",
+#                                   skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+# 
+# agroupa_parc_1995 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/1995/ineq_group/area_parc_groupa_1995.xlsx",
+#                                   skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+agroupa_prop_1995 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/1995/ineq_group/area_prop_groupa_1995.xlsx",
+                                  skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+ngroupa_prop_1995 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/1995/ineq_group/num_prop_groupa_1995.xlsx",
+                                skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+agroupa_prop_1995 %<>% dplyr::select(cod = "Cód.", totarea_prop = "Total", 
+                                       ineq1 = "1.000 a menos de 2.000 ha",
+                                       ineq2 = "2.000 a menos de 5.000 ha", 
+                                       ineq3 = "5.000 a menos de 10.000 ha", 
+                                       ineq4 = "10.000 a menos de 100.000 ha", 
+                                       ineq5 = "100.000 ha e mais") %>%
+  slice(-5571) %>% mutate(cod = as.integer(cod))
+
+ngroupa_prop_1995 %<>% dplyr::select(cod = "Cód.", totnum_prop = "Total", 
+                                     ineq1 = "1.000 a menos de 2.000 ha",
+                                     ineq2 = "2.000 a menos de 5.000 ha", 
+                                     ineq3 = "5.000 a menos de 10.000 ha", 
+                                     ineq4 = "10.000 a menos de 100.000 ha", 
+                                     ineq5 = "100.000 ha e mais") %>%
+  slice(-5571) %>% mutate(cod = as.integer(cod))
+
+
+agroupa_prop_1995[is.na(agroupa_prop_1995)] = 0
+ngroupa_prop_1995[is.na(ngroupa_prop_1995)] = 0
+
+agroupa_prop_1995 %<>% mutate(proparapp = ineq1 + ineq2 + ineq3 + ineq4 + ineq5) %>%
+  dplyr::select(cod, totarea_prop, proparapp)
+
+ngroupa_prop_1995 %<>% mutate(propnapp = ineq1 + ineq2 + ineq3 + ineq4 + ineq5) %>%
+  dplyr::select(cod, totnum_prop, propnapp)
+
+#Merging
+groupa_prop_1995 <- full_join(agroupa_prop_1995, ngroupa_prop_1995, by = "cod")
+
+groupa_prop_1995 %<>% mutate(year = 1995)
+
+
+
+#2006
+agroupa_prop_2006 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/ineq_group/area_prop_groupa_2006.xlsx",
+                                skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+ngroupa_prop_2006 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2006/ineq_group/num_prop_groupa_2006.xlsx",
+                                skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+colnames(agroupa_prop_2006) <- c("cod", "municip", "x", "group", "proparapp")
+colnames(ngroupa_prop_2006) <- c("cod", "municip", "group", "x", "propnapp")
+
+
+agroupa_prop_2006 %<>% transform(cod = na.locf(cod, fromLast = FALSE)) %>%
+  filter (group == "Total" | group =="De 2.500 ha e mais" |
+            group == "De 1.000 a menos de 2.500 ha") %>%
+  dplyr::select(cod, group, proparapp) %>%
+  pivot_wider(names_from = "group", values_from = "proparapp") %>%
+  mutate(Total = as.integer(Total)) %>%
+  mutate(`De 2.500 ha e mais` = as.integer(`De 2.500 ha e mais`)) %>%
+  mutate(`De 1.000 a menos de 2.500 ha` = as.integer(`De 1.000 a menos de 2.500 ha`)) %>%
+  mutate(cod = as.integer(cod))
+  
+ngroupa_prop_2006 %<>% transform(cod = na.locf(cod, fromLast = FALSE)) %>%
+  filter (group == "Total" | group =="De 2.500 ha e mais" |
+            group == "De 1.000 a menos de 2.500 ha") %>%
+  dplyr::select(cod, group, propnapp) %>%
+  pivot_wider(names_from = "group", values_from = "propnapp") %>%
+  mutate(Total = as.integer(Total)) %>%
+  mutate(`De 2.500 ha e mais` = as.integer(`De 2.500 ha e mais`)) %>%
+  mutate(`De 1.000 a menos de 2.500 ha` = as.integer(`De 1.000 a menos de 2.500 ha`)) %>%
+  mutate(cod = as.integer(cod))
+
+agroupa_prop_2006[is.na(agroupa_prop_2006)] = 0
+ngroupa_prop_2006[is.na(ngroupa_prop_2006)] = 0
+
+colnames(agroupa_prop_2006) <- c("cod", "totarea_prop", "ineq1", "ineq2")
+colnames(ngroupa_prop_2006) <- c("cod", "totnum_prop", "ineq1", "ineq2")
+
+agroupa_prop_2006 %<>% mutate(proparapp = ineq1 + ineq2) %>%
+  dplyr::select(cod, totarea_prop, proparapp)
+
+ngroupa_prop_2006 %<>% mutate(propnapp = ineq1 + ineq2) %>%
+  dplyr::select(cod, totnum_prop, propnapp)
+
+#Merging
+groupa_prop_2006 <- full_join(agroupa_prop_2006, ngroupa_prop_2006, by = "cod")
+groupa_prop_2006 %<>% mutate(year=2006)
+
+
+#2017
+##This is for legal condition of the lands
+agroupa_prop_2017 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/ineq_group/area_prop_groupa_2017.xlsx",
+                                skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+ngroupa_prop_2017 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Agro/2017/ineq_group/num_prop_groupa_2017.xlsx",
+                                skip = 6, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+
+colnames(agroupa_prop_2017) <- c("cod", "municip", "x", "group", "proparapp")
+colnames(ngroupa_prop_2017) <- c("cod", "municip", "x", "y", "group", "propnapp")
+
+
+agroupa_prop_2017 %<>% transform(cod = na.locf(cod, fromLast = FALSE)) %>%
+  filter (group == "Total" | group =="De 2.500 a menos de 10.000 ha" |
+            group == "De 1.000 a menos de 2.500 ha" | 
+            group == "De 10.000 ha e mais") %>%
+  dplyr::select(cod, group, proparapp) %>%
+  pivot_wider(names_from = "group", values_from = "proparapp") %>%
+  mutate(Total = as.integer(Total)) %>%
+  mutate(`De 2.500 a menos de 10.000 ha` = as.integer(`De 2.500 a menos de 10.000 ha`)) %>%
+  mutate(`De 1.000 a menos de 2.500 ha` = as.integer(`De 1.000 a menos de 2.500 ha`)) %>%
+  mutate(`De 10.000 ha e mais` = as.integer(`De 10.000 ha e mais`)) %>%
+  mutate(cod = as.integer(cod))
+
+
+ngroupa_prop_2017 %<>% transform(cod = na.locf(cod, fromLast = FALSE)) %>%
+  filter (group == "Total" | group =="De 2.500 a menos de 10.000 ha" |
+            group == "De 1.000 a menos de 2.500 ha" |
+            group == "De 10.000 ha e mais") %>%
+  dplyr::select(cod, group, propnapp) %>%
+  pivot_wider(names_from = "group", values_from = "propnapp") %>%
+  mutate(Total = as.integer(Total)) %>%
+  mutate(`De 2.500 a menos de 10.000 ha` = as.integer(`De 2.500 a menos de 10.000 ha`)) %>%
+  mutate(`De 1.000 a menos de 2.500 ha` = as.integer(`De 1.000 a menos de 2.500 ha`)) %>%
+  mutate(`De 10.000 ha e mais` = as.integer(`De 10.000 ha e mais`)) %>%
+  mutate(cod = as.integer(cod))
+
+agroupa_prop_2017[is.na(agroupa_prop_2017)] = 0
+ngroupa_prop_2017[is.na(ngroupa_prop_2017)] = 0
+
+colnames(agroupa_prop_2017) <- c("cod", "totarea_prop", "ineq1", "ineq2", "ineq3")
+colnames(ngroupa_prop_2017) <- c("cod", "totnum_prop", "ineq1", "ineq2", "ineq3")
+
+agroupa_prop_2017 %<>% mutate(proparapp = ineq1 + ineq2 + ineq3) %>%
+  dplyr::select(cod, totarea_prop, proparapp)
+
+ngroupa_prop_2017 %<>% mutate(propnapp = ineq1 + ineq2 + ineq3) %>%
+  dplyr::select(cod, totnum_prop, propnapp)
+
+#Merging
+groupa_prop_2017 <- full_join(agroupa_prop_2017, ngroupa_prop_2017, by = "cod")
+groupa_prop_2017 %<>% mutate(year=2017)
+
+
+
+#Final Merge
+groupa_prop <- bind_rows(groupa_prop_1995, groupa_prop_2006)
+groupa_prop <- bind_rows(groupa_prop, groupa_prop_2017)
+
+
+save(groupa_prop, 
+     file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/groupa_prop.Rdata")
+

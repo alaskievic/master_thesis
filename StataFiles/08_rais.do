@@ -16,7 +16,7 @@ gen rur_sh_1991 = pesorur_1991/pesotot_1991
 
 
 * Log of Total Employment
-foreach v of varlist total_emp-services_complete {
+foreach v of varlist total_emp-industheavy {
 	gen log_`v' = log(`v')
 }
 
@@ -41,6 +41,10 @@ gen dmanush = manufacturing_rais - manufacturing_rais[_n-1] if year == 2010 & co
 gen dmanucsh = manufc_rais - manufc_rais[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dservsh = services_rais - services_rais[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dservcsh = servicesc_rais - servicesc_rais[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dagroindsh = agroindust_rais - agroindust_rais[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dheavyindsh = industheavy_rais - industheavy_rais[_n-1] if year == 2010 & cod == cod[_n-1]
+
+
 
 * Total Employment
 gen dtotemp = log_total_emp - log_total_emp[_n-1] if year == 2010 & cod == cod[_n-1]
@@ -49,7 +53,8 @@ gen dmanu = log_manufacturing - log_manufacturing[_n-1] if year == 2010 & cod ==
 gen dmanuc = log_manufacturing_construc - log_manufacturing_construc[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dserv = log_services - log_services[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dservc = log_services_complete - log_services_complete[_n-1] if year == 2010 & cod == cod[_n-1]
-
+gen dagroind = log_agroindust - log_agroindust[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dindustheavy = log_industheavy - log_industheavy[_n-1] if year == 2010 & cod == cod[_n-1]
 
 
 ***** First Differences Regressions ********************************************
@@ -64,6 +69,16 @@ drop if missing(log_popdens_1991)
 drop if missing(rur_sh_1991)
 drop if missing(analf_1991)
 
+*** No Controls ***
+
+eststo clear
+foreach v in dmanush dagroindsh dheavyindsh{
+    eststo: qui reg `v' dfaoc95, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
 
 *** Baseline Regression ***
 eststo clear
@@ -77,6 +92,62 @@ foreach v in dtotemp dagr dmanu dmanuc dserv dservc{
     eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991, vce (cluster cod)
 }
 esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dmanush dagroindsh dheavyindsh{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+*** Adding State FE ***
+
+eststo clear
+foreach v in dagrosh dmanush dservsh{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dtotemp dagr dmanu dmanuc dserv dservc{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dmanush dagroindsh dheavyindsh{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+*** Full Controls ***
+
+
+eststo clear
+foreach v in dagrosh dmanush dservsh{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dtotemp dagr dmanu dmanuc dserv dservc{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+eststo clear
+foreach v in dmanush dagroindsh dheavyindsh{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
 
 
 *** FPC High ***
@@ -114,20 +185,24 @@ esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compre
 * Full Controls
 eststo clear
 foreach v in dagrosh dmanush dservsh{
-    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area pc1_high i.codstate, vce (cluster cod)
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area i.codstate, vce (cluster cod)
 }
 esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 eststo clear
 foreach v in dtotemp dagr dmanu dmanuc dserv dservc{
-    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area pc1_high i.codstate, vce (cluster cod)
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area i.codstate, vce (cluster cod)
 }
 esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 
-
+eststo clear
+foreach v in dmanush dagroindsh dheavyindsh{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area i.codstate, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 

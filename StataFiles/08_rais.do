@@ -9,6 +9,13 @@ use "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\rais
 ***** Setting up ***************************************************************
 gsort +cod +year
 
+gen codreg = 1 if codstate < 20
+replace codreg = 2 if codstate < 30 & codstate >= 20
+replace codreg = 3 if codstate < 40 & codstate >= 30
+replace codreg = 4 if codstate < 50 & codstate >= 40
+replace codreg = 5 if codstate >= 50
+
+
 * Controls
 gen log_income_1991 = log(income_1991)
 gen log_popdens_1991 = log(pop_dens_1991)
@@ -68,6 +75,36 @@ drop if missing(log_income_1991)
 drop if missing(log_popdens_1991)
 drop if missing(rur_sh_1991)
 drop if missing(analf_1991)
+
+
+
+
+
+eststo clear
+foreach v in dmanush dagroindsh dheavyindsh{
+    eststo: qui reg `v' dfaoc95, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dmanush dagroindsh dheavyindsh{
+    eststo: qui reg `v' dfaoc95 rur_sh_1991, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dmanush dagroindsh dheavyindsh{
+    eststo: qui reg `v' dfaoc95 rur_sh_1991 i.codreg, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dmanush dagroindsh dheavyindsh{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
 
 *** No Controls ***
 

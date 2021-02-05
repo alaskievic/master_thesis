@@ -2,7 +2,7 @@
 setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
 
 #Load packaages
-source("./0_load_packages.R")
+source("./00_load_packages.R")
 
 ######### 1. Reads and cleans data from Agricultural Census  ###################
 ######### Reading 1995
@@ -470,7 +470,7 @@ save(agro_struc, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_th
 
 
 
-##### Joining data for group areas and use of fertilizers ######################
+# Joining data for group areas and use of fertilizers #
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/agro_struc.Rdata")
 
 ## 2006
@@ -584,7 +584,7 @@ save(agro_struc, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_th
 
 
 
-##### Seeds, property and agroindustry  ########################################
+# Seeds, property and agroindustry  #
 
 ### Seeds
 # 2006
@@ -816,7 +816,7 @@ prop <- full_join(prop_num,prop_area, by = c("cod", "year")) %>%
 
 
 
-##### Joining with full dataset #####
+# Joining with full dataset #
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/agro_struc.Rdata")
 
 agro_struc <- full_join(agro_struc, seeds, by = c("cod", "year"))
@@ -937,7 +937,7 @@ atlas_shares <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados 
 
 
 atlas_shares %<>% dplyr::select(c("ANO", "Codmun7", "Município", "P_AGRO", "P_SERV", "P_COM",
-                                  "P_CONSTR", "P_EXTR",  "P_TRANSF"))
+                                  "P_CONSTR", "P_EXTR",  "P_TRANSF", "pesoRUR", "pesourb"))
 
 atlas_shares[atlas_shares == "-" ] <- NA
 
@@ -967,7 +967,7 @@ save(popstruc_pres,
 
 
 
-##### 3. Adding additional occupation data from SIDRA Pop. Census ##############
+######### 3. Adding additional occupation data from SIDRA Pop. Census ##############
 ocup_new_grupo_2000 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/2000/Occupations/ocup_new_grupo_2000.xlsx", 
                          skip = 5, sheet = "Tabela", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 

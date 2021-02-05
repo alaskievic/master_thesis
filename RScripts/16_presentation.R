@@ -2,13 +2,10 @@
 setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
 
 #Load packaages
-source("./0_load_packages.R")
-
+source("./00_load_packages.R")
 
 
 ######### 1. Reads data for temperature and rainfall. ##########################
-
-
 raintemp<- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/IPEA/Controles/Daniel_raintemp/base_clima_br_1950_2017_13.dta")
 
 raintemp %<>% as_tibble() %>% rename(cod2 = "codigo_IBGE") %>%
@@ -583,3 +580,49 @@ map_diffcact
 
 tmap_save(map_diffcact,
           "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures/map_diffcact.png")
+
+
+######### 11. Creates histogram for Commodity Exposure Measure #################
+
+
+hist <- read_dta(file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/pop_struc.dta")
+
+hist %<>% mutate(log_income_1991 = log(income_1991)) %>%
+  mutate(log_popdens_1991 = log(pop_dens_1991)) %>%
+  mutate(log_windust = log(w_indust)) %>%
+  mutate(agr_sh_1991 = pesorur_1991/pesotot_1991) %>%
+  mutate(log_wagro = log(w_agro))
+
+
+hist %<>% filter(is.na(log_popdens_1991) ==  FALSE) %>% 
+  filter (is.na(temp_daniel) == FALSE) %>%
+  filter(is.na(log_windust) ==  FALSE) %>%
+  filter(is.na(log_income_1991) ==  FALSE) %>%
+  filter(is.na(lat) ==  FALSE) %>%
+  filter(is.na(longit) ==  FALSE) %>%
+  filter(is.na(rain_daniel) ==  FALSE) %>%
+  filter(is.na(agr_sh_1991) ==  FALSE) %>%
+  filter(is.na(log_wagro) ==  FALSE) %>%
+  filter(is.na(analf_1991) ==  FALSE) %>%
+  filter(is.na(sum_fao_cattle_1995) ==  FALSE) %>%
+  arrange(cod)
+
+hist %<>% group_by(cod) %>% filter(n() > 1) %>%
+  ungroup()
+
+histo <- hist %>% ggplot( aes(x=sum_fao_cattle_1995)) +
+  geom_histogram(aes( y= ..density..), bins = 50, color = "blue", fill = "lightblue") +
+  geom_vline(aes(xintercept = mean(sum_fao_cattle_1995)), color = "blue",
+             linetype = "dashed", size = 1) +
+  theme_bw(base_size = 13) + 
+  scale_y_continuous(name = "Density") +
+  scale_x_continuous(name = "Commodity Exposure Measure") +
+  geom_density(colour = "#003399", size = 1) +
+  annotate("text", x = 7.5, y = 0.65, label = "Mean = 6.611 \n Median = 6.630\n SD = 0.451")
+
+histo
+
+ggsave(filename = "histo_ce.png",
+       plot = histo,
+       path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
+

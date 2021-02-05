@@ -28,9 +28,13 @@ gen log_area = log(geo_area_2010)
 gen log_pop = log(pesotot)
 
 
+
 ******************* Differences ***************************
 
 keep if year==2000 | year==2010
+
+*Standardized
+*egen zfaoc95 = std(sum_fao_cattle_1995)
 
 * Measures
 gen dfaoc95  = sum_fao_cattle_1995 - sum_fao_cattle_1995[_n-1] if year == 2010 & cod == cod[_n-1]
@@ -47,20 +51,71 @@ gen dlog_pib_serv = log_pib_serv - log_pib_serv[_n-1] if year == 2010 & cod == c
 
 
 
-***** First Differences Regressions ********************************************
-
-drop if year == 2000
-drop if missing(dlog_pib_to)
-drop if missing(dlog_pib_agro)
-drop if missing(dlog_pib_indust)
-drop if missing(dlog_pib_serv)
+***************************** Summary Statistics *******************************
 drop if missing(log_income_1991)
 drop if missing(log_popdens_1991)
 drop if missing(agr_sh_1991)
 drop if missing(analf_1991)
 drop if missing(temp_daniel)
 drop if missing(rain_daniel)
+drop if missing(lat) 
+drop if missing(longit)
+drop if missing(log_pib_agro)
 
+
+by cod (year), sort: keep if _N == 2 & year[1] == 2000 & year[_N] == 2010
+
+sort  year
+by year: summarize sum_fao_cattle_1995
+
+
+by year: summarize log_pib_tot log_pib_agro log_pib_indust log_pib_serv
+
+summarize dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv
+
+
+
+
+
+
+
+
+
+***** First Differences Regressions ********************************************
+
+drop if year == 2000
+
+* Standardized
+egen zdfaoc95 = std(dfaoc95)
+
+
+gen codreg = 1 if codstate < 20
+replace codreg = 2 if codstate < 30 & codstate >= 20
+replace codreg = 3 if codstate < 40 & codstate >= 30
+replace codreg = 4 if codstate < 50 & codstate >= 40
+replace codreg = 5 if codstate >= 50
+
+
+*** No Controls ***
+
+eststo clear
+foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
+    eststo: qui reg `v' dfaoc95, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
+    eststo: qui reg `v' dfaoc95 agr_sh_1991, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
+    eststo: qui reg `v' dfaoc95 agr_sh_1991 i.codreg, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 *** Baseline Regression ***
 eststo clear
@@ -70,19 +125,18 @@ foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
 esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
-*** FPC High ***
+
+*** Baseline and State FE ***
 eststo clear
 foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
-    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high, vce (cluster cod)
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codstate, vce (cluster cod)
 }
 esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
-
-*** FPC High and State FE ***
 eststo clear
 foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
-    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 pc1_high i.codstate, vce (cluster cod)
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
 }
 esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
@@ -90,7 +144,7 @@ esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compre
 *** Full Controls
 eststo clear
 foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
-    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area pc1_high i.codstate, vce (cluster cod)
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area i.codstate, vce (cluster cod)
 }
 esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 

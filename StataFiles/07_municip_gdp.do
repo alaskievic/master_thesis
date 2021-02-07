@@ -4,7 +4,8 @@ clear all
 
 set more off, permanently
 
-use "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\municip_gdp.dta"
+cd "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles"
+use "./municip_gdp.dta"
 
 ***** Setting up ***************************************************************
 gsort +cod +year
@@ -109,20 +110,113 @@ eststo clear
 foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
     eststo: qui reg `v' dfaoc95 agr_sh_1991, vce (cluster cod)
 }
-esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
-eststo clear
+
+
 foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
     eststo: qui reg `v' dfaoc95 agr_sh_1991 i.codreg, vce (cluster cod)
 }
-esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
-*** Baseline Regression ***
 eststo clear
 foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
-    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
 }
 esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
+
+********** TESTE ***************
+
+
+eststo clear
+foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
+    eststo: qui reg `v' dfaoc95, vce (cluster cod)
+}
+
+
+
+eststo clear
+foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
+    eststo: qui reg `v' dfaoc95 agr_sh_1991, vce (cluster cod)
+}
+
+
+
+foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
+    eststo: qui reg `v' dfaoc95 agr_sh_1991 i.codreg, vce (cluster cod)
+}
+
+
+foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+
+
+
+
+********************************************************************************
+eststo clear
+eststo: qui reg dlog_pib_tot dfaoc95, vce (cluster cod)
+eststo: qui reg dlog_pib_tot dfaoc95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dlog_pib_tot dfaoc95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dlog_pib_tot dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Tables/gdp_a.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(r2_a, labels("Adj. $ R^{2} $") fmt(3)) keep(dfaoc95) replace noabbrev varlabels (dfaoc95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) title(The Effect of the Commodity Shock on Sectoral GDP) collabels(none) eqlabels(none) mlabels(none) mgroups(none) prehead("\begin{table}[h]" "\centering" "\begin{adjustbox}{max width=\textwidth}" "\begin{threeparttable}" "\caption{@title}" "\label{tab::gdp}" "\begin{tabular}{l* {5}S[table-format = 1.6]}" ///
+"\hline \hline" "\noalign{\vskip 0.2cm}") ///
+posthead("\noalign{\vskip 0.1cm}" "\hline" "\noalign{\vskip 0.1cm}" "\textbf{Panel A.} & \multicolumn{4}{c}{$\Delta$ Log Total GDP Per Capita}\\" "\noalign{\vskip 0.1cm}")
+
+
+
+eststo clear
+eststo: qui reg dlog_pib_agro dfaoc95, vce (cluster cod)
+eststo: qui reg dlog_pib_agro dfaoc95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dlog_pib_agro dfaoc95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dlog_pib_agro dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Tables/gdp_b.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(r2_a, labels("Adj. $ R^{2} $") fmt(3)) keep(dfaoc95) replace noabbrev varlabels (dfaoc95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) collabels(none) eqlabels(none) mlabels(none) mgroups(none) prehead("\noalign{\vskip 0.25cm}") ///
+posthead("\textbf{Panel B.} & \multicolumn{4}{c}{$\Delta$ Log Agricultural GDP Per Capita}\\" "\noalign{\vskip 0.1cm}") ///
+
+
+
+eststo clear
+eststo: qui reg dlog_pib_indust dfaoc95, vce (cluster cod)
+eststo: qui reg dlog_pib_indust dfaoc95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dlog_pib_indust dfaoc95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dlog_pib_indust dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Tables/gdp_c.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(r2_a, labels("Adj. $ R^{2} $") fmt(3)) keep(dfaoc95) replace noabbrev varlabels (dfaoc95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) collabels(none) eqlabels(none) mlabels(none) mgroups(none) prehead("\noalign{\vskip 0.25cm}") ///
+posthead("\textbf{Panel C.} & \multicolumn{4}{c}{$\Delta$  Log Manufacturing GDP Per Capita}\\" "\noalign{\vskip 0.1cm}") ///
+
+
+eststo clear
+eststo: qui reg dlog_pib_serv dfaoc95, vce (cluster cod)
+eststo: qui reg dlog_pib_serv dfaoc95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dlog_pib_serv dfaoc95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dlog_pib_serv dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Tables/gdp_d.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(N r2_a, labels("Observations" "Adj. $ R^{2} $") fmt(%12.0fc 3)) keep(dfaoc95) replace noabbrev varlabels (dfaoc95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) title(The Effect of the Commodity Shock on Sectoral GDP) collabels(none) eqlabels(none) mlabels(none) mgroups(none) ///
+prehead("\noalign{\vskip 0.25cm}") ///
+posthead("\noalign{\vskip 0.1cm}" "\hline" "\noalign{\vskip 0.1cm}" "\textbf{Panel D.} & \multicolumn{4}{c}{$\Delta$ Log Services GDP Per Capita}\\" "\noalign{\vskip 0.1cm}") ///
+prefoot("\noalign{\vskip 0.1cm}" "\noalign{\vskip 0.3cm}" "\hline" "\noalign{\vskip 0.1cm}" "Rural Share in 1991 & \multicolumn{1}{c}{} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark}\\" ///
+"Region FE  & & & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark}\\" ///
+"Baseline Controls & & & & \multicolumn{1}{c}{\checkmark}\\") ///
+postfoot("\hline" "\end{tabular}" "\begin{tablenotes}[flushleft]" "\setlength{\itemindent}{-2.49997pt}" "\item \textit{Notes:} Robust standard errors in parentheses. *** Significant at the 1\% level; ** Significant at the 5\% level; * Significant at the 10\% level." "\end{tablenotes}" "\end{threeparttable}" "\end{adjustbox}" "\end{table}")
+
+
+
+
+********************************************************************************
+
+
 
 
 

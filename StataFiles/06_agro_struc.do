@@ -18,10 +18,13 @@ replace codreg = 5 if codstate >= 50
 ***** Measure differences *****
 
 gen arapp2 = log(arapp*total_area)
-replace arapp2 = 0 if arapp2 == .
 
 gen napp2 = log(napp*total_num)
+
+
+replace arapp2 = 0 if arapp2 == .
 replace napp2 = 0 if napp2 == .
+
 
 * Shares
 gen arapp3 = log(arapp + 0.0000000000001)
@@ -190,8 +193,6 @@ drop if missing(propnapp)
 drop if missing(proparapp)
 by cod (year), sort: keep if _N == 2 & year[1] == 2006 & year[_N] == 2017
 
-
-
 ************************ Summary Statistics ************************************
 sort  year
 by year: summarize log_farmland  lmaq_inten2 transarea share_agrotox gini_land arapp2 napp2 log_agroind
@@ -201,6 +202,196 @@ by year: summarize sum_fao_cattle_1995
 
 
 summarize  dfarmland dlmaq dtransarea dagrotox dgini_land_baseline darapp2_baseline dnapp2_baseline dlog_agroind
+
+
+
+
+
+
+
+
+
+********************************************************************************
+
+
+eststo clear
+eststo: qui reg dlog_agroind dfao_baselinecat95, vce (cluster cod)
+eststo: qui reg dlog_agroind dfao_baselinecat95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dlog_agroind dfao_baselinecat95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dlog_agroind dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Tables/raissh_a.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(N r2_a, labels("Observations" "Adj. $ R^{2} $") fmt(3)) keep(dfao_baselinecat95) replace noabbrev varlabels (dfao_baselinecat95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) title(The Heterogeneous Effect of the Commodity Shock on the Type of Industry) collabels(none) eqlabels(none) mlabels(none) mgroups(none) prehead("\begin{table}[h]" "\centering" "\begin{adjustbox}{max width=\textwidth}" "\begin{threeparttable}" "\caption{@title}" "label{tab::empshares}" "\begin{tabular}{l* {5}S[table-format = 1.6]}" ///
+"\hline \hline" "\noalign{\vskip 0.2cm}") ///
+posthead("\noalign{\vskip 0.1cm}" "\hline" "\noalign{\vskip 0.1cm}" "\textbf{Panel A.} & \multicolumn{4}{c}{$\Delta$ Log Output in Agroindustry}\\" "\noalign{\vskip 0.1cm}")
+
+
+
+********************************************************************************
+
+
+
+eststo clear
+eststo: qui reg dfarmland dfao_baselinecat95, vce (cluster cod)
+eststo: qui reg dfarmland dfao_baselinecat95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dfarmland dfao_baselinecat95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dfarmland dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Tables/input_a.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(r2_a, labels( "Adj. $ R^{2} $") fmt(3)) keep(dfao_baselinecat95) replace noabbrev varlabels (dfao_baselinecat95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) title(The Heterogeneous Effect of the Commodity Shock on the Type of Industry) collabels(none) eqlabels(none) mlabels(none) mgroups(none) prehead("\begin{table}[h]" "\centering" "\begin{adjustbox}{max width=\textwidth}" "\begin{threeparttable}" "\caption{@title}" "label{tab::empshares}" "\begin{tabular}{l* {5}S[table-format = 1.6]}" ///
+"\hline \hline" "\noalign{\vskip 0.2cm}") ///
+posthead("\noalign{\vskip 0.1cm}" "\hline" "\noalign{\vskip 0.1cm}" "\textbf{Panel A.} & \multicolumn{4}{c}{$\Delta$ Log Total Farmland}\\" "\noalign{\vskip 0.1cm}")
+
+
+
+
+
+eststo clear
+eststo: qui reg dlmaq dfao_baselinecat95, vce (cluster cod)
+eststo: qui reg dlmaq dfao_baselinecat95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dlmaq dfao_baselinecat95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dlmaq dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Tables/input_b.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(r2_a, labels("Adj. $ R^{2} $") fmt(3)) keep(dfao_baselinecat95) replace noabbrev varlabels (dfao_baselinecat95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) collabels(none) eqlabels(none) mlabels(none) mgroups(none) prehead("\noalign{\vskip 0.25cm}") ///
+posthead("\textbf{Panel B.} & \multicolumn{4}{c}{$\Delta$  Log Machine Intensity}\\" "\noalign{\vskip 0.1cm}") ///
+
+
+eststo clear
+eststo: qui reg dtransarea dfao_baselinecat95, vce (cluster cod)
+eststo: qui reg dtransarea dfao_baselinecat95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dtransarea dfao_baselinecat95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dtransarea dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Tables/input_c.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(r2_a, labels("Adj. $ R^{2} $") fmt(3)) keep(dfao_baselinecat95) replace noabbrev varlabels (dfao_baselinecat95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) collabels(none) eqlabels(none) mlabels(none) mgroups(none) prehead("\noalign{\vskip 0.25cm}") ///
+posthead("\textbf{Panel C.} & \multicolumn{4}{c}{$\Delta$  Share of Land with GE Seeds}\\" "\noalign{\vskip 0.1cm}") ///
+
+
+
+
+eststo clear
+eststo: qui reg dagrotox dfao_baselinecat95, vce (cluster cod)
+eststo: qui reg dagrotox dfao_baselinecat95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dagrotox dfao_baselinecat95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dagrotox dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Tables/input_d.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(N r2_a, labels("Observations" "Adj. $ R^{2} $") fmt(%12.0fc 3)) keep(dfao_baselinecat95) replace noabbrev varlabels (dfao_baselinecat95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) title(The Effect of the Commodity Shock on Sectoral GDP) collabels(none) eqlabels(none) mlabels(none) mgroups(none) ///
+prehead("\noalign{\vskip 0.25cm}") ///
+posthead("\noalign{\vskip 0.1cm}" "\hline" "\noalign{\vskip 0.1cm}" "\textbf{Panel D.} & \multicolumn{4}{c}{$\Delta$  Share of Farms Using Pesticides}\\" "\noalign{\vskip 0.1cm}") ///
+prefoot("\noalign{\vskip 0.1cm}" "\noalign{\vskip 0.3cm}" "\hline" "\noalign{\vskip 0.1cm}" "Rural Share in 1991 & \multicolumn{1}{c}{} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark}\\" ///
+"Region FE  & & & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark}\\" ///
+"Baseline Controls & & & & \multicolumn{1}{c}{\checkmark}\\") ///
+postfoot("\hline" "\end{tabular}" "\begin{tablenotes}[flushleft]" "\setlength{\itemindent}{-2.49997pt}" "\item \textit{Notes:} Robust standard errors in parentheses. *** Significant at the 1\% level; ** Significant at the 5\% level; * Significant at the 10\% level." "\end{tablenotes}" "\end{threeparttable}" "\end{adjustbox}" "\end{table}")
+
+
+
+
+
+********************************************************************************
+
+eststo clear
+eststo: qui reg dgini_land_baseline dfao_baselinecat95, vce (cluster cod)
+eststo: qui reg dgini_land_baseline dfao_baselinecat95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dgini_land_baseline dfao_baselinecat95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dgini_land_baseline dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Tables/landapp_a.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(N r2_a, labels("Observations" "Adj. $ R^{2} $") fmt(%12.0fc 3)) keep(dfao_baselinecat95) replace noabbrev varlabels (dfao_baselinecat95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) title(The Heterogeneous Effect of the Commodity Shock on the Type of Industry) collabels(none) eqlabels(none) mlabels(none) mgroups(none) prehead("\begin{table}[h]" "\centering" "\begin{adjustbox}{max width=\textwidth}" "\begin{threeparttable}" "\caption{@title}" "label{tab::empshares}" "\begin{tabular}{l* {5}S[table-format = 1.6]}" ///
+"\hline \hline" "\noalign{\vskip 0.2cm}") ///
+posthead("\noalign{\vskip 0.1cm}" "\hline" "\noalign{\vskip 0.1cm}" "\textbf{Panel A.} & \multicolumn{4}{c}{$\Delta$ Log Area Farms $>1.000$ ha (2006-2017)}\\" "\noalign{\vskip 0.1cm}")
+
+
+
+
+eststo clear
+eststo: qui reg darapp2_long dfao_baselinecat95, vce (cluster cod)
+eststo: qui reg darapp2_long dfao_baselinecat95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg darapp2_long dfao_baselinecat95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg darapp2_long dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Tables/landapp_b.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(N r2_a, labels("Observations" "Adj. $ R^{2} $") fmt(%12.0fc 3)) keep(dfao_baselinecat95) replace noabbrev varlabels (dfao_baselinecat95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) collabels(none) eqlabels(none) mlabels(none) mgroups(none) prehead("\noalign{\vskip 0.25cm}") ///
+posthead("\textbf{Panel B.} & \multicolumn{4}{c}{$\Delta$ Log Area Farms $>1.000$ ha (1995-2017)}\\" "\noalign{\vskip 0.1cm}") ///
+
+
+
+eststo clear
+eststo: qui reg dnapp2_baseline dfao_baselinecat95, vce (cluster cod)
+eststo: qui reg dnapp2_baseline dfao_baselinecat95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dnapp2_baseline dfao_baselinecat95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dnapp2_baseline dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Tables/landapp_c.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(N r2_a, labels("Observations" "Adj. $ R^{2} $") fmt(%12.0fc 3)) keep(dfao_baselinecat95) replace noabbrev varlabels (dfao_baselinecat95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) collabels(none) eqlabels(none) mlabels(none) mgroups(none) prehead("\noalign{\vskip 0.25cm}") ///
+posthead("\textbf{Panel C.} & \multicolumn{4}{c}{$\Delta$ Log Number Farms $>1.000$ ha (2006-2017)}\\" "\noalign{\vskip 0.1cm}") ///
+
+
+
+
+eststo clear
+eststo: qui reg dnapp2_long dfao_baselinecat95, vce (cluster cod)
+eststo: qui reg dnapp2_long dfao_baselinecat95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dnapp2_long dfao_baselinecat95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dnapp2_long dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Tables/landapp_d.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(N r2_a, labels("Observations" "Adj. $ R^{2} $") fmt(%12.0fc 3)) keep(dfao_baselinecat95) replace noabbrev varlabels (dfao_baselinecat95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) title(The Effect ofthe Commodity Shock on Sectoral GDP) collabels(none) eqlabels(none) mlabels(none) mgroups(none) ///
+prehead("\noalign{\vskip 0.25cm}") ///
+posthead("\noalign{\vskip 0.1cm}" "\hline" "\noalign{\vskip 0.1cm}" "\textbf{Panel D.} & \multicolumn{4}{c}{$\Delta$ Log Number Farms $>1.000$ ha (1995-2017)}\\" "\noalign{\vskip 0.1cm}") ///
+prefoot("\noalign{\vskip 0.1cm}" "\noalign{\vskip 0.3cm}" "\hline" "\noalign{\vskip 0.1cm}" "Rural Share in 1991 & \multicolumn{1}{c}{} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark}\\" ///
+"Region FE  & & & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark}\\" ///
+"Baseline Controls & & & & \multicolumn{1}{c}{\checkmark}\\") ///
+postfoot("\hline" "\end{tabular}" "\begin{tablenotes}[flushleft]" "\setlength{\itemindent}{-2.49997pt}" "\item \textit{Notes:} Robust standard errors in parentheses. *** Significant at the 1\% level; ** Significant at the 5\% level; * Significant at the 10\% level." "\end{tablenotes}" "\end{threeparttable}" "\end{adjustbox}" "\end{table}")
+
+
+
+********************************************************************************
+
+eststo clear
+eststo: qui reg darapp2_baseline, vce (cluster cod)
+eststo: qui reg darapp2_baseline dfao_baselinecat95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg darapp2_baseline dfao_baselinecat95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg darapp2_baseline dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Tables/landgini_a.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(N r2_a, labels("Observations" "Adj. $ R^{2} $") fmt(%12.0fc 3)) keep(dfao_baselinecat95) replace noabbrev varlabels (dfao_baselinecat95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) title(The Heterogeneous Effect of the Commodity Shock on the Type of Industry) collabels(none) eqlabels(none) mlabels(none) mgroups(none) prehead("\begin{table}[h]" "\centering" "\begin{adjustbox}{max width=\textwidth}" "\begin{threeparttable}" "\caption{@title}" "label{tab::empshares}" "\begin{tabular}{l* {5}S[table-format = 1.6]}" ///
+"\hline \hline" "\noalign{\vskip 0.2cm}") ///
+posthead("\noalign{\vskip 0.1cm}" "\hline" "\noalign{\vskip 0.1cm}" "\textbf{Panel A.} & \multicolumn{4}{c}{$\Delta$ Land Gini (2006-2017)}\\" "\noalign{\vskip 0.1cm}")
+
+
+
+
+
+
+eststo clear
+eststo: qui reg dgini_land_long dfao_baselinecat95, vce (cluster cod)
+eststo: qui reg dgini_land_long dfao_baselinecat95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dgini_land_long dfao_baselinecat95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dgini_land_long dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Tables/landgini_b.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(N r2_a, labels("Observations" "Adj. $ R^{2} $") fmt(%12.0fc 3)) keep(dfao_baselinecat95) replace noabbrev varlabels (dfao_baselinecat95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) title(The Effect of the Commodity Shock on Sectoral GDP) collabels(none) eqlabels(none) mlabels(none) mgroups(none) ///
+prehead("\noalign{\vskip 0.25cm}") ///
+posthead("\noalign{\vskip 0.1cm}" "\hline" "\noalign{\vskip 0.1cm}" "\textbf{Panel B.} & \multicolumn{4}{c}{$\Delta$  Land Gini (1995-2017)}\\" "\noalign{\vskip 0.1cm}") ///
+prefoot("\noalign{\vskip 0.1cm}" "\noalign{\vskip 0.3cm}" "\hline" "\noalign{\vskip 0.1cm}" "Rural Share in 1991 & \multicolumn{1}{c}{} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark}\\" ///
+"Region FE  & & & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark}\\" ///
+"Baseline Controls & & & & \multicolumn{1}{c}{\checkmark}\\") ///
+postfoot("\hline" "\end{tabular}" "\begin{tablenotes}[flushleft]" "\setlength{\itemindent}{-2.49997pt}" "\item \textit{Notes:} Robust standard errors in parentheses. *** Significant at the 1\% level; ** Significant at the 5\% level; * Significant at the 10\% level." "\end{tablenotes}" "\end{threeparttable}" "\end{adjustbox}" "\end{table}")
+
+
+
+
+
 
 
 

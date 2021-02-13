@@ -74,7 +74,8 @@ save(controls_baseline, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/ma
 
 
 
-######### 2. Adding rural and urban population, literacy rate, income and population density in 1991 ###########
+######### 2. Adding rural and urban population, literacy rate, income
+# and population density in 1991 ###########
 
 # Load again controls
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/controls_baseline.Rdata")
@@ -146,7 +147,7 @@ save(baseline_full, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master
 
 
 
-######### 3. Constructing revenues and expenditures dataset ##################################################
+######### 3. Constructing revenues and expenditures dataset ####################
 
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/baseline_full.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/exp_real_long.Rdata")
@@ -166,7 +167,7 @@ setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles")
 write.dta(pres_fin, "pres_fin.dta")
 
 
-######### 4. Constructing municipalities GDP dataset ##################################################
+######### 4. Constructing municipalities GDP dataset ###########################
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/municip_pib_real.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/baseline_full.Rdata")
 
@@ -307,7 +308,7 @@ write.dta(popstruc_pres, "popstruc_pres.dta")
 
 
 
-######### 6. Constructing censo agro structural transformation dataset ##################################################
+######### 6. Constructing censo agro structural transformation dataset #########
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/baseline_full.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/agro_struc.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/land_gini.RData")
@@ -492,7 +493,10 @@ state <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municíp
 microreg %<>% set_names(c("codmicro", "microreg", "cod", "municip"))
 mesoreg %<>% set_names(c("codmeso", "mesoreg", "cod", "municip"))
 state %<>% set_names(c("codstate", "state", "cod", "municip"))
-
+region <- state %>% mutate(codreg = substring(codstate, 1, 1)) %>%
+  dplyr::select(-c("codstate", "state"))
+  
+  
 # Count unique entries to check
 teste <- microreg %>% distinct(codmicro, .keep_all = TRUE)
 teste2 <- mesoreg %>% distinct(codmeso, .keep_all = TRUE)
@@ -500,8 +504,9 @@ teste3 <- state %>% distinct(codstate, .keep_all = TRUE)
 # All ok!
 
 # Merge
-mun_codes <- inner_join(microreg, mesoreg, by = c("cod", "municip"))
-mun_codes <- inner_join(mun_codes, state, by = c("cod", "municip"))
+mun_codes <- inner_join(microreg, mesoreg, by = c("cod", "municip")) %>%
+  inner_join(., state, by = c("cod", "municip")) %>%
+  inner_join(., region, c("cod", "municip"))
 
 save(mun_codes, 
      file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/mun_codes.RData")
@@ -521,12 +526,13 @@ shp_ufs <- readOGR("C:/Users/Andrei/Desktop/Dissertation/Analysis/Shapefiles/uf_
 popstruc <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/pop_struc.dta")
 
 popstruc %<>% as_tibble() %>% dplyr::select(cod, year, municip, pq_sum, sum_fao, 
-                                            sum_faoc95, sum_faocact) %>% 
+                                            sum_fao_cattle_1995, sum_fao_cattle_actual) %>% 
   arrange(cod)
 
 
-popstruc %<>% group_by(cod) %>% mutate(fao_diffc95 = sum_faoc95 - shift(sum_faoc95)) %>%
-  mutate(fao_diffcact = sum_faocact - shift(sum_faocact))
+popstruc %<>% group_by(cod) %>% mutate(fao_diffc95 = sum_fao_cattle_1995 - 
+                                         shift(sum_fao_cattle_1995)) %>%
+  mutate(fao_diffcact = sum_fao_cattle_actual - shift(sum_fao_cattle_actual))
 
 
 popstruc_2000 <- filter(popstruc, year ==2000)
@@ -543,7 +549,7 @@ pq_aux_2010 <- merge(shp_ibge,popstruc_2010 , all.x = TRUE)
 map_diffc95  <- tm_shape(pq_aux_2010) +
   tm_polygons(col = "fao_diffc95",  style = "quantile", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
               textNA="No Data",
-              title = "Difference in Pre-Shares\nExposure 2000-2010") +
+              title = "Difference in Predicted\nExposure 2000-2010") +
   tm_shape(shp_ufs) +
   tm_borders(lwd = 1.5, col = "black", alpha = .5) +
   tm_layout(legend.text.size=1.25,
@@ -558,7 +564,6 @@ map_diffc95
 
 tmap_save(map_diffc95,
           "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures/map_diffc95.png")
-
 
 
 map_diffcact  <- tm_shape(pq_aux_2010) +
@@ -583,7 +588,6 @@ tmap_save(map_diffcact,
 
 
 ######### 11. Creates histogram for Commodity Exposure Measure #################
-
 
 hist <- read_dta(file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/pop_struc.dta")
 
@@ -614,15 +618,72 @@ histo <- hist %>% ggplot( aes(x=sum_fao_cattle_1995)) +
   geom_histogram(aes( y= ..density..), bins = 50, color = "blue", fill = "lightblue") +
   geom_vline(aes(xintercept = mean(sum_fao_cattle_1995)), color = "blue",
              linetype = "dashed", size = 1) +
-  theme_bw(base_size = 13) + 
+  theme_bw(base_size = 16) + 
   scale_y_continuous(name = "Density") +
   scale_x_continuous(name = "Commodity Exposure Measure") +
   geom_density(colour = "#003399", size = 1) +
-  annotate("text", x = 7.5, y = 0.65, label = "Mean = 6.611 \n Median = 6.630\n SD = 0.451")
+  annotate("text", x = 7.5, y = 0.65, 
+           label = "Mean = 6.611 \n Median = 6.630\n SD = 0.451",
+           size = 5)
 
 histo
 
 ggsave(filename = "histo_ce.png",
        plot = histo,
+       path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
+
+
+
+
+# Now for differences measure
+hist2 <- read_dta(file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/pop_struc.dta")
+
+hist2 %<>% mutate(log_income_1991 = log(income_1991)) %>%
+  mutate(log_popdens_1991 = log(pop_dens_1991)) %>%
+  mutate(log_windust = log(w_indust)) %>%
+  mutate(agr_sh_1991 = pesorur_1991/pesotot_1991) %>%
+  mutate(log_wagro = log(w_agro))
+
+
+hist2 %<>% filter(is.na(log_popdens_1991) ==  FALSE) %>% 
+  filter (is.na(temp_daniel) == FALSE) %>%
+  filter(is.na(log_windust) ==  FALSE) %>%
+  filter(is.na(log_income_1991) ==  FALSE) %>%
+  filter(is.na(lat) ==  FALSE) %>%
+  filter(is.na(longit) ==  FALSE) %>%
+  filter(is.na(rain_daniel) ==  FALSE) %>%
+  filter(is.na(agr_sh_1991) ==  FALSE) %>%
+  filter(is.na(log_wagro) ==  FALSE) %>%
+  filter(is.na(analf_1991) ==  FALSE) %>%
+  filter(is.na(sum_fao_cattle_1995) ==  FALSE) %>%
+  arrange(cod)
+
+hist2 %<>% group_by(cod) %>% filter(n() > 1) %>%
+  ungroup()
+
+# Creates difference
+hist2 %<>% group_by(cod) %>%
+  mutate(dfaoc95 = sum_fao_cattle_1995 - lag(sum_fao_cattle_1995, 
+                                                      default = sum_fao_cattle_1995[1])) %>%
+  filter(year != 2000)
+
+
+
+histo2 <- hist2 %>% ggplot( aes(x=dfaoc95)) +
+  geom_histogram(aes( y= ..density..), bins = 50, color = "blue", fill = "lightblue") +
+  geom_vline(aes(xintercept = mean(dfaoc95)), color = "blue",
+             linetype = "dashed", size = 1) +
+  theme_bw(base_size = 16) + 
+  scale_y_continuous(name = "Density") +
+  scale_x_continuous(name = "Difference in Commodity Exposure Measure") +
+  geom_density(colour = "#003399", size = 1) +
+  annotate("text", x = 0.75, y = 6.5, 
+           label = "Mean = 0.532 \n Median = 0.528\n SD = 0.064",
+           size = 5)
+
+histo2
+
+ggsave(filename = "histo2_ce.png",
+       plot = histo2,
        path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
 

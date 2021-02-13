@@ -361,17 +361,17 @@ prices_plot <- ggplot(data = com_graph, aes(x = date, y = agro, lty = "Commodity
   geom_line(lwd = 1.2, color = "blue") +
   labs(y = "Agricultural Price Index (2016=100)", x = "Year") +
   scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
-  theme_bw(base_size = 13) +
-  theme(legend.text=element_text(size=13), legend.position = c(0.85, 0.3), 
+  theme_bw(base_size = 16) +
+  theme(legend.text=element_text(size=16), legend.position = c(0.80, 0.3), 
         legend.box.background = element_blank(), legend.title = element_blank())
   
 
 prices_plot
 
 
-# ggsave(filename = "prices_plot.png", 
-#        plot = prices_plot, 
-#        path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
+ ggsave(filename = "prices_plot.png", 
+        plot = prices_plot, 
+        path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
 # 
 # 
 # prices_plot <- ggplot(data = com_graph, aes(x = date, y = agro)) + 

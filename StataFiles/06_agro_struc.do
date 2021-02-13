@@ -17,6 +17,8 @@ replace codreg = 5 if codstate >= 50
 
 ***** Measure differences *****
 
+gen teste = log(n_workers + 1)
+
 gen arapp2 = log(arapp*total_area)
 
 gen napp2 = log(napp*total_num)
@@ -121,6 +123,7 @@ gen log_area = log(geo_area_2010)
 gen log_linten = log(l_inten)
 gen log_valpw = log(val_outpw)
 gen log_landinten = log(((total_area/100)/geo_area_2010))
+gen log_valpa = log(totval/total_area)
 
 *gen teste = ((total_area/100)/geo_area_2010)
 *replace teste = 1 if teste > 1
@@ -151,6 +154,8 @@ drop if year == 1995
 *** Outcomes ***
 gen dlog_linten = log_linten - log_linten[_n-1] if year == 2017 & cod == cod[_n-1]
 gen dlog_valpw = log_valpw - log_valpw[_n-1] if year == 2017 & cod == cod[_n-1]
+gen dlog_valpa = log_valpa - log_valpa[_n-1] if year == 2017 & cod == cod[_n-1]
+
 
 gen dlog_landinten = log_landinten - log_landinten[_n-1 ] if year == 2017 & cod == cod[_n-1]
 gen dadubo = shares_adubo - shares_adubo[_n-1 ] if year == 2017 & cod == cod[_n-1]
@@ -164,6 +169,7 @@ gen dmaqteste = lmaqteste - lmaqteste[_n-1 ] if year == 2017 & cod == cod[_n-1]
 
 gen dfarmland = log_farmland - log_farmland[_n-1] if year == 2017 & cod == cod[_n-1]
 
+gen dteste = teste - teste[_n-1] if year == 2017 & cod == cod[_n-1]
 
 gen dlog_seeds = log_seeds - log_seeds[_n-1 ] if year == 2017 & cod == cod[_n-1]
 gen dseedspa = seedspa - seedspa[_n-1 ] if year == 2017 & cod == cod[_n-1]
@@ -189,19 +195,22 @@ drop if missing(rain_daniel)
 drop if missing(temp_daniel)
 drop if missing(sum_fao_cattle_1995)
 drop if missing(gini_land)
+drop if missing(transarea)
+drop if missing(log_farmland)
+drop if missing(share_agrotox)
 drop if missing(propnapp)
 drop if missing(proparapp)
 by cod (year), sort: keep if _N == 2 & year[1] == 2006 & year[_N] == 2017
 
 ************************ Summary Statistics ************************************
 sort  year
-by year: summarize log_farmland  lmaq_inten2 transarea share_agrotox gini_land arapp2 napp2 log_agroind
+by year: summarize log_farmland  lmaq_inten2 transarea share_agrotox gini_land arapp2 napp2 log_agroind log_valpa log_valpw
 
 by year: summarize sum_fao_cattle_1995
 
 
 
-summarize  dfarmland dlmaq dtransarea dagrotox dgini_land_baseline darapp2_baseline dnapp2_baseline dlog_agroind
+summarize  dfarmland dlmaq dtransarea dagrotox dgini_land_baseline darapp2_baseline dnapp2_baseline dlog_agroind dlog_valpa dlog_valpw
 
 
 
@@ -209,7 +218,113 @@ summarize  dfarmland dlmaq dtransarea dagrotox dgini_land_baseline darapp2_basel
 
 
 
+********************************************************************************
 
+drop if year == 2006
+*** For the Differences
+
+* Top 10%
+xtile pct_fao_10 = dfao_baselinecat95, n(9)
+gen faodt10 = 1 if pct_fao_10==9
+replace faodt10=0 if faodt10==.
+
+
+* Top 25%
+xtile pct_fao_25 = dfao_baselinecat95, n(4)
+gen faodt25 = 1 if pct_fao_25==4
+replace faodt25=0 if faodt25==.
+
+* Bottom 10%
+gen faodb10 = 1 if pct_fao_10==1
+replace faodb10=0 if faodb10==.
+
+* Bottom 25%
+gen faodb25 = 1 if pct_fao_25==1
+replace faodb25=0 if faodb25==.
+
+* Above and below the median
+egen fao_median = median(dfao_baselinecat95)
+gen faotmed = 1 if dfao_baselinecat95 > fao_median
+replace faotmed=0 if faotmed==.
+gen faobmed = 1 if dfao_baselinecat95 < fao_median
+replace faobmed=0 if faobmed==.
+
+
+
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' faodt10 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(faodt10) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' faodt25 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(faodt25) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' faotmed log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(faotmed) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' faodb10 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(faodb10) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' faodb25 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(faodb25) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+*****************************
+
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea{
+eststo: qui reg `v' faodt10 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(faodt10) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea{
+eststo: qui reg `v' faodt25 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(faodt25) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea{
+eststo: qui reg `v' faotmed log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(faotmed) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea{
+eststo: qui reg `v' faodb10 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(faodb10) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea{
+eststo: qui reg `v' faodb25 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(faodb25) star(* 0.10 ** 0.05 *** 0.01) compress
 
 ********************************************************************************
 
@@ -392,7 +507,157 @@ postfoot("\hline" "\end{tabular}" "\begin{tablenotes}[flushleft]" "\setlength{\i
 
 
 
+***************************** Robustness ***************************************
+drop if year == 2006
 
+eststo clear
+foreach v in dteste dlog_linten dlog_valpw{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dagrotox{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+*** Spatial Correlation ***
+* Cluster microreg
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dagrotox{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster codmicro)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster codmicro)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+** Conley
+*Inputs
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dagrotox{
+eststo: qui acreg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, ///
+spatial latitude(lat) longitude (longit) dist (50)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dagrotox{
+eststo: qui acreg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, ///
+spatial latitude(lat) longitude (longit) dist (100)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dagrotox{
+eststo: qui acreg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, ///
+spatial latitude(lat) longitude (longit) dist (200)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dagrotox{
+eststo: qui acreg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, ///
+spatial latitude(lat) longitude (longit) dist (400)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* Land Inequality
+
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui acreg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, ///
+spatial latitude(lat) longitude (longit) dist (50)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui acreg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, ///
+spatial latitude(lat) longitude (longit) dist (100)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui acreg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, ///
+spatial latitude(lat) longitude (longit) dist (200)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui acreg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, ///
+spatial latitude(lat) longitude (longit) dist (400)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+*** AKM ***
+drop pr_barley_1995
+
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dagrotox{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+reg_ss dfarmland, shiftshare_var(dfao_baselinecat95) control_varlist(log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
+reg_ss dfarmland, shiftshare_var(dfao_baselinecat95) control_varlist(log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
+
+
+reg_ss dlmaq, shiftshare_var(dfao_baselinecat95) control_varlist(log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
+reg_ss dlmaq, shiftshare_var(dfao_baselinecat95) control_varlist(log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
+
+
+reg_ss dtransarea, shiftshare_var(dfao_baselinecat95) control_varlist(log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
+reg_ss dtransarea, shiftshare_var(dfao_baselinecat95) control_varlist(log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
+
+
+reg_ss dagrotox, shiftshare_var(dfao_baselinecat95) control_varlist(log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
+reg_ss dagrotox, shiftshare_var(dfao_baselinecat95) control_varlist(log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
+
+
+reg_ss dgini_land_baseline, shiftshare_var(dfao_baselinecat95) control_varlist(log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
+reg_ss dgini_land_baseline, shiftshare_var(dfao_baselinecat95) control_varlist(log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
+
+drop if missing(dgini_land_long)
+reg_ss dgini_land_long, shiftshare_var(dfao_baselinecat95) control_varlist(log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
+reg_ss dgini_land_long, shiftshare_var(dfao_baselinecat95) control_varlist(log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
+
+********************************************************************************
 
 
 
@@ -453,7 +718,7 @@ esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.
 
 
 eststo clear
-foreach v in dlog_landinten dlmaq dtransarea dagrotox{
+foreach v in dfarmland dlmaq dtransarea dagrotox{
     eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
 }
 esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
@@ -461,6 +726,42 @@ esttab, se ar2 stat (r2_a N) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.
 
 
 
+
+
+
+eststo clear
+foreach v in dlog_valpa dlog_valpw{ 
+    eststo: qui reg `v' dfao_baselinecat95, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dlog_valpa dlog_valpw{
+    eststo: qui reg `v' dfao_baselinecat95 agr_sh_1991, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dlog_valpa dlog_valpw{
+    eststo: qui reg `v' dfao_baselinecat95 agr_sh_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dlog_valpa dlog_valpw{
+    eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg , vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+foreach v in dgini_land_baseline dgini_land_long dgini_land_short{
+    eststo: qui reg `v' dfao_baseline log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg , vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baseline) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 

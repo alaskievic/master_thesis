@@ -278,12 +278,12 @@ postfoot("\hline" "\end{tabular}" "\begin{tablenotes}[flushleft]" "\setlength{\i
 ********************************************************************************
 ***************************** Robustness ***************************************
 
-
 eststo clear
 foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
 eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
 
 
 *** Spatial Correlation ***

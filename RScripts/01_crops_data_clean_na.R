@@ -1,11 +1,12 @@
-
 # Set Working Directory
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts")
+set_here(path = "C:/Users/Andrei/Desktop/Dissertation")
 
-#Load packaages
-source("./0_load_packages.R")
+setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
 
+# Load packages
+source("./00_load_packages.R")
 
+source(here("RScripts", "00_load_packages.R"))
 
 ########## 1. Read PAM crops data and check the number of municipalities that produced each crop in 1999 #############################################
 

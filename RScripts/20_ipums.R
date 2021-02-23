@@ -1,7 +1,7 @@
 # Set Working Directory
 setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
 
-#Load packaages
+#Load packages
 source("./0_load_packages.R")
 
 memory.limit(size = NA)

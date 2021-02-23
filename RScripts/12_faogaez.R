@@ -1,12 +1,12 @@
 # Set Working Directory
 setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
 
-#Load packaages
-source("./0_load_packages.R")
+#Load packages
+source("./00_load_packages.R")
 
 
 
-######### 1. Read and explore FAO-GAEZ dataset ################################################################################################
+######### 1. Read and explore FAO-GAEZ dataset #################################
 
 #Reading all the ASCII grid files
 list_files_low = list.files("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/FAO-GAEZ/ASCII Grid Data/Low",
@@ -85,7 +85,6 @@ write.dta(fao_mean, "fao_mean.dta")
 
 
 ###################
-
 fao_mean <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/fao_mean.dta") %>%
   dplyr::select(-c("oat_low", "oat_int", "oat_high", "rye_low", "rye_int", "rye_high"))
 
@@ -357,7 +356,7 @@ fao_final <- fao_final_index_wider %>% pivot_longer(-c("cod", "municip"), names_
 #write_xlsx(fao_final_index_wider, 'C:/Users/Andrei/Desktop/Dissertation/Analysis/fao_final_index_wider.xlsx')
 
 # Saving
-save(fao_final_index, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/fao_final_index_widerx.Rdata")
+save(fao_final_index, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/fao_final_index_wider.Rdata")
 save(fao_final, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/fao_final.Rdata")
 
 ##########################################################################################
@@ -424,6 +423,271 @@ bartik_final <- full_join(fao_final, dplyr::select(pq_bartik_final, -c("municip"
 
 
 save(bartik_final, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/bartik_final.Rdata")
+
+
+
+
+
+
+################## 3. Measure using FAO high inputs ############################
+
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/prices_real_bartik_2010.Rdata")
+
+prices <- cpi_prices_2010 %>% filter(Years >= 2000)
+prices[-1] <- log(prices[-1])
+
+fao_pr <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/full_fao_high.dta")
+
+#banana
+fao_banana <- NULL
+
+for (i in 1:16) {
+  tmp <- (fao_pr$pr_banana_high)*unique(prices$Banana)[i]
+  fao_banana <- cbind(fao_banana, tmp)
+}
+
+fao_banana <- as.data.frame(fao_banana)
+fao_banana <- fao_banana %>% as_tibble(.name_repair = "unique") %>%
+  setNames(prices$Years) %>%
+  add_column(municip = fao_pr$municip, .before = "2000", .name_repair = "minimal") %>%
+  as_tibble()
+
+#barley
+fao_barley <- NULL
+
+for (i in 1:16) {
+  tmp <- (fao_pr$pr_barley_high)*unique(prices$Barley)[i]
+  fao_barley <- cbind(fao_barley, tmp)
+}
+
+fao_barley <- as.data.frame(fao_barley)
+fao_barley <- fao_barley %>% as_tibble(.name_repair = "unique") %>%
+  setNames(prices$Years) %>%
+  add_column(municip = fao_pr$municip, .before = "2000", .name_repair = "minimal") %>%
+  as_tibble()
+
+#cocoa
+fao_cocoa <- NULL
+
+for (i in 1:16) {
+  tmp <- (fao_pr$pr_cocoa_high)*unique(prices$Cocoa)[i]
+  fao_cocoa <- cbind(fao_cocoa, tmp)
+}
+
+fao_cocoa <- as.data.frame(fao_cocoa)
+fao_cocoa <- fao_cocoa %>% as_tibble(.name_repair = "unique") %>%
+  setNames(prices$Years) %>%
+  add_column(municip = fao_pr$municip, .before = "2000", .name_repair = "minimal") %>%
+  as_tibble()
+
+#coffee usando preço do arabic
+fao_coffee_arabic <- NULL
+
+for (i in 1:16) {
+  tmp <- (fao_pr$pr_coffee_high)*unique(prices$`Coffee Arabic`)[i]
+  fao_coffee_arabic <- cbind(fao_coffee_arabic, tmp)
+}
+
+fao_coffee_arabic <- as.data.frame(fao_coffee_arabic)
+fao_coffee_arabic <- fao_coffee_arabic %>% as_tibble(.name_repair = "unique") %>%
+  setNames(prices$Years) %>%
+  add_column(municip = fao_pr$municip, .before = "2000", .name_repair = "minimal") %>%
+  as_tibble()
+
+
+
+# cotton
+fao_cotton <- NULL
+
+for (i in 1:16) {
+  tmp <- (fao_pr$pr_cotton_high)*unique(prices$Cotton)[i]
+  fao_cotton <- cbind(fao_cotton, tmp)
+}
+
+fao_cotton <- as.data.frame(fao_cotton)
+fao_cotton <- fao_cotton %>% as_tibble(.name_repair = "unique") %>%
+  setNames(prices$Years) %>%
+  add_column(municip = fao_pr$municip, .before = "2000", .name_repair = "minimal") %>%
+  as_tibble()
+
+
+# maize
+fao_maize <- NULL
+
+for (i in 1:16) {
+  tmp <- (fao_pr$pr_maize_high)*unique(prices$Maize)[i]
+  fao_maize <- cbind(fao_maize, tmp)
+}
+
+fao_maize <- as.data.frame(fao_maize)
+fao_maize <- fao_maize %>% as_tibble(.name_repair = "unique") %>%
+  setNames(prices$Years) %>%
+  add_column(municip = fao_pr$municip, .before = "2000", .name_repair = "minimal") %>%
+  as_tibble()
+
+# orange
+fao_orange <- NULL
+
+for (i in 1:16) {
+  tmp <- (fao_pr$pr_orange_high)*unique(prices$Orange)[i]
+  fao_orange <- cbind(fao_orange, tmp)
+}
+
+fao_orange <- as.data.frame(fao_orange)
+fao_orange <- fao_orange %>% as_tibble(.name_repair = "unique") %>%
+  setNames(prices$Years) %>%
+  add_column(municip = fao_pr$municip, .before = "2000", .name_repair = "minimal") %>%
+  as_tibble()
+
+# sorghum
+fao_sorghum <- NULL
+
+for (i in 1:16) {
+  tmp <- (fao_pr$pr_sorghum_high)*unique(prices$Sorghum)[i]
+  fao_sorghum <- cbind(fao_sorghum, tmp)
+}
+
+fao_sorghum <- as.data.frame(fao_sorghum)
+fao_sorghum <- fao_sorghum %>% as_tibble(.name_repair = "unique") %>%
+  setNames(prices$Years) %>%
+  add_column(municip = fao_pr$municip, .before = "2000", .name_repair = "minimal") %>%
+  as_tibble()
+
+#Soy
+fao_soybean <- NULL
+
+for (i in 1:16) {
+  tmp <- (fao_pr$pr_soybean_high)*unique(prices$Soy)[i]
+  fao_soybean <- cbind(fao_soybean, tmp)
+}
+
+fao_soybean <- as.data.frame(fao_soybean)
+fao_soybean <- fao_soybean %>% as_tibble(.name_repair = "unique") %>%
+  setNames(prices$Years) %>%
+  add_column(municip = fao_pr$municip, .before = "2000", .name_repair = "minimal") %>%
+  as_tibble()
+
+
+#Tobacco
+fao_tobacco <- NULL
+
+for (i in 1:16) {
+  tmp <- (fao_pr$pr_tobacco_high)*unique(prices$Tobacco)[i]
+  fao_tobacco <- cbind(fao_tobacco, tmp)
+}
+
+fao_tobacco <- as.data.frame(fao_tobacco)
+fao_tobacco <- fao_tobacco %>% as_tibble(.name_repair = "unique") %>%
+  setNames(prices$Years) %>%
+  add_column(municip = fao_pr$municip, .before = "2000", .name_repair = "minimal") %>%
+  as_tibble()
+
+#Sugar
+fao_sugarcane <- NULL
+
+for (i in 1:16) {
+  tmp <- (fao_pr$pr_sugarcane_high)*unique(prices$Sugar)[i]
+  fao_sugarcane <- cbind(fao_sugarcane, tmp)
+}
+
+fao_sugarcane <- as.data.frame(fao_sugarcane)
+fao_sugarcane <- fao_sugarcane %>% as_tibble(.name_repair = "unique") %>%
+  setNames(prices$Years) %>%
+  add_column(municip = fao_pr$municip, .before = "2000", .name_repair = "minimal") %>%
+  as_tibble()
+
+
+
+#Tea
+fao_tea <- NULL
+
+for (i in 1:16) {
+  tmp <- (fao_pr$pr_tea_high)*unique(prices$Tea)[i]
+  fao_tea <- cbind(fao_tea, tmp)
+}
+
+fao_tea <- as.data.frame(fao_tea)
+fao_tea <- fao_tea %>% as_tibble(.name_repair = "unique") %>%
+  setNames(prices$Years) %>%
+  add_column(municip = fao_pr$municip, .before = "2000", .name_repair = "minimal") %>%
+  as_tibble()
+
+
+#Wheat
+fao_wheat <- NULL
+
+for (i in 1:16) {
+  tmp <- (fao_pr$pr_wheat_high)*unique(prices$`Wheat S`)[i]
+  fao_wheat <- cbind(fao_wheat, tmp)
+}
+
+fao_wheat <- as.data.frame(fao_wheat)
+fao_wheat <- fao_wheat %>% as_tibble(.name_repair = "unique") %>%
+  setNames(prices$Years) %>%
+  add_column(municip = fao_pr$municip, .before = "2000", .name_repair = "minimal") %>%
+  as_tibble()
+
+
+#Rice
+fao_rice <- NULL
+
+for (i in 1:16) {
+  tmp <- (fao_pr$pr_rice_high)*unique(prices$`Rice 05`)[i]
+  fao_rice <- cbind(fao_rice, tmp)
+}
+
+fao_rice <- as.data.frame(fao_rice)
+fao_rice <- fao_rice %>% as_tibble(.name_repair = "unique") %>%
+  setNames(prices$Years) %>%
+  add_column(municip = fao_pr$municip, .before = "2000", .name_repair = "minimal") %>%
+  as_tibble()
+
+
+
+
+# Tidying it up
+fao_banana <- fao_banana %>% pivot_longer(-municip, names_to = "year", values_to = "fao_banana")
+fao_barley <- fao_barley %>% pivot_longer(-municip, names_to = "year", values_to = "fao_barley")
+fao_cocoa <- fao_cocoa %>% pivot_longer(-municip, names_to = "year", values_to = "fao_cocoa")
+fao_coffee_arabic <- fao_coffee_arabic %>% pivot_longer(-municip, names_to = "year", values_to = "fao_coffee")
+fao_cotton <- fao_cotton %>% pivot_longer(-municip, names_to = "year", values_to = "fao_cotton")
+fao_maize <- fao_maize %>% pivot_longer(-municip, names_to = "year", values_to = "fao_maize")
+fao_orange <- fao_orange %>% pivot_longer(-municip, names_to = "year", values_to = "fao_orange")
+fao_rice <- fao_rice %>% pivot_longer(-municip, names_to = "year", values_to = "fao_rice")
+fao_sorghum <- fao_sorghum %>% pivot_longer(-municip, names_to = "year", values_to = "fao_sorghum")
+fao_soybean <- fao_soybean %>% pivot_longer(-municip, names_to = "year", values_to = "fao_soybean")
+fao_sugarcane <- fao_sugarcane %>% pivot_longer(-municip, names_to = "year", values_to = "fao_sugarcane")
+fao_tobacco <- fao_tobacco %>% pivot_longer(-municip, names_to = "year", values_to = "fao_tobacco")
+fao_wheat <- fao_wheat %>% pivot_longer(-municip, names_to = "year", values_to = "fao_wheat")
+fao_tea <- fao_tea %>% pivot_longer(-municip, names_to = "year", values_to = "fao_tea")
+
+
+# Joining all in one dataset
+pq_aux <- Reduce(inner_join, list(fao_banana, fao_barley, fao_cocoa, fao_coffee_arabic, fao_cotton,
+                                  fao_maize, fao_orange, fao_rice,
+                                  fao_sorghum, fao_soybean, fao_sugarcane, fao_tobacco, fao_wheat, fao_tea))
+
+
+# Summing all the values for each crop for all municipality
+fao_final_index <- pq_aux %>% mutate(sum_fao = dplyr::select(., fao_banana:fao_tea) %>% 
+                                       rowSums(na.rm = TRUE)) %>%
+  dplyr::select(municip, year, sum_fao)
+
+
+fao_final_index_wider <- fao_final_index %>% pivot_wider(names_from = "year", values_from = "sum_fao", names_repair = "minimal") %>%
+  add_column(cod = fao_pr$cod, .before = "municip") %>%
+  arrange(cod)
+
+
+fao_final <- fao_final_index_wider %>% pivot_longer(-c("cod", "municip"), names_to = "year", values_to = "sum_fao_high") %>%
+  mutate(cod = as.integer(cod), year = as.integer(year)) %>%
+  arrange(cod)
+
+
+# Saving
+save(fao_final_index, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/fao_final_index_wider.Rdata")
+save(fao_final, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts/fao_final.Rdata")
+
 
 
 

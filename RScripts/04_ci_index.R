@@ -772,7 +772,7 @@ write_xlsx(pq_final_shares_longer_log, 'C:/Users/Andrei/Desktop/Dissertation/Dad
 
 
 
-######### 3. Doing for shares and log prices to avoid non-linearities in SSIV #################################
+######### 3. Doing for shares and log prices to avoid non-linearities in SSIV #
 prices[-1] <- log(prices[-1])
 
 pq_banana <- NULL

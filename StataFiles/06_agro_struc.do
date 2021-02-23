@@ -46,6 +46,7 @@ gen proparapp_shtot = proparapp/total_area
 gen dfao_baseline  = sum_fao[_n-1] - sum_fao[_n-2] if year == 2017 & cod == cod[_n-1]
 gen dfao_baselinecat95  = sum_fao_cattle_1995[_n-1] - sum_fao_cattle_1995[_n-2] if year == 2017 & cod == cod[_n-1]
 gen dfao_baselinecatact  = sum_fao_cattle_actual[_n-1] - sum_fao_cattle_actual[_n-2] if year == 2017 & cod == cod[_n-1]
+gen dfaochigh = sum_fao_cattle_high_1995[_n-1] - sum_fao_cattle_high_1995[_n-2] if year == 2017 & cod == cod[_n-1]
 
 *** Land Inequality ***
 gen dgini_land_baseline = gini_land - gini_land[_n-1] if year == 2017 & cod == cod[_n-1]
@@ -210,10 +211,10 @@ by year: summarize sum_fao_cattle_1995
 
 
 
-summarize  dfarmland dlmaq dtransarea dagrotox dgini_land_baseline darapp2_baseline dnapp2_baseline dlog_agroind dlog_valpa dlog_valpw
+summarize  dfarmland dlmaq dtransarea dagrotox dgini_land_baseline dgini_land_long darapp2_baseline dnapp2_baseline dlog_agroind dlog_valpa dlog_valpw
 
 
-
+summarize darapp2_baseline dnapp2_baseline darapp2_long dnapp2_long
 
 
 
@@ -504,6 +505,103 @@ prefoot("\noalign{\vskip 0.1cm}" "\noalign{\vskip 0.3cm}" "\hline" "\noalign{\vs
 postfoot("\hline" "\end{tabular}" "\begin{tablenotes}[flushleft]" "\setlength{\itemindent}{-2.49997pt}" "\item \textit{Notes:} Robust standard errors in parentheses. *** Significant at the 1\% level; ** Significant at the 5\% level; * Significant at the 10\% level." "\end{tablenotes}" "\end{threeparttable}" "\end{adjustbox}" "\end{table}")
 
 
+
+*************************** Alternative Measures *******************************
+drop if year == 2006
+
+
+* Baseline Inputs
+eststo clear
+foreach v in dfarmland dlmaq dtransarea{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* Actual
+eststo clear
+foreach v in dfarmland dlmaq dtransarea{
+eststo: qui reg `v' dfao_baselinecatact log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecatact) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* No Catlle
+eststo clear
+foreach v in dfarmland dlmaq dtransarea{
+eststo: qui reg `v' dfao_baseline log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baseline) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+* High inputs
+eststo clear
+foreach v in dfarmland dlmaq dtransarea{
+eststo: qui reg `v' dfaochig log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaochigh) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* Different periods
+eststo clear
+foreach v in dfarmland dlmaq dtransarea{
+eststo: qui reg `v' dfao_longcat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_longcat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea{
+eststo: qui reg `v' dfao_shortcat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_shortcat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+* Baseline
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* Actual
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_baselinecatact log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecatact) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+* No Catlle
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_baseline log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baseline) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+* High inputs
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfaochig log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaochigh) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* Different periods
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_longcat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_longcat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_shortcat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_shortcat95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 

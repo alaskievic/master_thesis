@@ -1,7 +1,7 @@
 # Set Working Directory
 setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
 
-#Load packaages
+#Load packages
 source("./00_load_packages.R")
 
 memory.limit(size = NA)
@@ -249,7 +249,6 @@ FROM `basedosdados.br_me_rais.agregado_vinculos_municipio_vinculo_ativo_cbo_cnae
 WHERE ano >= 1990 AND 
     cnae_1 LIKE '15130' OR
     cnae_1 LIKE '15148' OR
-    cnae_1 LIKE '152%'  OR
     cnae_1 LIKE '152%'  OR
     cnae_1 LIKE '153%'  OR
     cnae_1 LIKE '154%'  OR

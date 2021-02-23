@@ -18,7 +18,7 @@ set more off
 
 
 
-***** FAO-GAEZ dataset
+************************ FAO-GAEZ intermediate inputs **************************
 clear all
 
 use "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/full_fao.dta"
@@ -96,9 +96,8 @@ save "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/fao
 
 
 * Graphing		
-*twoway scatter banana pr_banana || lfit banana pr_banana
-
-
+twoway scatter banana pr_banana || lfit banana pr_banana
+twoway scatter cattle pr_cattle || lfit cattle pr_banana
 
 
 
@@ -151,4 +150,32 @@ predict pr_banana pr_barley pr_orange pr_cocoa pr_coffee pr_cotton pr_maize ///
 		
 save "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/full_pr_akm.dta"
 
+
+
+******************** FAO-GAEZ high inputs **************************************
+clear all
+
+use "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/full_fao_cat_1995.dta"
+
+
+local fao_high banana_high barley_high citrus_high cocoa_high coffee_high cotton_high ///
+			  maize_high rice_high sorghum_high soybean_high sugarcane_high tea_high ///
+			  tobacco_high wheat_high grass_high
+			  
+local q_shares banana barley orange cocoa coffee cotton maize rice sorghum soybean ///
+			   sugar_cane tea tobacco wheat cattle
+
+
+fmlogit `q_shares' , eta(`fao_high') difficult technique(dfp)
+
+predict pr_banana_high pr_barley_high pr_orange_high pr_cocoa_high pr_coffee_high ///
+		pr_cotton_high pr_maize_high pr_rice_high pr_sorghum_high pr_soybean_high ///
+		pr_sugarcane_high pr_tea_high pr_tobacco_high pr_wheat_high pr_cattle_high
+
+save "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/fao_pr_cattle_high_1995.dta", replace
+
+
+* Graphing		
+twoway scatter banana pr_banana || lfit banana pr_banana
+twoway scatter cattle pr_cattle || lfit cattle pr_cattle
 

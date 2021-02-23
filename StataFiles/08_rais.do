@@ -71,6 +71,20 @@ drop if missing(rur_sh_1991)
 drop if missing(analf_1991)
 by cod (year), sort: keep if _N == 2 & year[1] == 2000 & year[_N] == 2010
 
+sort  year
+by year: summarize manufacturing_rais  agroindust_rais industheavy_rais
+
+summarize dmanush dagroindsh dheavyindsh
+
+summarize dagrosh dmanush dservsh
+
+
+summarize dagrosh dmanush dservsh 
+
+
+summarize dtotemp dagr dmanu dserv dservc
+
+
 drop if year == 2000
 
 eststo clear
@@ -229,7 +243,7 @@ esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compres
 
 eststo clear
 foreach v in dtotemp dagr dmanu dmanuc dserv dservc{
-    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 altitude longit lat dist_federal dist_state rain_daniel temp_daniel capital_dummy log_area i.codstate, vce (cluster cod)
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 rur_sh_1991 analf_1991 i.codreg, vce (cluster cod)
 }
 esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
@@ -348,6 +362,12 @@ drop if missing(log_popdens_1991)
 drop if missing(rur_sh_1991)
 drop if missing(analf_1991)
 
+gen codreg = 1 if codstate < 20
+replace codreg = 2 if codstate < 30 & codstate >= 20
+replace codreg = 3 if codstate < 40 & codstate >= 30
+replace codreg = 4 if codstate < 50 & codstate >= 40
+replace codreg = 5 if codstate >= 50
+
 *** Regressions ***
 
 *** Baseline Controls
@@ -358,7 +378,7 @@ drop if missing(analf_1991)
 eststo clear
 foreach v in agriculture_rais manufacturing_rais  services_rais{
 eststo: qui reghdfe `v' sum_fao_cattle_1995 c.log_income_1991#i.year c.log_popdens_1991#i.year ///
-c.rur_sh_1991#i.year c.analf_1991#i.year if year <=2010, absorb (cod year) vce(cluster cod)
+c.rur_sh_1991#i.year c.analf_1991#i.year i.codreg#i.year if year <=2010, absorb (cod year) vce(cluster cod)
 }
 esttab, se ar2 stat ( r2_a N) keep(sum_fao_cattle_1995) star(* 0.10 ** 0.05 *** 0.01) compress
 
@@ -407,7 +427,7 @@ eststo clear
 foreach v in agriculture_rais manufacturing_rais  services_rais{
 eststo: qui reghdfe `v' sum_fao_cattle_1995 c.log_income_1991#i.year c.log_popdens_1991#i.year ///
 c.rur_sh_1991#i.year c.analf_1991#i.year c.dist_state#i.year c.dist_federal#i.year c.log_area#i.year c.latitude#i.year ///
-c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year c.pc1_high#i.year i.codstate if year <= 2010, absorb (cod year) vce (cluster cod)
+c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year  i.codreg#i.year if year <= 2010, absorb (cod year) vce (cluster cod)
 }
 esttab, se ar2 stat ( r2_a N) keep(sum_fao_cattle_1995) star(* 0.10 ** 0.05 *** 0.01) compress
 

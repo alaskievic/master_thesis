@@ -32,6 +32,14 @@ gen log_popdens_1991 = log(pop_dens_1991)
 gen agr_sh_1991 = pesorur_1991/pesotot_1991
 gen log_val_outpa_1995 = log(val_outpa_1995)
 
+
+egen totsum = sum(tot_trab) if year ==2000
+
+gen totsh = tot_trab/totsum
+
+
+
+
 * Others
 gen log_area = log(geo_area_2010)
 
@@ -93,8 +101,11 @@ gen dconstr_sh = P_CONSTR - P_CONSTR[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dextr_sh = P_EXTR - P_EXTR[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dtransf_sh = P_TRANSF - P_TRANSF[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dindust_sh = P_INDUST - P_INDUST[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dtrab_sh =sharepop - sharepop[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dtrab_sh = sharepop - sharepop[_n-1] if year == 2010 & cod == cod[_n-1]
 gen durbsh = urbsh - urbsh[_n-1] if year == 2010 & cod == cod[_n-1]
+
+gen wtot_sh = totsh[_n-1] if year == 2010 & cod == cod[_n-1]
+
 
 
 * Shares - Sidra
@@ -125,10 +136,6 @@ gen dlog_wserv = log_wagro- log_wserv[_n-1] if year == 2010 & cod == cod[_n-1]
 
 
 
-
-********************************************************************************
-
-*Summary Statistics
 drop if missing(log_income_1991)
 drop if missing(log_popdens_1991)
 drop if missing(agr_sh_1991)
@@ -143,6 +150,11 @@ drop if missing(sum_fao_cattle_1995)
 
 by cod (year), sort: keep if _N == 2 & year[1] == 2000 & year[_N] == 2010
 
+
+********************************************************************************
+
+
+*Summary Statistics
 sort  year
 by year: summarize sum_fao_cattle_1995
 
@@ -199,6 +211,47 @@ ttest log_area , by(dfaoc95_p50)
 
 
 ********************************************************************************
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg [weight=wtot_sh], vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+* Aggregation at microregion
+
+
+drop if year == 2000
+
+
+collapse (firstnm) codreg (mean) dfaoc95 dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wser log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, by(codmicro)
+
+*collapse (firstnm) codreg (mean) dfaoc95 dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wser log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 [weight = pesotot], by(codmicro)
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster codmicro)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
+
+
 
 ***** Baseline Regressions *****************************************************
 

@@ -1,8 +1,48 @@
 # Set Working Directory
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts")
+setwd("C:/Users/Andrei/Desktop//Dissertation/Analysis/master_thesis/RScripts")
 
 #Load packaages
-source("./0_load_packages.R")
+source("./00_load_packages.R")
+
+
+
+#################### 1. Measure Map for Microregion ############################
+
+
+# Reads shapefiles for microregion borders
+shp_micro <-  readOGR("C:/Users/Andrei/Desktop/Dissertation/Dados/Shapefiles/br_microreg", "MIEBRASIL", stringsAsFactors = F)
+
+# Reads shapefiles for state borders
+shp_ufs <- readOGR("C:/Users/Andrei/Desktop/Dissertation/Dados/Shapefiles/uf_2019", "BR_UF_2019", stringsAsFactors = F)
+
+
+
+
+
+
+# Plotting
+map_land_2017 <- tm_shape(shp_ibge_gini_2017) +
+  tm_polygons(col = "gini_2017", style = "fisher", palette = "YlOrRd",
+              border.col = "black", border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Land Gini in 2017") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.text.size=1.25,
+            legend.title.size=1.55,
+            legend.position = c("left","bottom"), 
+            legend.height=1.0,
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom"), text.size = 1) 
+
+
+
+map_land_2017
+
+# Saving
+tmap_save(map_land_2017, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_land_2017.png")
+
 
 
 

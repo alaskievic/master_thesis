@@ -2,7 +2,7 @@
 setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts")
 
 #Load packaages
-source("./0_load_packages.R")
+source("./00_load_packages.R")
 
 ######### 1. Reads and plots Land Gini Inequality data calculated in Stata ###################################################################################
 

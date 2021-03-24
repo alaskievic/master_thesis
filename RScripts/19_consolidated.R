@@ -145,6 +145,8 @@ load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/ocup_sidra.RData")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/pop_tot.RData")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/final_measures_faohigh.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/amc_final.Rdata")
+
 
 final_measures %<>% filter(year == 2000| year == 2010)
 pop_sidra %<>% filter(year == 2000| year == 2010)
@@ -162,7 +164,8 @@ pop_struc <- full_join(popstruc_pres, dplyr::select(final_measures, -"municip"),
   full_join(., ocup_sidra, 
             by = c("cod", "year")) %>%
   full_join(., dplyr::select(pop_sidra, -"municip"), 
-            by = c("cod", "year"))
+            by = c("cod", "year")) %>%
+  full_join(.,amc_final, by = c("cod"))
 
 pop_struc %<>% dplyr::select(-c("municip.y.x", "municip.y.y", 
                                 "municip.x.y")) %>%

@@ -10,22 +10,42 @@ source("./00_load_packages.R")
 
 
 # Reads shapefiles for microregion borders
-shp_micro <-  readOGR("C:/Users/Andrei/Desktop/Dissertation/Dados/Shapefiles/br_microreg", "MIEBRASIL", stringsAsFactors = F)
+shp_micro <-  readOGR("C:/Users/Andrei/Desktop/Dissertation/Analysis/Shapefiles/br_microreg", "BR_Microrregioes_2020", stringsAsFactors = F)
 
 # Reads shapefiles for state borders
-shp_ufs <- readOGR("C:/Users/Andrei/Desktop/Dissertation/Dados/Shapefiles/uf_2019", "BR_UF_2019", stringsAsFactors = F)
+shp_ufs <- readOGR("C:/Users/Andrei/Desktop/Dissertation/Analysis/Shapefiles/uf_2019", "BR_UF_2019", stringsAsFactors = F)
+
+
+# Read aggregate file from Stata
+pop_struc_micro <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/pop_struc_micro.dta")
+
+# Renaming
+names(shp_micro@data)[1] = "codmicro"
+shp_micro@data$codmicro <- as.integer(shp_micro@data$codmicro)
+
+
+# Merging
+shp_micro_pop <- merge(shp_micro, pop_struc_micro, all.x = TRUE)
+
+
+# Plotting only the borders
+micro_borders <- tm_shape(shp_micro) +
+  tm_polygons(col = NA) +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom"), text.size = 1) 
+
+micro_borders
 
 
 
-
-
-
-# Plotting
-map_land_2017 <- tm_shape(shp_ibge_gini_2017) +
-  tm_polygons(col = "gini_2017", style = "fisher", palette = "YlOrRd",
+# Plotting Measures (No Cattle)
+map_micro_dfao <- tm_shape(shp_micro_pop) +
+  tm_polygons(col = "dfao", style = "quantile", palette = "YlOrRd",
               border.col = "black", border.alpha = .3, showNA = TRUE, 
               textNA="No Data",
-              title = "Land Gini in 2017") +
+              title = "Difference in Predicted\nExposure 2000-2010") +
   tm_shape(shp_ufs) +
   tm_borders(lwd = 1.5, col = "black", alpha = .5) +
   tm_layout(legend.text.size=1.25,
@@ -36,12 +56,39 @@ map_land_2017 <- tm_shape(shp_ibge_gini_2017) +
   tm_compass(position = c("right", "bottom")) +
   tm_scale_bar(position = c("right", "bottom"), text.size = 1) 
 
-
-
-map_land_2017
+map_micro_dfao
 
 # Saving
-tmap_save(map_land_2017, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_land_2017.png")
+tmap_save(map_micro_dfao, "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures/microreg_fao.png")
+
+
+
+
+
+# Plotting Measures (With Cattle)
+map_micro_dfaoc <- tm_shape(shp_micro_pop) +
+  tm_polygons(col = "dfaoc95", style = "quantile", palette = "YlOrRd",
+              border.col = "black", border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Difference in Predicted\nExposure 2000-2010") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.text.size=1.25,
+            legend.title.size=1.55,
+            legend.position = c("left","bottom"), 
+            legend.height=1.0,
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom"), text.size = 1) 
+
+map_micro_dfaoc
+
+
+# Saving
+tmap_save(map_micro_dfaoc, "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures/microreg_faoc.png")
+
+
+
 
 
 

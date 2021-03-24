@@ -223,6 +223,42 @@ summarize darapp2_baseline dnapp2_baseline darapp2_long dnapp2_long
 
 ********************************************************************************
 
+* Playing with controls
+
+* Baseline
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* Distances
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 capital_dummy dist_federal dist_state  i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* Agri 
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 capital_dummy dist_federal dist_state log_valpw_1995 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+********************************************************************************
 * Aggregation 
 
 

@@ -153,7 +153,14 @@ by cod (year), sort: keep if _N == 2 & year[1] == 2000 & year[_N] == 2010
 
 ********************************************************************************
 
+* Collapse and save
 
+collapse (firstnm) codreg (mean) dfao dfaoc95 dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wser log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, by(codmicro)
+
+save "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\pop_struc_micro.dta"
+
+
+********************************************************************************
 *Summary Statistics
 sort  year
 by year: summarize sum_fao_cattle_1995
@@ -212,6 +219,49 @@ ttest log_area , by(dfaoc95_p50)
 
 ********************************************************************************
 
+** Playing with controls
+
+* Baseline
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* Distances
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 capital_dummy dist_federal dist_state i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* Agri
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 capital_dummy dist_federal dist_state log_val_outpa_1995 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* Past Share
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 capital_dummy dist_federal dist_state log_val_outpa_1995  i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* Bad?
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 lat longit rain_daniel temp_daniel capital_dummy dist_federal dist_state altitude i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+********************************************************************************
 * Teste
 
 eststo clear
@@ -267,6 +317,87 @@ esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.0
 
 
 
+********************************** Thiago **************************************
+
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_avg_tot_income log_density rural_share literacy_rate i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 women_labor_share i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_avg_tot_income log_density rural_share literacy_rate women_labor_share i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(4) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+
+
+
+****** AMC
+drop if year == 2000
+
+
+collapse (firstnm) codreg (mean) dfaoc95 dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wser log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 women_labor_share, by(id_AMC)
+
+*collapse (firstnm) codreg (mean) dfaoc95 dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wser log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 [weight = pesotot], by(codmicro)
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster id_AMC)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 women_labor_share i.codreg, vce (cluster id_AMC)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 

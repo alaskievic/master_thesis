@@ -937,7 +937,9 @@ atlas_shares <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados 
 
 
 atlas_shares %<>% dplyr::select(c("ANO", "Codmun7", "Município", "P_AGRO", "P_SERV", "P_COM",
-                                  "P_CONSTR", "P_EXTR",  "P_TRANSF", "pesoRUR", "pesourb"))
+                                  "P_CONSTR", "P_EXTR",  "P_TRANSF", "pesoRUR",
+                                   "pesourb", "IDHM", "IDHM_E", "IDHM_L", "IDHM_R", 
+                                   "I_ESCOLARIDADE", "I_FREQ_PROP"))
 
 atlas_shares[atlas_shares == "-" ] <- NA
 

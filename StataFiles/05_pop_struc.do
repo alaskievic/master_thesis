@@ -25,6 +25,7 @@ replace P_CONSTR = P_CONSTR/100
 replace P_EXTR = P_EXTR/100
 replace P_TRANSF = P_TRANSF/100
 replace P_INDUST = P_INDUST/100
+replace analf_1991 = analf_1991/100
 
 * Controls
 gen log_income_1991 = log(income_1991)
@@ -159,19 +160,29 @@ drop if missing(sum_fao_cattle_1995)
 
 foreach v of varlist banana_1995-wheat_1995{
 
-	gen d1_`v' = 1 if `v' > 0.3
-	replace d1_`v' = 0 if missing(d1_`v')
+	gen d30_`v' = 1 if `v' > 0.3
+	replace d30_`v' = 0 if missing(d30_`v')
 }
 
 foreach v of varlist banana_1995-wheat_1995{
 
-	gen d2_`v' = 1 if `v' > 0.5
-	replace d2_`v' = 0 if missing(d2_`v')
+	gen d50_`v' = 1 if `v' > 0.5
+	replace d50_`v' = 0 if missing(d50_`v')
 }
+
+
+gen group50 = cattle_1995 + coffee_1995 + maize_1995 + soybean_1995 +  /// 
+			   sugarcane_1995
+			   
+gen dgroup50 = 1 if group50 > 0.5
+replace dgroup50 = 0 if missing(dgroup50)
+
 
 by cod (year), sort: keep if _N == 2 & year[1] == 2000 & year[_N] == 2010
 
 
+
+save "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\pop_struc_r.dta", replace
 ********************************************************************************
 
 * Collapse and save
@@ -215,6 +226,17 @@ egen dfaoc_median = median(dfaoc95)
 gen dfaoc95_p50 = 1 if dfaoc95 > dfaoc_median
 replace dfaoc95_p50 = 0 if dfaoc95_p50 != 1
 
+keep if year == 2010
+
+foreach v in log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 capital_dummy ///
+			 dist_federal dist_state altitude women_labor_share val_outpa_1995{
+		ttest `v', by(dfaoc95_p50) 
+
+}
+
+log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
+ capital_dummy dist_federal dist_state altitude women_labor_share val_outpa_1995
+
 ttest log_income_1991, by(dfaoc95_p50)           
 ttest log_popdens_1991 , by(dfaoc95_p50)           
 ttest agr_sh_1991, by(dfaoc95_p50)
@@ -255,6 +277,20 @@ eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
+set scheme s1color
+
+
+net install gr0002_3, from(http://www.stata-journal.com/software/sj4-3)
+
+set scheme lean2
+
+ssc install blindschemes, replace all
+
+set scheme plottig
+
+grstyle color background white
+coefplot est1 est2 est3 est4, vertical keep(dfaoc95) yline(0) legend(ring(0) position(8) bmargin(large))
+coefplot est5 est6 est7, keep(dfaoc95) xline(0)
 
 * Distances
 eststo clear
@@ -348,11 +384,19 @@ esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.0
 eststo clear
 foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
 eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
- capital_dummy dist_federal dist_state altitude women_labor_share val_outpa_1995 d2_banana_1995-d2_wheat_1995 i.codreg, vce (cluster cod)
+ capital_dummy dist_federal dist_state altitude women_labor_share val_outpa_1995 d50_banana_1995-d50_wheat_1995 i.codreg, vce (cluster cod)
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
+ capital_dummy dist_federal dist_state altitude women_labor_share val_outpa_1995 ///
+ d50_banana_1995-d50_wheat_1995 dgroup50 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 ********************************************************************************
 * Teste
@@ -1200,7 +1244,7 @@ esttab, se ar2 stat (r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compres
 
 eststo clear
 foreach v in dagro_sh dindust_sh dserv_sh dlog_wagro dlog_windust{
-eststo: qui reg `v'  zfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991, cluster(cod)
+eststo: qui reg `v'  zfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, cluster(cod)
 }
 esttab, se ar2 stat (r2_a N) keep( zfao) star(* 0.10 ** 0.05 *** 0.01) compress
 

@@ -108,6 +108,9 @@ load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/land_app.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/groupa_prop.Rdata")
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/final_measures_faohigh.Rdata")
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/amc_final.Rdata")
+pop_struc <- 
+  read_dta(file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/pop_struc_r.dta")
 
 final_measures %<>% filter(year == 2000| year == 2010 | year == 2015)
 
@@ -121,6 +124,10 @@ fao_final_cattle_1995 %<>% mutate(year = ifelse(year == 2000, 1995, year)) %>%
   mutate(year = ifelse(year == 2010, 2006, year)) %>%
   mutate(year = ifelse(year == 2015, 2017, year))
 
+pop_struc %<>% mutate (year = ifelse(year == 2000, 2006, 2017)) %>%
+  dplyr::select(cod, year, P_AGRO, P_SERV, P_INDUST, w_serv, w_agro, 
+                w_indust, pesotot, pesourb)
+
 agro_struc <- full_join(agro_struc, dplyr::select(final_measures, -"municip"), 
                         by = c("cod", "year")) %>%
   full_join(., akm_shares, by = "cod") %>%
@@ -128,7 +135,9 @@ agro_struc <- full_join(agro_struc, dplyr::select(final_measures, -"municip"),
   full_join(., dplyr::select(fao_final_cattle_1995, -"municip"), by = c("cod", "year")) %>%
   full_join(., dplyr::select(land_gini, -"municip"), by = c("cod", "year")) %>%
   full_join(., dplyr::select(land_app, -"total_area"), by = c("cod", "year")) %>%
-  full_join(., groupa_prop, by = c("cod", "year"))
+  full_join(., groupa_prop, by = c("cod", "year")) %>%
+  full_join(., amc_final, by = "cod") %>%
+  full_join(., pop_struc, by = c("cod", "year"))
 
 agro_struc %<>% dplyr::select(-c("municip.x", "municip.y"))
 

@@ -15,6 +15,15 @@ replace codreg = 4 if codstate < 50 & codstate >= 40
 replace codreg = 5 if codstate >= 50
 
 
+
+
+***** Mediation analysis ******
+gen log_windust = log(w_indust)
+gen log_wagro = log(w_agro)
+gen log_wserv = log(w_serv)
+
+gen urbshare = pesourb/pesotot
+
 ***** Measure differences *****
 
 gen teste = log(n_workers + 1)
@@ -154,6 +163,20 @@ drop if year == 1995
 
 
 *** Outcomes ***
+
+* Shares - PNUD
+gen dagro_sh = P_AGRO - P_AGRO[_n-1] if year == 2017 & cod == cod[_n-1]
+gen dserv_sh = P_SERV - P_SERV[_n-1] if year == 2017 & cod == cod[_n-1]
+gen dindust_sh = P_INDUST - P_INDUST[_n-1] if year == 2017 & cod == cod[_n-1]
+gen durbsh = urbsh - urbsh[_n-1] if year == 2017 & cod == cod[_n-1]
+
+
+gen dlog_wagro = log_wagro- log_wagro[_n-1] if year == 2017 & cod == cod[_n-1]
+gen dlog_windust = log_windust- log_windust[_n-1] if year == 2017 & cod == cod[_n-1]
+gen dlog_wserv = log_wagro- log_wserv[_n-1] if year == 2017 & cod == cod[_n-1]
+
+
+
 gen dlog_linten = log_linten - log_linten[_n-1] if year == 2017 & cod == cod[_n-1]
 gen dlog_valpw = log_valpw - log_valpw[_n-1] if year == 2017 & cod == cod[_n-1]
 gen dlog_valpa = log_valpa - log_valpa[_n-1] if year == 2017 & cod == cod[_n-1]
@@ -206,21 +229,22 @@ drop if missing(proparapp)
 
 foreach v of varlist banana_1995-wheat_1995{
 
-	gen d1_`v' = 1 if `v' > 0.3
-	replace d1_`v' = 0 if missing(d1_`v')
+	gen d30_`v' = 1 if `v' > 0.3
+	replace d30_`v' = 0 if missing(d30_`v')
 }
 
 foreach v of varlist banana_1995-wheat_1995{
 
-	gen d2_`v' = 1 if `v' > 0.5
-	replace d2_`v' = 0 if missing(d2_`v')
+	gen d50_`v' = 1 if `v' > 0.5
+	replace d50_`v' = 0 if missing(d50_`v')
 }
 
-foreach v of varlist banana_1995-wheat_1995{
 
-	gen d3_`v' = 1 if `v' > 0.25
-	replace d3_`v' = 0 if missing(d3_`v')
-}
+gen group50 = cattle_1995 + coffee_1995 + maize_1995 + soybean_1995 +  /// 
+			   sugarcane_1995
+			   
+gen dgroup50 = 1 if group50 > 0.5
+replace dgroup50 = 0 if missing(dgroup50)
 
 
 by cod (year), sort: keep if _N == 2 & year[1] == 2006 & year[_N] == 2017
@@ -245,7 +269,94 @@ summarize darapp2_baseline dnapp2_baseline darapp2_long dnapp2_long
 
 ********************************************************************************
 
-* Playing with controls
+************************* Mediation analysis ***********************************
+
+drop if year == 2006
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaodt10 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaodt10) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+medeff (regress dgini_land_long dfaodt10 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) ///
+		(regress dagro_sh dfaodt10 dgini_land_long log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991), ///
+		treat(dfaodt10) mediate(dgini_land_long) sims(1000) vce (cluster cod)
+		
+		
+medeff (regress dtransarea dfaodt10 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) ///
+		(regress dagro_sh dfaodt10 dtransarea log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991), ///
+		treat(dfaodt10) mediate(dtransarea) sims(1000) vce (cluster cod)
+		
+medsens (regress dgini_land_long dfaodt10 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) ///
+		(regress dagro_sh dfaodt10 dgini_land_long log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991), ///
+		treat(dfaodt10) mediate(dgini_land_long) sims(1000)
+
+
+* Farmland
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfao_baselinecat95 dfarmland log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95 dfarmland) star(* 0.10 ** 0.05 *** 0.01) compress
+
+* Machine Intensity
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfao_baselinecat95 dlmaq log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95 dlmaq) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* GE Seeds
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfao_baselinecat95 dtransarea log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95 dtransarea) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* Land Inequality
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfao_baselinecat95 dgini_land_long log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95 dgini_land_long) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+* Other?
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dlmaq log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dlmaq) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dgini_land_long log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dgini_land_long) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+************ Playing with controls
 
 * Baseline
 eststo clear
@@ -315,10 +426,13 @@ eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
 
+
+
 eststo clear
 foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long{
-eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 ///
- analf_1991 capital_dummy dist_federal dist_state altitude val_outpa_1995 d3_banana_1995-d3_wheat_1995 i.codreg, vce (cluster cod)
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
+ capital_dummy dist_federal dist_state altitude women_labor_share val_outpa_1995 ///
+ d50_banana_1995-d50_wheat_1995 dgroup50 i.codreg, vce (cluster cod)
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
 

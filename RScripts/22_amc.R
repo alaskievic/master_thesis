@@ -5,8 +5,6 @@ setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
 source("./00_load_packages.R")
 
 
-
-
 ######### 1. Matching AMCs and Municipality Codes ###############################
 
 
@@ -48,9 +46,26 @@ save(amc_final,
           file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/amc_final.Rdata")
 
 
+############# 3. Additional Municipality and AMCs Controls #####################
+load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/amc_final.Rdata")
 
+past <-
+  read_dta("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/Outros/past_controls.dta")
 
+past_share <- 
+  read_dta("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Censo Demo/1991/empshares_1991.dta")
 
+past_share %<>% rename(cod = id_municipio) %>% mutate(year = 1991)
+
+amc_final %<>% rename(cod_amc = amc)
+
+amc_full <- inner_join(amc_final, past, by = "cod_amc")
+
+save(amc_full, 
+     file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/amc_full.Rdata")
+
+save(past_share, 
+     file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/past_share.Rdata")
 
 ######### 2. Scatterbin plots ##################################################
 

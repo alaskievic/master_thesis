@@ -18,14 +18,17 @@ replace codreg = 4 if codstate < 50 & codstate >= 40
 replace codreg = 5 if codstate >= 50
 
 
-replace P_AGRO = P_AGRO/100
-replace P_SERV = P_SERV/100
-replace P_COM = P_COM/100
-replace P_CONSTR = P_CONSTR/100
-replace P_EXTR = P_EXTR/100
-replace P_TRANSF = P_TRANSF/100
-replace P_INDUST = P_INDUST/100
-replace analf_1991 = analf_1991/100
+replace P_AGRO   = agrish_1991 if year == 1991
+replace P_INDUST = manush_1991 if year == 1991
+
+replace P_AGRO = P_AGRO/100 if year == 2000 | year == 2010
+replace P_SERV = P_SERV/100 if year == 2000 | year == 2010
+replace P_COM = P_COM/100 if year == 2000 | year == 2010
+replace P_CONSTR = P_CONSTR/100 if year == 2000 | year == 2010
+replace P_EXTR = P_EXTR/100 if year == 2000 | year == 2010
+replace P_TRANSF = P_TRANSF/100 if year == 2000 | year == 2010 
+replace P_INDUST = P_INDUST/100 if year == 2000 | year == 2010 
+replace analf_1991 = analf_1991/100 if year == 2000 | year == 2010
 
 * Controls
 gen log_income_1991 = log(income_1991)
@@ -34,8 +37,22 @@ gen agr_sh_1991 = pesorur_1991/pesotot_1991
 gen log_val_outpa_1995 = log(val_outpa_1995)
 
 
-egen totsum = sum(tot_trab) if year ==2000
 
+* Past Controls
+
+bysort cod: egen rural_adult_1991 = total(rural_adult) if year == 1991
+
+
+
+
+
+
+
+
+
+
+
+egen totsum = sum(tot_trab) if year ==2000
 gen totsh = tot_trab/totsum
 
 
@@ -96,17 +113,26 @@ gen dfaochigh = sum_fao_cattle_high_1995 - sum_fao_cattle_high_1995[_n-1] if yea
 
 * Shares - PNUD
 gen dagro_sh = P_AGRO - P_AGRO[_n-1] if year == 2010 & cod == cod[_n-1]
+replace dagro_sh = P_AGRO - P_AGRO[_n-1] if year == 2000 & cod == cod[_n-1]
+
+
+
 gen dserv_sh = P_SERV - P_SERV[_n-1] if year == 2010 & cod == cod[_n-1]
+
+
 gen dcom_sh = P_COM - P_COM[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dconstr_sh = P_CONSTR - P_CONSTR[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dextr_sh = P_EXTR - P_EXTR[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dtransf_sh = P_TRANSF - P_TRANSF[_n-1] if year == 2010 & cod == cod[_n-1]
+
+
 gen dindust_sh = P_INDUST - P_INDUST[_n-1] if year == 2010 & cod == cod[_n-1]
+replace dindust_sh = P_INDUST - P_INDUST[_n-1] if year == 2000 & cod == cod[_n-1]
+
+
 gen dtrab_sh = sharepop - sharepop[_n-1] if year == 2010 & cod == cod[_n-1]
 gen durbsh = urbsh - urbsh[_n-1] if year == 2010 & cod == cod[_n-1]
-
 gen wtot_sh = totsh[_n-1] if year == 2010 & cod == cod[_n-1]
-
 gen didh = IDHM - IDHM[_n-1] if year == 2010 & cod == cod[_n-1]
 gen deduc = IDHM_E - IDHM_E[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dlongev = IDHM_L - IDHM_L[_n-1] if year == 2010 & cod == cod[_n-1]
@@ -262,6 +288,112 @@ foreach v in didh deduc dlongev dincome dschool1 dschool2{
 eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+********************************************************************************
+
+bysort cod: gen time = _n
+
+tsset cod time
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult   if year == 2010, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult i.codreg  if year == 2010, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg if year == 2010, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+gen agrish_r1991 = P_AGRO if year == 1991
+
+bysort cod: replace agrish_r1991 = agrish_r1991[_n-2] if year == 2010
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 agrish_r1991 i.codreg   if year == 2010, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+reg dagro_sh dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult  		           if year == 2010
+reg dindust_sh dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult  		       if year == 2010
+reg dserv_sh dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult  		           if year == 2010
+
+
+reg dagro_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg 		   	   if year == 2010
+reg dindust_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg 		   if year == 2010
+
+
+reg dagro_sh dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult i.codreg    if year == 2010
+reg dindust_sh dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult i.codreg  if year == 2010
+
+
+* Pre trends
+
+gen dfaoc95_2010 = dfaoc95 if year == 2010
+gen faodt_2010 = faodt10 if year == 2010
+gen faotmed_2010 = faotmed if year == 2010
+
+
+replace dfaoc95_2010  = 0 if missing(dfaoc95_2010)
+replace faodt_2010    = 0 if missing(faodt_2010)
+replace faotmed_2010  = 0 if missing(faotmed_2010)
+
+
+forvalues i = 1/3{
+    bysort cod: replace dfaoc95 = dfaoc95[_n+`i'] if dfaoc95==.
+}
+
+
+gen 	rur_share_r =.
+replace rur_share_r = agr_sh_1991 if year == 1991
+replace rur_share_r = rural_adult if year == 1980
+
+gen 	log_income_r = .
+replace log_income_r = log_income_1991 if year == 1991
+replace log_income_r = log_y_pc_r 	   if year == 1980
+
+gen 	log_popdens_r = .
+replace log_popdens_r = log_popdens_1991    if year == 1991
+replace log_popdens_r = log_pop_area 	    if year == 1980
+
+
+reg dagro_sh dfaoc95_2010 dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult y2010 if pre == 1, vce (cluster cod)
+reg dindust_sh dfaoc95_2010 dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult y2010 if pre == 1, vce (cluster cod)
+
+
+reg dagro_sh dfaoc95_2010 dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult y2010 i.codreg   if pre == 1, vce (cluster cod)
+reg dindust_sh dfaoc95_2010 dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult y2010 i.codreg if pre == 1, vce (cluster cod)
+
+
+* With dummies
+reg dagro_sh  faodt_2010 faodt10 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult y2010 i.codreg   if pre == 1, vce (cluster cod)
+
+
+
+
+reg dagro_sh dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult y2010 i.codreg   if year == 2000, vce (cluster cod)
+
+reg dindust_sh dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult y2010 i.codreg   if year == 2000, vce (cluster cod)
+
+
 
 
 

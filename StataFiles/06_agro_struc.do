@@ -8,12 +8,20 @@ use "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\agro
 ***** Preparing Data *****
 gsort +cod +year
 
+
+forvalues i = 1/6{
+    bysort cod: replace women_labor_share = women_labor_share[_n+`i'] if women_labor_share==.
+}
+
+bysort cod: replace women_labor_share = women_labor_share[_n-1] if women_labor_share==.
+
+keep if year == 2017 | year == 2006 | year == 1995
+
 gen codreg = 1 if codstate < 20
 replace codreg = 2 if codstate < 30 & codstate >= 20
 replace codreg = 3 if codstate < 40 & codstate >= 30
 replace codreg = 4 if codstate < 50 & codstate >= 40
 replace codreg = 5 if codstate >= 50
-
 
 
 
@@ -247,6 +255,7 @@ gen dgroup50 = 1 if group50 > 0.5
 replace dgroup50 = 0 if missing(dgroup50)
 
 
+
 by cod (year), sort: keep if _N == 2 & year[1] == 2006 & year[_N] == 2017
 
 
@@ -425,6 +434,17 @@ eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1
  analf_1991 capital_dummy dist_federal dist_state altitude val_outpa_1995 d2_banana_1995-d2_wheat_1995 i.codreg, vce (cluster cod)
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
+ capital_dummy dist_federal dist_state altitude women_labor_share val_outpa_1995 ///
+ d30_banana_1995-d30_wheat_1995 dgroup50 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
 
 
 

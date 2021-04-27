@@ -525,14 +525,22 @@ shp_ufs <- readOGR("C:/Users/Andrei/Desktop/Dissertation/Analysis/Shapefiles/uf_
 # Get unique values for each municipality
 popstruc <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/pop_struc.dta")
 
+popstruc %<>% filter(year == 2000 | year == 2010)
+
+
+
+
+
 popstruc %<>% as_tibble() %>% dplyr::select(cod, year, municip, pq_sum, sum_fao, 
                                             sum_fao_cattle_1995, sum_fao_cattle_actual) %>% 
   arrange(cod)
 
-
-popstruc %<>% group_by(cod) %>% mutate(fao_diffc95 = sum_fao_cattle_1995 - 
-                                         shift(sum_fao_cattle_1995)) %>%
-  mutate(fao_diffcact = sum_fao_cattle_actual - shift(sum_fao_cattle_actual))
+popstruc %<>% group_by(cod) %>%
+  mutate(dfaoc95 = sum_fao_cattle_1995 - dplyr::lag(sum_fao_cattle_1995, 
+                                                    default = sum_fao_cattle_1995[1])) %>%
+  mutate(dfao = sum_fao - dplyr::lag(sum_fao, default = sum_fao_cattle_1995[1])) %>%
+  mutate(dfaoc_act = sum_fao_cattle_actual - dplyr::lag(sum_fao_cattle_actual, 
+                                                    default = sum_fao_cattle_actual[1]))
 
 
 popstruc_2000 <- filter(popstruc, year ==2000)
@@ -547,9 +555,9 @@ pq_aux_2010 <- merge(shp_ibge,popstruc_2010 , all.x = TRUE)
 
 # Plotting Difference
 map_diffc95  <- tm_shape(pq_aux_2010) +
-  tm_polygons(col = "fao_diffc95",  style = "quantile", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
+  tm_polygons(col = "dfaoc95",  style = "quantile", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
               textNA="No Data",
-              title = "Difference in Predicted\nExposure 2000-2010") +
+              title = "Change in Predicted\nExposure 2000-2010") +
   tm_shape(shp_ufs) +
   tm_borders(lwd = 1.5, col = "black", alpha = .5) +
   tm_layout(legend.text.size=1.25,
@@ -566,10 +574,34 @@ tmap_save(map_diffc95,
           "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures/map_diffc95.png")
 
 
+
+map_diffao  <- tm_shape(pq_aux_2010) +
+  tm_polygons(col = "dfao",  style = "quantile", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Change in Predicted\nExposure 2000-2010") +
+  tm_shape(shp_ufs) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.text.size=1.25,
+            legend.title.size=1.55,
+            legend.position = c("left","bottom"), 
+            legend.height=1.0, #capped?
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom"), text.size = 1) 
+
+map_diffao 
+
+tmap_save(map_diffao ,
+          "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures/map_diffao.png")
+
+
+
+
+
 map_diffcact  <- tm_shape(pq_aux_2010) +
   tm_polygons(col = "fao_diffcact",  style = "quantile", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
               textNA="No Data",
-              title = "Difference in Actual Shares\nExposure 2000-2010") +
+              title = "Change in Actual Shares\nExposure 2000-2010") +
   tm_shape(shp_ufs) +
   tm_borders(lwd = 1.5, col = "black", alpha = .5) +
   tm_layout(legend.text.size=1.25,
@@ -638,6 +670,8 @@ ggsave(filename = "histo_ce.png",
 # Now for differences measure
 hist2 <- read_dta(file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/pop_struc.dta")
 
+hist2 %<>% filter(year == 2000 | year == 2010)
+
 hist2 %<>% mutate(log_income_1991 = log(income_1991)) %>%
   mutate(log_popdens_1991 = log(pop_dens_1991)) %>%
   mutate(log_windust = log(w_indust)) %>%
@@ -663,7 +697,7 @@ hist2 %<>% group_by(cod) %>% filter(n() > 1) %>%
 
 # Creates difference
 hist2 %<>% group_by(cod) %>%
-  mutate(dfaoc95 = sum_fao_cattle_1995 - lag(sum_fao_cattle_1995, 
+  mutate(dfaoc95 = sum_fao_cattle_1995 - dplyr::lag(sum_fao_cattle_1995, 
                                                       default = sum_fao_cattle_1995[1])) %>%
   filter(year != 2000)
 
@@ -675,7 +709,7 @@ histo2 <- hist2 %>% ggplot( aes(x=dfaoc95)) +
              linetype = "dashed", size = 1) +
   theme_bw(base_size = 16) + 
   scale_y_continuous(name = "Density") +
-  scale_x_continuous(name = "Difference in Commodity Exposure Measure") +
+  scale_x_continuous(name = "Change in Commodity Exposure Measure") +
   geom_density(colour = "#003399", size = 1) +
   annotate("text", x = 0.75, y = 6.5, 
            label = "Mean = 0.532 \n Median = 0.528\n SD = 0.064",

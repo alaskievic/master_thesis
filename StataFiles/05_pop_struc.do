@@ -246,8 +246,12 @@ gen dlog_agro_gold = log_agro_gold  - log_agro_gold[_n-1] if year == 2010 & cod 
 gen dlog_indust_gold = log_indust_gold - log_indust_gold[_n-1] if year == 2010 & cod == cod[_n-1]
 
 
+forvalues i = 1/3{
+    bysort cod: replace dfaoc95 = dfaoc95[_n+`i'] if dfaoc95==.
+}
 
 egen dfaoc_median = median(dfaoc95)
+
 
 gen dfaoc95_p50 = 1 if dfaoc95 > dfaoc_median
 replace dfaoc95_p50 = 0 if dfaoc95_p50 != 1
@@ -263,12 +267,21 @@ foreach v in log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 capital_dum
 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
  capital_dummy dist_federal dist_state altitude women_labor_share val_outpa_1995
 
+ 
+keep if year == 2010
+
 ttest log_income_1991, by(dfaoc95_p50)           
 ttest log_popdens_1991 , by(dfaoc95_p50)           
 ttest agr_sh_1991, by(dfaoc95_p50)
 ttest analf_1991 , by(dfaoc95_p50)
 
 
+replace dfaoc95_p50
+
+keep if year == 1991
+
+ttest P_AGRO, by(dfaoc95_p50)
+ttest P_INDUST, by(dfaoc95_p50)
 
 ttest altitude , by(dfaoc95_p50)
 ttest longit , by(dfaoc95_p50)
@@ -520,6 +533,15 @@ eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 ///
+ capital_dummy dist_federal dist_state altitude women_labor_share val_outpa_1995 ///
+ d50_banana_1995-d50_wheat_1995 dgroup50 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 eststo clear

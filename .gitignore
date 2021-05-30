@@ -8,3 +8,14 @@
 *.json
 *.xlsx
 *.json
+#Ignore input and output folders
+input/
+output/
+raw/
+data/output
+data/raw
+drafts_slides/
+input
+output
+raw
+drafts_slides

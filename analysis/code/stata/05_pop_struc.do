@@ -3,9 +3,9 @@
 
 clear all
 
-set more off,permanently
+set more off, permanently
 
-use "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\pop_struc.dta"
+use "./pop_struc.dta"
 
 **** Preparing Data
 gsort +cod +year
@@ -295,12 +295,61 @@ ttest log_area , by(dfaoc95_p50)
 
 
 ***** IDHM
-
 eststo clear
 foreach v in didh deduc dlongev dincome dschool1 dschool2{
 eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
+************************ Trying Latex Tables ***********************************
+
+* Employment Shares
+
+
+eststo clear
+eststo: qui reg dagro_sh dfaoc95, vce (cluster cod)
+eststo: qui reg dagro_sh dfaoc95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dagro_sh dfaoc95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dagro_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/master_thesis/analysis/output/tables/empsh.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(r2_a, labels("Adj. $ R^{2} $") fmt(3)) keep(dfaoc95) replace f noabbrev varlabels (dfaoc95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) title(The Effect of the Commodity Shock on Employment Shares and Wages) collabels(none) eqlabels(none) mlabels(none) mgroups(none) nolines prehead("\begin{table}[h]" "\centering" "\begin{adjustbox}{max width=\textwidth}" "\begin{threeparttable}" "\caption{@title}" "\begin{tabular}{l* {5}S[table-format = 1.6]}" ///
+"\hline \hline" "\noalign{\vskip 0.2cm}") ///
+posthead("\noalign{\vskip 0.1cm}" "\hline" "\noalign{\vskip 0.1cm}" "\textbf{Panel A.} & \multicolumn{4}{c}{$\Delta$ Employment Share in Agriculture}\\" "\noalign{\vskip 0.1cm}")
+
+
+
+eststo clear
+eststo: qui reg dindust_sh dfaoc95, vce (cluster cod)
+eststo: qui reg dindust_sh dfaoc95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dindust_sh dfaoc95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dindust_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/master_thesis/analysis/output/tables/empsh.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(r2_a, labels("Adj. $ R^{2} $") fmt(3)) keep(dfaoc95) append f noabbrev varlabels (dfaoc95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) collabels(none) eqlabels(none) mlabels(none) mgroups(none) plain prehead("\noalign{\vskip 0.25cm}") ///
+posthead("\textbf{Panel B.} & \multicolumn{4}{c}{$\Delta$ Employment Share in Manufacturing}\\" "\noalign{\vskip 0.1cm}") ///
+
+
+
+eststo clear
+eststo: qui reg dserv_sh dfaoc95, vce (cluster cod)
+eststo: qui reg dserv_sh dfaoc95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dserv_sh dfaoc95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dserv_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/master_thesis/analysis/output/tables/empsh.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(N r2_a, labels("Observations" "Adj. $ R^{2} $") fmt(%12.0fc 3)) keep(dfaoc95) append f noabbrev varlabels (dfaoc95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) collabels(none) eqlabels(none) mlabels(none) mgroups(none) plain prehead("\noalign{\vskip 0.25cm}") ///
+posthead("\textbf{Panel C.} & \multicolumn{4}{c}{$\Delta$ Employment Share in Services}\\" "\noalign{\vskip 0.1cm}") ///
+prefoot("\noalign{\vskip 0.1cm}" "\noalign{\vskip 0.3cm}" "\hline" "\noalign{\vskip 0.1cm}" "Rural Share in 1991 & \multicolumn{1}{c}{} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark}\\" ///
+"Region FE  & & & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark}\\" ///
+"Baseline Controls & & & & \multicolumn{1}{c}{\checkmark}\\") ///
+postfoot("\hline" "\end{tabular}" "\label{tab::empshares}" "\begin{tablenotes}[flushleft]" "\setlength{\itemindent}{-2.49997pt}" "\item \textit{Notes:} See \Cref{sec:defsource} for variable definition and sources. The table presents estimates of \Cref{eqn:maindiff}. The dependent variable is the 2000-2010 change in the listed outcomes. Column (1) reports the estimates without any control.  Columns (2)-(4) extend the set of controls by including the share of population living in the rural area; region fixed effect for the 5 macroregions of Brazil; log income per capita; log population density; and illiteracy rate. All municipalities controls are from the population census of 1991. The means and standard deviations (in parentheses) of the dependent variables in panels A, B and C are -0.068 (0.081), 0.002 (0.055), and 0.008 (0.055). \Cref{tab::mainallcoeff} reports the coefficient for all the controls. Robust standard errors reported in parentheses. *** Significant at the 1\% level; ** Significant at the 5\% level; * Significant at the 10\% level." "\end{tablenotes}" "\end{threeparttable}" "\end{adjustbox}" "\end{table}")
+
 
 
 

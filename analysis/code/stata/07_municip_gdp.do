@@ -4,7 +4,6 @@ clear all
 
 set more off, permanently
 
-cd "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles"
 use "./municip_gdp.dta"
 
 ***** Setting up ***************************************************************
@@ -22,7 +21,10 @@ foreach v of varlist pib_tot-pib_serv {
 	gen log_`v' = log(`v'_pc)
 }
 
-
+* Shares
+gen agri_sh = pib_agro/pib_tot
+gen manufac_sh = pib_indust/pib_tot 
+gen serv_sh = pib_serv/pib_tot
 
 * Others
 gen log_area = log(geo_area_2010)
@@ -38,19 +40,21 @@ keep if year==2000 | year==2010
 *egen zfaoc95 = std(sum_fao_cattle_1995)
 
 * Measures
-gen dfaoc95  = sum_fao_cattle_1995 - sum_fao_cattle_1995[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dfaoc95   = sum_fao_cattle_1995 - sum_fao_cattle_1995[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dfaocact  = sum_fao_cattle_actual - sum_fao_cattle_actual[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dfao  = sum_fao - sum_fao[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dshares  = pq_sum  - pq_sum[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dfao      = sum_fao - sum_fao[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dshares   = pq_sum  - pq_sum[_n-1] if year == 2010 & cod == cod[_n-1]
 
 * GDP
-gen dlog_pib_tot = log_pib_tot - log_pib_tot[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dlog_pib_agro = log_pib_agro - log_pib_agro[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dlog_pib_indust = log_pib_indust - log_pib_indust[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dlog_pib_serv = log_pib_serv - log_pib_serv[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_pib_tot     = log_pib_tot - log_pib_tot[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_pib_agro    = log_pib_agro - log_pib_agro[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_pib_indust  = log_pib_indust - log_pib_indust[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dlog_pib_serv    = log_pib_serv - log_pib_serv[_n-1] if year == 2010 & cod == cod[_n-1]
 
 
-
+gen dagri_sh    = agri_sh - agri_sh[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dmanufac_sh = manufac_sh - manufac_sh[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dserv_sh    = serv_sh - serv_sh[_n-1] if year == 2010 & cod == cod[_n-1]
 
 ***************************** Summary Statistics *******************************
 drop if missing(log_income_1991)
@@ -123,6 +127,15 @@ foreach v in dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv{
 }
 esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
+
+
+
+
+eststo clear
+foreach v in dagri_sh dmanufac_sh dserv_sh{
+    eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 

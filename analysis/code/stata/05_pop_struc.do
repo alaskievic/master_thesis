@@ -30,6 +30,10 @@ replace P_TRANSF = P_TRANSF/100 if year == 2000 | year == 2010
 replace P_INDUST = P_INDUST/100 if year == 2000 | year == 2010 
 replace analf_1991 = analf_1991/100 if year == 2000 | year == 2010
 
+gen log_P_AGRO = log(P_AGRO)
+gen log_P_INDUST = log(P_INDUST)
+
+
 * Controls
 gen log_income_1991 = log(income_1991)
 gen log_popdens_1991 = log(pop_dens_1991)
@@ -39,13 +43,7 @@ gen log_val_outpa_1995 = log(val_outpa_1995)
 
 
 * Past Controls
-
 bysort cod: egen rural_adult_1991 = total(rural_adult) if year == 1991
-
-
-
-
-
 
 
 
@@ -116,6 +114,9 @@ gen dagro_sh = P_AGRO - P_AGRO[_n-1] if year == 2010 & cod == cod[_n-1]
 replace dagro_sh = P_AGRO - P_AGRO[_n-1] if year == 2000 & cod == cod[_n-1]
 
 
+gen dlog_agro_sh     = log_P_AGRO - log_P_AGRO[_n-1] if year == 2010 & cod == cod[_n-1]
+replace dlog_agro_sh = log_P_AGRO - log_P_AGRO[_n-1] if year == 2000 & cod == cod[_n-1]
+
 
 gen dserv_sh = P_SERV - P_SERV[_n-1] if year == 2010 & cod == cod[_n-1]
 
@@ -128,6 +129,11 @@ gen dtransf_sh = P_TRANSF - P_TRANSF[_n-1] if year == 2010 & cod == cod[_n-1]
 
 gen dindust_sh = P_INDUST - P_INDUST[_n-1] if year == 2010 & cod == cod[_n-1]
 replace dindust_sh = P_INDUST - P_INDUST[_n-1] if year == 2000 & cod == cod[_n-1]
+
+
+
+gen     dlog_indust_sh     = log_P_INDUST - log_P_INDUST[_n-1] if year == 2010 & cod == cod[_n-1]
+replace dlog_indust_sh     = log_P_INDUST - log_P_INDUST[_n-1] if year == 2000 & cod == cod[_n-1]
 
 
 gen dtrab_sh = sharepop - sharepop[_n-1] if year == 2010 & cod == cod[_n-1]
@@ -292,187 +298,6 @@ ttest rain_daniel , by(dfaoc95_p50)
 ttest temp_daniel , by(dfaoc95_p50)
 ttest capital_dummy , by(dfaoc95_p50)
 ttest log_area , by(dfaoc95_p50)
-
-
-***** IDHM
-eststo clear
-foreach v in didh deduc dlongev dincome dschool1 dschool2{
-eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
-}
-esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-
-
-****************************** Ferman (2019) ***********************************
-
-
-
-
-eststo clear
-foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
-eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
-}
-esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-
-
-
-
-/***************************************************
-
-Bruno Ferman
-
-This code presents a simple example to run the inference assessment proposed by Ferman (2019), "A simple way to assess inference methods".
-
-First version: August 10th, 2020
-
-Update: November 7th, 2020
-- As shown in a revised version of the paper, there is no need to estimate the model under the null to construct the assessment. The assessment can be constructed by simple replacing the vector of outcomes with iid standard normal varibables. 
-
-
-***************************************************/
-
-
-/***************************************************
-You should include this part of the code with the program "assessment" at the beginning of your code.
-
-The program has 3 inputs, and should run like:
-
-assessment "command" "D" "other".
-
-"command": this input includes the first part of the estimation command. For example, "reg", "xtreg", "xi: reg", and so on.
-
-"D": covariate of interest (we want to assess inference about this variable)
-
-"other": rest of the command (for example, "X , robust" or "X , cluster(W)") 
-
-This command runs 1000 simulations with iid standard normal distribution for the errors. It is easy to modify the command to consider other parameters for the assessment.
-
-you cannot have any variable in your dataset labeled "random".
-
-This code can be easily adjusted to considered other commands that are not OLS regressions. If the command does not have the form "something" "outcome variable" "covariate of interest" "something", then the code must be modified.
-
-This code consider a 5% test based on a t-statistic using the determined estimator for the variance. You can easily adjust the code to consider alternative inference methods.
-
-***************************************************/
-
-clear all
-set matsize 1000
-
-
-cap program drop assessment
-program assessment, eclass
-args command D other  
-
-qui: mat R=J(1000,1,.)
-
-_dots 0, title(Assessment running) reps(1000)
-forvalues r=1(1)1000 {
-
-qui: gen random = rnormal()
-
-qui: `command' random `D' `other'
-qui: mat R[`r',1]=abs(_b[`D']/_se[`D'])>1.96
-
-qui: drop random
-
-
-_dots `r' 0
-
-}
-
-
-qui {
-preserve
-clear 
-svmat R
-summ R
-local summ = r(mean)
-restore
-}
-
-di "Inference assessment = `summ'"
-
-end	
-
-
-/***************************************************
-This part of the code simply creates a random dataset to use the program.
-
-You should replace that with your dataset
-
-***************************************************/
-
-* set seed 1
-
-* set obs 100 
-
-* gen Y = rnormal() // outcome variable
-
-* gen D =_n<=5 // covariate of interest (we want to assess inference about this variable)
-
-* gen X = rnormal() // other control variables
-
-
-/***************************************************
-Run the regression, and then the assessment 
-
-***************************************************/
-
-reg Y D X , robust // Regression you want to run. In this case, you want to check whether inference based on t=_b[D]/_se[D] using 1.96 as critical value is reliable.
-
-assessment "reg" "D" "X , robust"
-
-
-reg dagro_s dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
-
-assessment reg dagro_s dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
-
-
-
-eststo clear
-foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
-eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
-}
-esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
-reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
-assessment reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
-}
-
-
-
-****** State years fixed effects?
-
-
-eststo clear
-foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
-eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
-}
-esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-eststo clear
-foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
-eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codstate, vce (cluster cod)
-}
-esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
-
-
-
-/***************************************************
-Notes:
-
-- If you are using another command, such as "areg", "xtreg", "xi: reg", and so on, you can just replace the first input in the program.
-
-- The final input can be changed to include, for example, "X , cluster(Z)", "X , ab(FE)", and so on */
-
-
-
 
 
 
@@ -643,6 +468,32 @@ foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_ws
 eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+reg dagro_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+psacalc delta dfaoc95, rmax(0.1118)
+
+psacalc beta dfaoc95, rmax(0.1118)
+
+psacalc delta dfaoc95, mcontrol(agr_sh_1991) rmax(0.1118)
+
+
+reg dindust_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+psacalc delta dfaoc95, rmax(0.0676)
+
+psacalc beta dfaoc95, rmax(0.0676)
+
+
+
+reg dlog_wserv dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+psacalc beta dfaoc95
+
 
 set scheme s1color
 
@@ -1068,6 +919,9 @@ eststo: qui reg `v' dzfao log_income_1991 log_popdens_1991 agr_sh_1991 analf_199
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dzfao) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
+
+
+
 ***************************** Robustness ***************************************
 
 eststo clear
@@ -1076,6 +930,16 @@ eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
+
+
+
+
+* Robust
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce(robust)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 *** Spatial Correlation ***
@@ -1172,6 +1036,236 @@ reg_ss dlog_windust, shiftshare_var(dfaoc95) control_varlist(log_income_1991 log
 
 reg_ss dlog_wserv, shiftshare_var(dfaoc95) control_varlist(log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(1)
 reg_ss dlog_wserv, shiftshare_var(dfaoc95) control_varlist(log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991) share_varlist(pr_banana_1995-pr_wheat_1995) akmtype(0)
+
+
+
+
+
+****************************** Ferman (2021) ***********************************
+
+
+/***************************************************
+
+Bruno Ferman
+
+This code presents a simple example to run the inference assessment proposed by Ferman (2019), "A simple way to assess inference methods".
+
+First version: August 10th, 2020
+
+Update: November 7th, 2020
+- As shown in a revised version of the paper, there is no need to estimate the model under the null to construct the assessment. The assessment can be constructed by simple replacing the vector of outcomes with iid standard normal varibables. 
+
+
+***************************************************/
+
+
+/***************************************************
+You should include this part of the code with the program "assessment" at the beginning of your code.
+
+The program has 3 inputs, and should run like:
+
+assessment "command" "D" "other".
+
+"command": this input includes the first part of the estimation command. For example, "reg", "xtreg", "xi: reg", and so on.
+
+"D": covariate of interest (we want to assess inference about this variable)
+
+"other": rest of the command (for example, "X , robust" or "X , cluster(W)") 
+
+This command runs 1000 simulations with iid standard normal distribution for the errors. It is easy to modify the command to consider other parameters for the assessment.
+
+you cannot have any variable in your dataset labeled "random".
+
+This code can be easily adjusted to considered other commands that are not OLS regressions. If the command does not have the form "something" "outcome variable" "covariate of interest" "something", then the code must be modified.
+
+This code consider a 5% test based on a t-statistic using the determined estimator for the variance. You can easily adjust the code to consider alternative inference methods.
+
+***************************************************/
+
+* clear all
+set matsize 1000
+
+
+cap program drop assessment
+program assessment, eclass
+args command D other  
+
+qui: mat R=J(1000,1,.)
+
+_dots 0, title(Assessment running) reps(1000)
+forvalues r=1(1)1000 {
+
+qui: gen random = rnormal()
+
+qui: `command' random `D' `other'
+qui: mat R[`r',1]=abs(_b[`D']/_se[`D'])>1.96
+
+qui: drop random
+
+
+_dots `r' 0
+
+}
+
+
+qui {
+preserve
+clear 
+svmat R
+summ R
+local summ = r(mean)
+restore
+}
+
+di "Inference assessment = `summ'"
+
+end	
+
+
+/***************************************************
+This part of the code simply creates a random dataset to use the program.
+
+You should replace that with your dataset
+
+***************************************************/
+
+* set seed 1
+
+* set obs 100 
+
+* gen Y = rnormal() // outcome variable
+
+* gen D =_n<=5 // covariate of interest (we want to assess inference about this variable)
+
+* gen X = rnormal() // other control variables
+
+
+/***************************************************
+Run the regression, and then the assessment 
+
+***************************************************/
+
+* reg Y D X , robust // Regression you want to run. In this case, you want to check whether inference based on t=_b[D]/_se[D] using 1.96 as critical value is reliable.
+
+* assessment "reg" "D" "X , robust"
+
+
+reg dagro_s dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+assessment reg dagro_s dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+assessment reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+
+/***************************************************
+Notes:
+
+- If you are using another command, such as "areg", "xtreg", "xi: reg", and so on, you can just replace the first input in the program.
+
+- The final input can be changed to include, for example, "X , cluster(Z)", "X , ab(FE)", and so on */
+
+
+
+
+*** Spatial Correlation ***
+* Cluster microreg
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster codmicro)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster codmicro)
+assessment reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster codmicro)
+}
+
+
+
+
+* Cluster mesoreg
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster codmeso)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster codmeso)
+assessment reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster codmeso)
+}
+
+
+
+* Conley
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui acreg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, ///
+spatial latitude(lat) longitude (longit) dist (50)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui acreg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, ///
+spatial latitude(lat) longitude (longit) dist (100)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui acreg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, ///
+spatial latitude(lat) longitude (longit) dist (200)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui acreg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, ///
+spatial latitude(lat) longitude (longit) dist (200)
+assessment acreg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, ///
+spatial latitude(lat) longitude (longit) dist (200)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui acreg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, ///
+spatial latitude(lat) longitude (longit) dist (400)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

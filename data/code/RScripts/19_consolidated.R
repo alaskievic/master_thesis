@@ -1,12 +1,5 @@
-# Set Working Directory
-setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
-
-#Load packaages
+#Load packages
 source("./00_load_packages.R")
-
-memory.limit(size = NA)
-memory.limit(size = 50000)
-
 
 ######### 1. Consolidating Explanatory Datasets ################################
 
@@ -147,21 +140,29 @@ write_dta(agro_struc,
 
 
 ######### 3. Population Structural Change Dataset ##############################
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/pop_struc.RData")
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/final_measures.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/shares.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/controls.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/ocup_sidra.RData")
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/pop_tot.RData")
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/final_measures_faohigh.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/amc_full.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/past_share.Rdata")
+load(here("pop_struc.RData"))
+load(here("data", "output", "final", "final_measures.RData"))
+load(here("data", "output", "final", "shares.Rdata"))
+load(here("data", "output", "final", "final_measures.RData"))
+load(here("data", "output", "final", "controls.Rdata"))
+load(here("data", "output", "final", "ocup_sidra.RData"))
+load(here("data", "output", "final", "pop_tot.RData"))
+load(here("data", "output", "final", "final_measures_faohigh.Rdata"))
+load(here("data", "output", "final", "amc_full.Rdata"))
+load(here("data", "output", "final", "past_share.Rdata"))
+load(here("data", "output", "final", "light_2000_2010.Rdata"))
+
+
 
 
 final_measures %<>% filter(year == 2000| year == 2010)
+
 pop_sidra %<>% filter(year == 2000| year == 2010)
 
 fao_final_cattle_1995 %<>% filter(year == 2000| year == 2010)
+
+light_join %<>% dplyr::select(cod, light_2000, light_2010, light_2010, diff_light, 
+                              log_diff_light)
 
 pop_struc <- full_join(popstruc_pres, dplyr::select(final_measures, -"municip"), 
                         by = c("cod", "year")) %>%
@@ -176,7 +177,8 @@ pop_struc <- full_join(popstruc_pres, dplyr::select(final_measures, -"municip"),
   full_join(., dplyr::select(pop_sidra, -"municip"), 
             by = c("cod", "year")) %>%
   full_join(., amc_full, by = c("cod", "year")) %>%
-  full_join(., past_share, by = c("cod", "year"))
+  full_join(., past_share, by = c("cod", "year")) %>%
+  full_join(., light_join, by = "cod")
 
 
 pop_struc %<>% dplyr::select(-c("municip.y.x", "municip.y.y", 
@@ -184,8 +186,7 @@ pop_struc %<>% dplyr::select(-c("municip.y.x", "municip.y.y",
   rename(municip = municip.x.x)
 
 # Saving
-write_dta(pop_struc,
-          path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/pop_struc.dta")
+write_dta(pop_struc, path = here("analysis", "code", "stata", "pop_struc.dta"))
 
 
 ######### 4. Municipal GDPs ####################################################

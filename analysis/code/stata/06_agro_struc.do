@@ -110,6 +110,13 @@ gen dproparapp_shtot_baseline = proparapp_shtot - proparapp_shtot[_n-1 ] if year
 gen dproparapp_shtot_short = proparapp_shtot[_n-1 ] - proparapp_shtot[_n-2] if year == 2017 & cod == cod[_n-1]
 gen dproparapp_shtot_long = proparapp_shtot - proparapp_shtot[_n-2] if year == 2017 & cod == cod[_n-1]
 
+
+* Openness
+gen dopen_exp   = open_exp[_n-1] - open_exp[_n-2] 		if year == 2017 & cod == cod[_n-1]
+gen dopen_imp   = open_imp[_n-1] - open_imp[_n-2] 		if year == 2017 & cod == cod[_n-1]
+gen dopen_total = open_total[_n-1] - open_total[_n-2] 	if year == 2017 & cod == cod[_n-1]
+
+
 ** Proprietários
 *Area is not homogeneous
 
@@ -584,6 +591,63 @@ eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1
  d50_banana_1995-d50_wheat_1995 dgroup50 i.codreg, vce (cluster cod)
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
+
+
+
+****************************** Openness ****************************************
+* Baseline
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+gen fao_open_exp = dfao_baselinecat95 * open_exp_mean
+gen fao_open_tot = dfao_baselinecat95 * open_total_mean
+
+gen dfao_open_exp = dfao_baselinecat95 * dopen_exp
+gen dfao_open_tot = dfao_baselinecat95 * dopen_total
+
+
+
+* Interactions
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_baselinecat95 dopen_exp dfao_open_exp log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95 dopen_exp dfao_open_exp) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_baselinecat95 dopen_total dfao_open_tot log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95 dopen_total dfao_open_tot) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
+* Full controls
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ********************************************************************************
 * Aggregation 

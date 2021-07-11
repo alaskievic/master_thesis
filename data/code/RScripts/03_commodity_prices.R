@@ -1,52 +1,43 @@
+#Load packages
+source("00_load_packages.R")
 
-# Set Working Directory
-setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
-
-#Load packaages
-source("./0_load_packages.R")
-
-########## 1. Clean and makes calculations for the World Bank Pink Sheet database of global commodities prices ####################################
+##### 1. Clean World Bank Pink Sheet database of global commodities prices #####
 
 
 # Set commodities names that match the excel file
-comm_names <- c("...1", "COCOA", "COFFEE_ARABIC", "COFFEE_ROBUS", "TEA_AVG" , "TEA_COLOMBO", "TEA_KOLKATA", "TEA_MOMBASA", "SOYBEANS", 
-                "BARLEY", "MAIZE", "SORGHUM", "RICE_05", "RICE_25", "RICE_A1", "RICE_05_VNM", "WHEAT_US_SRW", "WHEAT_US_HRW", 
-                "BANANA_EU", "BANANA_US", "ORANGE", "BEEF", "SUGAR_EU", "SUGAR_US", "SUGAR_WLD", "TOBAC_US", "COTTON_A_INDX", "RUBBER_TSR20",
-                "RUBBER1_MYSG")
+comm_names <- c("...1", "COCOA", "COFFEE_ARABIC", "COFFEE_ROBUS", "TEA_AVG",
+                "TEA_COLOMBO", "TEA_KOLKATA", "TEA_MOMBASA", "SOYBEANS", 
+                "BARLEY", "MAIZE", "SORGHUM", "RICE_05", "RICE_25", "RICE_A1",
+                "RICE_05_VNM", "WHEAT_US_SRW", "WHEAT_US_HRW", "BANANA_EU",
+                "BANANA_US", "ORANGE", "BEEF", "SUGAR_EU", "SUGAR_US", "SUGAR_WLD",
+                "TOBAC_US", "COTTON_A_INDX", "RUBBER_TSR20", "RUBBER1_MYSG")
 
-# Reads BRL(R$)/US$ exchange rate data. Some transformations were done in the excel file to facilitate the coding
-cambio <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/cambio_nominal.xls", 
+# Reads BRL(R$)/US$ exchange rate data
+cambio <- read_excel(here("data", "raw", "prices", "cambio_nominal.xls"),
                           sheet = "Séries", col_names = TRUE, na = "") %>%
   filter(Date >= 1990 &  Date <= 2015)
 
 # Reads Brazilian IPCA inflation data with 1990 = 100
-ipca <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/IPCA_anual.xls", 
+ipca <- read_excel(here("data", "raw", "prices", "IPCA_anual.xls"), 
                    sheet = "Séries", col_names = TRUE, na = "") %>%
   filter(Date >= 1990 &  Date <= 2015)
 
 
 # Reds CPI data with 1990 = 100
-cpi <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/cpi_annual.xls", sheet = "FRED Graph", 
+cpi <- read_excel(here("data", "raw", "prices", "cpi_annual.xls"), sheet = "FRED Graph", 
                   col_names = TRUE, na = "")
+
 cpi$Date <- year(cpi$Date)
-cpi <- cpi %>% filter (Date >= 1990 & Date <= 2015)
+cpi      <- cpi %>% filter (Date >= 1990 & Date <= 2015)
 
 
 # Reads the Pink Sheet prices
-pink_prices <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/CMOHistoricalDataMonthly.xlsx", 
+pink_prices <- read_excel(here("data", "raw", "prices", "CMOHistoricalDataMonthly.xlsx"), 
                           sheet = "Monthly Prices", col_names = TRUE, na = "..", skip = 6) %>% 
-  dplyr::select(comm_names)
+               dplyr::select(comm_names)
 
 
-#pink_prices2 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/CMOHistoricalDataMonthly.xlsx", 
-                          #sheet = "Monthly Prices", col_names = TRUE, na = "..", skip = 6) %>%
-  #select(1, 12, 13, 14, 15, 16, 17, 18, 25, 30, 31, 32, 33, 34, 35, 36, 37, 38 ,39, 40, 41, 46, 47, 48, 49, 56, 57, 58)
-
-# Let's check
-#all.equal(pink_prices, pink_prices2)
-
-
-# Doing some renaming, formatting and filtering
+# Doing some renaming, formatting, and filtering
 pink_prices <- pink_prices %>% 
   dplyr::rename(Month = ...1) %>%
   mutate(Month = str_replace(Month, "[M]", "-")) %>%
@@ -102,22 +93,28 @@ indexes <- lmap(pink_prices_avg[-1], ~{.x/ .x[[1]][1]*100}) %>%
   add_column (Years = pink_prices_avg[[1]], .before = "BANANA_US")
 
 
-######### 2. Making graphs of the results ######################################
+
+
+#################### 2. Making graphs of the results ###########################
 
 # Transform de dataframe to plot it
 indexes <- indexes %>%
-  rename("Banana" = BANANA_US, "Cocoa" = COCOA, "Coffee Arabic" = COFFEE_ARABIC, "Coffee Robust" = COFFEE_ROBUS, "Tea" = TEA_AVG, "Soy" = SOYBEANS, 
-         "Barley" = BARLEY, "Maize" = MAIZE, "Sorghum" = SORGHUM, "Rice 05" = RICE_05, "Rice A1" = RICE_A1, "Wheat H" = WHEAT_US_HRW, 
-         "Wheat S" = WHEAT_US_SRW, "Orange" = ORANGE, "Sugar" = SUGAR_WLD, "Tobacco" = TOBAC_US, "Cotton" = COTTON_A_INDX, "Rubber" = RUBBER1_MYSG) %>%
+  rename("Banana" = BANANA_US, "Cocoa" = COCOA, "Coffee Arabic" = COFFEE_ARABIC,
+         "Coffee Robust" = COFFEE_ROBUS, "Tea" = TEA_AVG, "Soy" = SOYBEANS, 
+         "Barley" = BARLEY, "Maize" = MAIZE, "Sorghum" = SORGHUM, "Rice 05" = RICE_05,
+         "Rice A1" = RICE_A1, "Wheat H" = WHEAT_US_HRW, "Wheat S" = WHEAT_US_SRW,
+         "Orange" = ORANGE, "Sugar" = SUGAR_WLD, "Tobacco" = TOBAC_US,
+         "Cotton" = COTTON_A_INDX, "Rubber" = RUBBER1_MYSG) %>%
   gather(Commodity, Index, Banana:`Wheat S`)
 
 
 
 # Setting up some colors
-clrs = c("Cocoa"="black", "Coffee Arabic" = "coral", "Coffee Robust" = "chocolate" , "Tea" = "brown", "Soy" = "blue",
-          "Barley" = "bisque", "Maize" = "navy", "Sorghum" = "violet", "Rice 05" = "darksalmon", "Rice A1" = "deepskyblue",
-         "Wheat H" = "pink", "Wheat S" = "green", "Banana" = "red", "Orange" = "orange", "Sugar" = "yellow", "Tobacco" = "grey",
-         "Cotton" = "blueviolet" , "Rubber" = "sienna")
+clrs = c("Cocoa"="black", "Coffee Arabic" = "coral", "Coffee Robust" = "chocolate",
+         "Tea" = "brown", "Soy" = "blue", "Barley" = "bisque", "Maize" = "navy",
+         "Sorghum" = "violet", "Rice 05" = "darksalmon", "Rice A1" = "deepskyblue",
+         "Wheat H" = "pink", "Wheat S" = "green", "Banana" = "red", "Orange" = "orange",
+         "Sugar" = "yellow", "Tobacco" = "grey", "Cotton" = "blueviolet" , "Rubber" = "sienna")
 
 # Plotting the graph
 graph_1 <- ggplot(indexes, aes(x=Years)) +
@@ -130,7 +127,8 @@ graph_1 <- ggplot(indexes, aes(x=Years)) +
 
 graph_1
 # Saving the graph
-#ggsave(filename = "com_prices_1.eps", plot = graph_1, path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/Figures")
+# ggsave(filename = "com_prices_1.eps", plot = graph_1,
+# path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/Figures")
 
 
 # Taking out rubber
@@ -192,17 +190,25 @@ graph_4 <- ggplot(indexes_norubber, aes(x=Years)) +
   ggtitle("Individual Commodity Prices")
 
 graph_4
+# ggsave(filename = "com_prices_4_norubber.eps", plot = graph_2,
+# path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/Figures")
 
-#ggsave(filename = "com_prices_4_norubber.eps", plot = graph_2, path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/Figures")
 
 
-########## 3. Deflating and converting series to BRL(R$) and plotting them ############################################
+
+
+
+
+####### 3. Deflating and converting series to BRL(R$) and plotting them ########
+
 
 # Select only the prices that match the quantities dataset
 year_prices <- pink_prices_avg %>%
-  dplyr::select(-c("TEA_COLOMBO", "TEA_MOMBASA", "TEA_KOLKATA", "RICE_25", "SUGAR_EU", "SUGAR_US")) %>%
+  dplyr::select(-c("TEA_COLOMBO", "TEA_MOMBASA", "TEA_KOLKATA", "RICE_25",
+                   "SUGAR_EU", "SUGAR_US")) %>%
   select_if(~ !any(is.na(.))) %>%
   as_tibble ()
+
 
 # Create log prices
 year_prices_log <- log(year_prices[-1]) %>%
@@ -211,10 +217,14 @@ year_prices_log <- log(year_prices[-1]) %>%
 # Rename variable to consolidate the NOMINAL commodity prices dataset
 pink_prices_final <- pink_prices_avg %>%
   select_if(~ !any(is.na(.))) %>%
-  dplyr::select(-c("TEA_COLOMBO", "TEA_MOMBASA", "TEA_KOLKATA", "RICE_25", "SUGAR_EU", "SUGAR_US")) %>%
-  rename("Banana" = BANANA_US, "Cocoa" = COCOA, "Coffee Arabic" = COFFEE_ARABIC, "Coffee Robust" = COFFEE_ROBUS, "Tea" = TEA_AVG, "Soy" = SOYBEANS, 
-         "Barley" = BARLEY, "Maize" = MAIZE, "Sorghum" = SORGHUM, "Rice 05" = RICE_05, "Rice A1" = RICE_A1, "Wheat H" = WHEAT_US_HRW, 
-         "Wheat S" = WHEAT_US_SRW, "Orange" = ORANGE, "Beef" = BEEF, "Sugar" = SUGAR_WLD, "Tobacco" = TOBAC_US, "Cotton" = COTTON_A_INDX, "Rubber" = RUBBER1_MYSG) %>%
+  dplyr::select(-c("TEA_COLOMBO", "TEA_MOMBASA", "TEA_KOLKATA", "RICE_25",
+                   "SUGAR_EU", "SUGAR_US")) %>%
+  rename("Banana" = BANANA_US, "Cocoa" = COCOA, "Coffee Arabic" = COFFEE_ARABIC,
+         "Coffee Robust" = COFFEE_ROBUS, "Tea" = TEA_AVG, "Soy" = SOYBEANS, 
+         "Barley" = BARLEY, "Maize" = MAIZE, "Sorghum" = SORGHUM, "Rice 05" = RICE_05,
+         "Rice A1"= RICE_A1, "Wheat H" = WHEAT_US_HRW, "Wheat S" = WHEAT_US_SRW,
+         "Orange" = ORANGE, "Beef" = BEEF, "Sugar" = SUGAR_WLD, "Tobacco" = TOBAC_US,
+         "Cotton" = COTTON_A_INDX, "Rubber" = RUBBER1_MYSG) %>%
   as_tibble()
 
 
@@ -232,6 +242,7 @@ cpi_prices_2010 <- (pink_prices_final[-1]/(cpi$Index_2/100))
 cpi_prices_2010 <- add_column(cpi_prices_2010, Years = pink_prices_final[[1]], .before = "Banana") %>%
   as_tibble()
 
+
 # Creates an index for cpi_prices
 index_cpi_prices <- lmap(cpi_prices[-1], ~{.x/ .x[[1]][1]*100}) %>%
   add_column(Years = pink_prices_final[[1]], .before = "Banana") %>%
@@ -241,7 +252,18 @@ index_cpi_prices_2010 <- lmap(cpi_prices_2010[-1], ~{.x/ .x[[1]][1]*100}) %>%
   add_column(Years = pink_prices_final[[1]], .before = "Banana") %>%
   gather(Commodity, Index, Banana:`Wheat S`)
 
-######
+
+# Get real prices variations between 2000 and 2010
+price_var <- cpi_prices_2010 %>% filter(Years == 2000 | Years == 2010)
+
+price_var <- lmap(price_var[-1], ~{.x/ .x[[1]][1]}) %>%
+  add_column(year = price_var[[1]], .before = "Banana") %>%
+  gather(commodity, price_var, Banana:`Wheat S`)
+
+price_var %<>% filter(year == 2010) %>% mutate(price_var = (price_var - 1)* 100)
+
+
+
 
 # Convert prices to BRL(R$)
 br_prices <- cambio$Cambio * pink_prices_final[-1]
@@ -257,7 +279,8 @@ index_real_br_prices <- lmap(real_br_prices[-1], ~{.x/ .x[[1]][1]*100}) %>%
   add_column(Years = pink_prices_avg[[1]], .before = "Banana") %>%
   gather(Commodity, Index, Banana:`Wheat S`)
 
-#######
+
+
 
 
 #Plot the indexed real_br_prices
@@ -328,7 +351,7 @@ ggsave(filename = "com_prices.png", plot = graph_7, path = "C:/Users/Andrei/Desk
 
 
 
-############################## Plotting ########################################
+# Plotting
 com_prices <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/ExternalData.xlsx",
                          sheet = "Values", col_names = TRUE)
 

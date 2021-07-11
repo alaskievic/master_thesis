@@ -1,0 +1,47 @@
+\begin{table}[h]
+\centering
+\begin{adjustbox}{max width=\textwidth}
+\begin{threeparttable}
+\caption{The Effect of the Commodity Shock on Employment Shares and Wages}
+\begin{tabular}{l* {5}S[table-format = 1.6]}
+\hline \hline
+\noalign{\vskip 0.2cm}
+                    &\multicolumn{1}{c}{(1)}   &\multicolumn{1}{c}{(2)}   &\multicolumn{1}{c}{(3)}   &\multicolumn{1}{c}{(4)}   \\
+\noalign{\vskip 0.1cm}
+\hline
+\noalign{\vskip 0.1cm}
+\textbf{Panel A.} & \multicolumn{4}{c}{$\Delta$ Agriculture GDP Share}\\
+\noalign{\vskip 0.1cm}
+$\Delta$ CE         &       0.466***&       0.360***&       0.424***&       0.392***\\
+                    &     (0.024)   &     (0.025)   &     (0.027)   &     (0.028)   \\
+Adj. $ R^{2} $      &       0.070   &       0.093   &       0.117   &       0.122   \\
+\noalign{\vskip 0.25cm}
+\textbf{Panel B.} & \multicolumn{4}{c}{$\Delta$ Manufacturing GDP Share}\\
+\noalign{\vskip 0.1cm}
+$\Delta$ CE         &       0.042** &       0.054** &       0.028   &       0.015   \\
+                    &     (0.020)   &     (0.021)   &     (0.024)   &     (0.024)   \\
+Adj. $ R^{2} $      &       0.001   &       0.001   &       0.017   &       0.023   \\
+\noalign{\vskip 0.25cm}
+\textbf{Panel C.} & \multicolumn{4}{c}{$\Delta$ Services GDP Share}\\
+\noalign{\vskip 0.1cm}
+$\Delta$ CE         &      -0.444***&      -0.357***&      -0.401***&      -0.356***\\
+                    &     (0.023)   &     (0.024)   &     (0.027)   &     (0.027)   \\
+\noalign{\vskip 0.1cm}
+\noalign{\vskip 0.3cm}
+\hline
+\noalign{\vskip 0.1cm}
+Rural Share in 1991 & \multicolumn{1}{c}{} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark}\\
+Region FE  & & & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark}\\
+Baseline Controls & & & & \multicolumn{1}{c}{\checkmark}\\
+Observations        &       5,488   &       5,488   &       5,488   &       5,488   \\
+Adj. $ R^{2} $      &       0.065   &       0.081   &       0.116   &       0.132   \\
+\hline
+\end{tabular}
+\label{tab::empshares}
+\begin{tablenotes}[flushleft]
+\setlength{\itemindent}{-2.49997pt}
+\item \textit{Notes:} See \Cref{sec:defsource} for variable definition and sources. The table presents estimates of \Cref{eqn:maindiff}. The dependent variable is the 2000-2010 change in the listed outcomes. Column (1) reports the estimates without any control.  Columns (2)-(4) extend the set of controls by including the share of population living in the rural area; region fixed effect for the 5 macroregions of Brazil; log income per capita; log population density; and illiteracy rate. All municipalities controls are from the population census of 1991. The means and standard deviations (in parentheses) of the dependent variables in panels A, B and C are -0.041 (0.112), -0.011 (0.093), and 0.037 (0.111). \Cref{tab::mainallcoeff} reports the coefficient for all the controls. Robust standard errors reported in parentheses. *** Significant at the 1\% level; ** Significant at the 5\% level; * Significant at the 10\% level.
+\end{tablenotes}
+\end{threeparttable}
+\end{adjustbox}
+\end{table}

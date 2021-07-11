@@ -4,7 +4,7 @@ clear all
 
 set more off, permanently
 
-use "C:\Users\Andrei\Desktop\Dissertation\Analysis\master_thesis\StataFiles\rais.dta"
+use "./rais.dta"
 
 ***** Setting up ***************************************************************
 gsort +cod +year
@@ -375,12 +375,32 @@ replace codreg = 5 if codstate >= 50
 * Year <= 2010
 
 ************************* Main Regressions *************************************
+
+
 eststo clear
-foreach v in agriculture_rais manufacturing_rais  services_rais{
+foreach v in agriculture_rais manufacturing_rais services_rais{
 eststo: qui reghdfe `v' sum_fao_cattle_1995 c.log_income_1991#i.year c.log_popdens_1991#i.year ///
 c.rur_sh_1991#i.year c.analf_1991#i.year i.codreg#i.year if year <=2010, absorb (cod year) vce(cluster cod)
 }
 esttab, se ar2 stat ( r2_a N) keep(sum_fao_cattle_1995) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in agriculture_rais manufacturing_rais manufc_rais services_rais servicesc_rais{
+eststo: qui reghdfe `v' sum_fao_cattle_1995 c.log_income_1991#i.year c.log_popdens_1991#i.year ///
+c.rur_sh_1991#i.year c.analf_1991#i.year i.codreg#i.year if year <= 2010, absorb (cod year) vce(cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(sum_fao_cattle_1995) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in agriculture_rais manufacturing_rais services_rais{
+eststo: qui reghdfe `v' sum_fao_cattle_1995 c.log_income_1991#i.year c.log_popdens_1991#i.year ///
+c.rur_sh_1991#i.year c.analf_1991#i.year i.codreg#i.year if year <=2011, absorb (cod year) vce(cluster cod)
+}
+esttab, se ar2 stat ( r2_a N) keep(sum_fao_cattle_1995) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
 
 eststo clear
 foreach v in log_total_emp log_agriculture log_manufacturing  log_services{

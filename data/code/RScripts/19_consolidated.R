@@ -93,17 +93,19 @@ save(land_gini,
 
 
 ######### 2. Agricultural Structural Change Dataset ############################
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/agro_struc.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/final_measures.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/shares.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/controls.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/land_gini.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/land_app.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/groupa_prop.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/final_measures_faohigh.Rdata")
-load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/amc_full.Rdata")
-pop_struc <- 
-  read_dta(file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/pop_struc_r.dta")
+load(here("data", "output", "final",  "agro_struc.Rdata"))
+load(here("data", "output", "final",  "final_measures.Rdata"))
+load(here("data", "output", "final",  "shares.Rdata"))
+load(here("data", "output", "final",  "controls.Rdata"))
+load(here("data", "output", "final",  "land_gini.Rdata"))
+load(here("data", "output", "final",  "land_app.Rdata"))
+load(here("data", "output", "final",  "groupa_prop.Rdata"))
+load(here("data", "output", "final",  "final_measures_faohigh.Rdata"))
+load(here("data", "output", "final",  "amc_full.Rdata"))
+load(here("data", "output", "final",  "openness.Rdata"))
+
+
+pop_struc <- read_dta(file = here("analysis", "code", "stata", "pop_struc_r.dta"))
 
 final_measures %<>% filter(year == 2000| year == 2010 | year == 2015)
 
@@ -116,6 +118,13 @@ fao_final_cattle_1995 %<>% filter(year == 2000| year == 2010 | year == 2015)
 fao_final_cattle_1995 %<>% mutate(year = ifelse(year == 2000, 1995, year)) %>%
   mutate(year = ifelse(year == 2010, 2006, year)) %>%
   mutate(year = ifelse(year == 2015, 2017, year))
+
+
+openness %<>% filter(year == 2000| year == 2010) %>%
+  mutate(year = ifelse(year == 2000, 1995, year)) %>%
+  mutate(year = ifelse(year == 2010, 2006, year)) %>%
+  dplyr::select(-"municip")
+
 
 pop_struc %<>% mutate (year = ifelse(year == 2000, 2006, 2017)) %>%
   dplyr::select(cod, year, P_AGRO, P_SERV, P_INDUST, w_serv, w_agro, 
@@ -130,27 +139,26 @@ agro_struc <- full_join(agro_struc, dplyr::select(final_measures, -"municip"),
   full_join(., dplyr::select(land_app, -"total_area"), by = c("cod", "year")) %>%
   full_join(., groupa_prop, by = c("cod", "year")) %>%
   full_join(., amc_full, by = c("cod", "year")) %>%
-  full_join(., pop_struc, by = c("cod", "year"))
+  full_join(., pop_struc, by = c("cod", "year")) %>%
+  full_join(., openness, by = c("cod", "year"))
 
 agro_struc %<>% dplyr::select(-c("municip.x", "municip.y"))
 
 # Saving
-write_dta(agro_struc,
-          path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/StataFiles/agro_struc.dta")
+write_dta(agro_struc, path = here("analysis", "code", "stata", "agro_struc.dta"))
 
 
-######### 3. Population Structural Change Dataset ##############################
+################# 3. Population Structural Change Dataset ######################
 load(here("pop_struc.RData"))
 load(here("data", "output", "final", "final_measures.RData"))
 load(here("data", "output", "final", "shares.Rdata"))
-load(here("data", "output", "final", "final_measures.RData"))
 load(here("data", "output", "final", "controls.Rdata"))
 load(here("data", "output", "final", "ocup_sidra.RData"))
 load(here("data", "output", "final", "pop_tot.RData"))
 load(here("data", "output", "final", "final_measures_faohigh.Rdata"))
 load(here("data", "output", "final", "amc_full.Rdata"))
 load(here("data", "output", "final", "past_share.Rdata"))
-load(here("data", "output", "final", "light_2000_2010.Rdata"))
+load(here("data", "output", "final", "openness.Rdata"))
 
 
 
@@ -161,9 +169,10 @@ pop_sidra %<>% filter(year == 2000| year == 2010)
 
 fao_final_cattle_1995 %<>% filter(year == 2000| year == 2010)
 
-light_join %<>% dplyr::select(cod, light_2000, light_2010, light_2010, diff_light, 
-                              log_diff_light)
+openness %<>% filter(year == 2000| year == 2010) %>% dplyr::select(-"municip")
 
+
+# Joining
 pop_struc <- full_join(popstruc_pres, dplyr::select(final_measures, -"municip"), 
                         by = c("cod", "year")) %>%
   full_join(., dplyr::select(fao_final_cattle_1995, -"municip"), 
@@ -178,7 +187,7 @@ pop_struc <- full_join(popstruc_pres, dplyr::select(final_measures, -"municip"),
             by = c("cod", "year")) %>%
   full_join(., amc_full, by = c("cod", "year")) %>%
   full_join(., past_share, by = c("cod", "year")) %>%
-  full_join(., light_join, by = "cod")
+  full_join(., openness, by = c("cod", "year"))
 
 
 pop_struc %<>% dplyr::select(-c("municip.y.x", "municip.y.y", 

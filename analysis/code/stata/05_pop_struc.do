@@ -174,6 +174,13 @@ gen dlog_wtrans = log_wagro- log_wtrans[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dlog_wserv = log_wagro- log_wserv[_n-1] if year == 2010 & cod == cod[_n-1]
 
 
+* Openness
+gen dopen_exp   = open_exp - open_exp[_n-1] 	if year == 2010 & cod == cod[_n-1]
+gen dopen_imp   = open_imp - open_imp[_n-1] 	if year == 2010 & cod == cod[_n-1]
+gen dopen_total = open_total - open_total[_n-1] if year == 2010 & cod == cod[_n-1]
+
+
+
 
 drop if missing(log_income_1991)
 drop if missing(log_popdens_1991)
@@ -456,6 +463,99 @@ reg dindust_sh dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adu
 
 
 
+
+
+
+****************************** Openness ****************************************
+
+
+* Baseline
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+* Adding mean openness as a control
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 open_exp_mean i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 open_total_mean i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* Openness as outcomes
+eststo clear
+foreach v in dopen_exp dopen_imp dopen_total{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+gen fao_open_exp = dfaoc95 * open_exp_mean
+gen fao_open_tot = dfaoc95 * open_total_mean
+
+gen dfao_open_exp = dfaoc95 * dopen_exp
+gen dfao_open_tot = dfaoc95 * dopen_total
+
+
+
+* As explanatory variable
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dopen_exp log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dopen_exp) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dopen_total log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dopen_total) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* Interactions
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 open_exp_mean fao_open_exp log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 open_exp_mean fao_open_exp) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 open_exp_mean fao_open_tot log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 open_exp_mean fao_open_tot) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 dopen_exp dfao_open_exp log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 dopen_exp dfao_open_exp) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 dopen_total dfao_open_tot log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 dopen_total dfao_open_tot) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+* Full controls
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 dopen_exp dfao_open_exp log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 capital_dummy dist_federal dist_state i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 dopen_exp dfao_open_exp) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 ********************************************************************************

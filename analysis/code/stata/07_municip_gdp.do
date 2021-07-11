@@ -9,6 +9,22 @@ use "./municip_gdp.dta"
 ***** Setting up ***************************************************************
 gsort +cod +year
 
+
+* Correcting wrong values
+
+replace pib_tot = -pib_tot if pib_tot <0
+replace pib_agro = -pib_agro if pib_agro <0
+replace pib_indust = -pib_indust if pib_indust <0
+replace pib_serv = -pib_serv if pib_serv <0
+
+
+
+gen codreg = 1 if codstate < 20
+replace codreg = 2 if codstate < 30 & codstate >= 20
+replace codreg = 3 if codstate < 40 & codstate >= 30
+replace codreg = 4 if codstate < 50 & codstate >= 40
+replace codreg = 5 if codstate >= 50
+
 * Controls
 gen log_income_1991 = log(income_1991)
 gen log_popdens_1991 = log(pop_dens_1991)
@@ -25,6 +41,8 @@ foreach v of varlist pib_tot-pib_serv {
 gen agri_sh = pib_agro/pib_tot
 gen manufac_sh = pib_indust/pib_tot 
 gen serv_sh = pib_serv/pib_tot
+
+gen other_sh = 1 - (agri_sh + manufac_sh + serv_sh)
 
 * Others
 gen log_area = log(geo_area_2010)
@@ -55,6 +73,7 @@ gen dlog_pib_serv    = log_pib_serv - log_pib_serv[_n-1] if year == 2010 & cod =
 gen dagri_sh    = agri_sh - agri_sh[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dmanufac_sh = manufac_sh - manufac_sh[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dserv_sh    = serv_sh - serv_sh[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dother_sh   = other_sh - other_sh[_n-1] if year == 2010 & cod == cod[_n-1]
 
 ***************************** Summary Statistics *******************************
 drop if missing(log_income_1991)
@@ -74,11 +93,12 @@ sort  year
 by year: summarize sum_fao_cattle_1995
 
 
-by year: summarize log_pib_tot log_pib_agro log_pib_indust log_pib_serv
+by year: summarize log_pib_tot log_pib_agro log_pib_indust log_pib_serv agri_sh manufac_sh serv_sh
 
 summarize dlog_pib_tot dlog_pib_agro dlog_pib_indust dlog_pib_serv
 
 
+summarize dagri_sh dmanufac_sh dserv_sh
 
 
 
@@ -93,12 +113,6 @@ drop if year == 2000
 * Standardized
 egen zdfaoc95 = std(dfaoc95)
 
-
-gen codreg = 1 if codstate < 20
-replace codreg = 2 if codstate < 30 & codstate >= 20
-replace codreg = 3 if codstate < 40 & codstate >= 30
-replace codreg = 4 if codstate < 50 & codstate >= 40
-replace codreg = 5 if codstate >= 50
 
 
 *** No Controls ***
@@ -130,12 +144,87 @@ esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compre
 
 
 
-
+* Shares
 eststo clear
-foreach v in dagri_sh dmanufac_sh dserv_sh{
+foreach v in dagri_sh dmanufac_sh dserv_sh dother_sh{
     eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
 }
 esttab, se ar2 stat ( r2_a N) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
+
+
+
+
+
+*************************** Latex Tables ***************************************
+
+
+
+
+eststo clear
+eststo: qui reg dagri_sh dfaoc95, vce (cluster cod)
+eststo: qui reg dagri_sh dfaoc95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dagri_sh dfaoc95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dagri_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/master_thesis/analysis/output/tables/gdpsh.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(r2_a, labels("Adj. $ R^{2} $") fmt(3)) keep(dfaoc95) replace f noabbrev varlabels (dfaoc95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) title(The Effect of the Commodity Shock on GDP Shares) collabels(none) eqlabels(none) mlabels(none) mgroups(none) nolines prehead("\begin{table}[h]" "\centering" "\begin{adjustbox}{max width=\textwidth}" "\begin{threeparttable}" "\caption{@title}" "\begin{tabular}{l* {5}S[table-format = 1.6]}" ///
+"\hline \hline" "\noalign{\vskip 0.2cm}") ///
+posthead("\noalign{\vskip 0.1cm}" "\hline" "\noalign{\vskip 0.1cm}" "\textbf{Panel A.} & \multicolumn{4}{c}{$\Delta$ Agriculture GDP Share}\\" "\noalign{\vskip 0.1cm}")
+
+
+
+eststo clear
+eststo: qui reg dmanufac_sh dfaoc95, vce (cluster cod)
+eststo: qui reg dmanufac_sh dfaoc95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dmanufac_sh dfaoc95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dmanufac_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/master_thesis/analysis/output/tables/gdpsh.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(r2_a, labels("Adj. $ R^{2} $") fmt(3)) keep(dfaoc95) append f noabbrev varlabels (dfaoc95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) collabels(none) eqlabels(none) mlabels(none) mgroups(none) plain prehead("\noalign{\vskip 0.25cm}") ///
+posthead("\textbf{Panel B.} & \multicolumn{4}{c}{$\Delta$ Manufacturing GDP Share}\\" "\noalign{\vskip 0.1cm}") ///
+
+
+
+eststo clear
+eststo: qui reg dserv_sh dfaoc95, vce (cluster cod)
+eststo: qui reg dserv_sh dfaoc95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dserv_sh dfaoc95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dserv_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/master_thesis/analysis/output/tables/gdpsh.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(N r2_a, labels("Observations" "Adj. $ R^{2} $") fmt(%12.0fc 3)) keep(dfaoc95) append f noabbrev varlabels (dfaoc95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) collabels(none) eqlabels(none) mlabels(none) mgroups(none) plain prehead("\noalign{\vskip 0.25cm}") ///
+posthead("\textbf{Panel C.} & \multicolumn{4}{c}{$\Delta$ Services GDP Share}\\" "\noalign{\vskip 0.1cm}") ///
+prefoot("\noalign{\vskip 0.1cm}" "\noalign{\vskip 0.3cm}" "\hline" "\noalign{\vskip 0.1cm}" "Rural Share in 1991 & \multicolumn{1}{c}{} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark}\\" ///
+"Region FE  & & & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark}\\" ///
+"Baseline Controls & & & & \multicolumn{1}{c}{\checkmark}\\") ///
+postfoot("\hline" "\end{tabular}" "\label{tab::gdpshares}" "\begin{tablenotes}[flushleft]" "\setlength{\itemindent}{-2.49997pt}" "\item \textit{Notes:} See \Cref{sec:defsource} for variable definition and sources. The table presents estimates of \Cref{eqn:maindiff}. The dependent variable is the 2000-2010 change in the listed outcomes. Column (1) reports the estimates without any control.  Columns (2)-(4) extend the set of controls by including the share of population living in the rural area; region fixed effect for the 5 macroregions of Brazil; log income per capita; log population density; and illiteracy rate. All municipalities controls are from the population census of 1991. The means and standard deviations (in parentheses) of the dependent variables in panels A, B and C are -0.041 (0.112), -0.011 (0.093), and 0.037 (0.111). \Cref{tab::mainallcoeff} reports the coefficient for all the controls. Robust standard errors reported in parentheses. *** Significant at the 1\% level; ** Significant at the 5\% level; * Significant at the 10\% level." "\end{tablenotes}" "\end{threeparttable}" "\end{adjustbox}" "\end{table}")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -322,21 +411,19 @@ drop if missing(analf_1991)
 
 *** Regressions ***
 
-* Baseline Controls
+
 eststo clear
 foreach v in log_pib_tot log_pib_agro log_pib_indust log_pib_serv{
 eststo: qui reghdfe `v' sum_fao_cattle_1995 c.log_income_1991#i.year c.log_popdens_1991#i.year ///
-c.agr_sh_1991#i.year c.analf_1991#i.year, absorb (cod year) vce(cluster cod)
+c.agr_sh_1991#i.year c.analf_1991#i.year i.codreg#i.year if year <=2010, absorb (cod year) vce(cluster cod)
 }
 esttab, se ar2 stat ( r2_a N) keep(sum_fao_cattle_1995) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
-* Full Set Controls
 eststo clear
-foreach v in log_pib_tot log_pib_agro log_pib_indust log_pib_serv{
+foreach v in agri_sh manufac_sh serv_sh{
 eststo: qui reghdfe `v' sum_fao_cattle_1995 c.log_income_1991#i.year c.log_popdens_1991#i.year ///
-c.agr_sh_1991#i.year c.analf_1991#i.year c.dist_state#i.year c.dist_federal#i.year c.log_area#i.year c.latitude#i.year ///
-c.longitude#i.year c.altitude#i.year c.capital_dummy#i.year, absorb (cod year) vce (cluster cod)
+c.agr_sh_1991#i.year c.analf_1991#i.year i.codreg#i.year if year <=2010, absorb (cod year) vce(cluster cod)
 }
 esttab, se ar2 stat ( r2_a N) keep(sum_fao_cattle_1995) star(* 0.10 ** 0.05 *** 0.01) compress
 

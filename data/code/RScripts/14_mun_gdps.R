@@ -1,14 +1,13 @@
-# Set Working Directory
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts")
+#Load packages
+source("00_load_packages.R")
 
-#Load packaages
-source("./0_load_packages.R")
-
-######### 1. Reads and cleans Municipalities GDP by sector  ####################
+######### 1. Reads and Cleans Municipalities GDP by Sector  ####################
 
 # GDPs
-municip_pib_2002 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/PIB/Setores/pib_mun_1.xlsx", 
-                              skip = 3, sheet = "Produto Interno Bruto a preç...", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+municip_pib_2002 <- read_excel(here("data", "raw", "data_municipality",
+                                    "pib", "sectors", "pib_mun_1.xlsx"), 
+                              skip = 3, sheet = "Produto Interno Bruto a preç...",
+                              col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 municip_pib_2002 %<>% rename(cod = "...1", municip = "...2") %>%
   dplyr::select(c("cod", "municip", "1999", "2000", "2001")) %>%
@@ -17,8 +16,10 @@ municip_pib_2002 %<>% rename(cod = "...1", municip = "...2") %>%
   arrange(cod)
 
 
-municip_pib_agro_2002 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/PIB/Setores/pib_mun_1.xlsx", 
-                                 skip = 3, sheet = "Valor adicionado bruto a pre...", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+municip_pib_agro_2002 <- read_excel(here("data", "raw", "data_municipality",
+                                    "pib", "sectors", "pib_mun_1.xlsx"),
+                                 skip = 3, sheet = "Valor adicionado bruto a pre...",
+                                 col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 municip_pib_agro_2002 %<>% rename(cod = "...1", municip = "...2") %>%
   dplyr::select(c("cod", "municip",  "1999", "2000", "2001")) %>%
@@ -28,8 +29,10 @@ municip_pib_agro_2002 %<>% rename(cod = "...1", municip = "...2") %>%
 
 
 
-municip_pib_indust_2002 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/PIB/Setores/pib_mun_2.xlsx", 
-                                   skip = 3, sheet = "Tabela 1", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+municip_pib_indust_2002 <- read_excel(here("data", "raw", "data_municipality",
+                                           "pib", "sectors", "pib_mun_2.xlsx"), 
+                                   skip = 3, sheet = "Tabela 1", col_names = TRUE,
+                                   na = c("NA","N/A","", "...", "-", "..", "X"))
 
 municip_pib_indust_2002 %<>% rename(cod = "...1", municip = "...2") %>%
   dplyr::select(c("cod", "municip", "1999", "2000", "2001")) %>%
@@ -39,8 +42,10 @@ municip_pib_indust_2002 %<>% rename(cod = "...1", municip = "...2") %>%
 
 
 
-municip_pib_serv_2002  <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/PIB/Setores/pib_mun_2.xlsx", 
-                                  skip = 3, sheet = "Tabela 2", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+municip_pib_serv_2002  <- read_excel(here("data", "raw", "data_municipality",
+                                          "pib", "sectors", "pib_mun_2.xlsx"), 
+                                  skip = 3, sheet = "Tabela 2", col_names = TRUE,
+                                  na = c("NA","N/A","", "...", "-", "..", "X"))
 
 municip_pib_serv_2002 %<>% rename(cod = "...1", municip = "...2") %>%
   dplyr::select(c("cod", "municip",  "1999", "2000", "2001")) %>%
@@ -52,8 +57,10 @@ municip_pib_serv_2002 %<>% rename(cod = "...1", municip = "...2") %>%
 
 
 # 2010
-municip_pib_2010 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/PIB/Setores/pib_mun_novo_1.xlsx", 
-                              skip = 3, sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+municip_pib_2010 <- read_excel(here("data", "raw", "data_municipality",
+                                     "pib", "sectors", "pib_mun_novo_1.xlsx"), 
+                              skip = 3, sheet = 1, col_names = TRUE,
+                              na = c("NA","N/A","", "...", "-", "..", "X"))
 
 municip_pib_2010  %<>% rename(cod = "...1", municip = "...2") %>%
   slice(-(n())) %>%
@@ -61,8 +68,10 @@ municip_pib_2010  %<>% rename(cod = "...1", municip = "...2") %>%
   arrange(cod)
 
 
-municip_pib_agro_2010 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/PIB/Setores/pib_mun_novo_1.xlsx", 
-                                 skip = 3, sheet = 2, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+municip_pib_agro_2010 <- read_excel(here("data", "raw", "data_municipality",
+                                         "pib", "sectors", "pib_mun_novo_1.xlsx"), 
+                                 skip = 3, sheet = 2, col_names = TRUE,
+                                 na = c("NA","N/A","", "...", "-", "..", "X"))
 
 municip_pib_agro_2010 %<>% rename(cod = "...1", municip = "...2") %>%
   slice(-(n())) %>%
@@ -70,8 +79,10 @@ municip_pib_agro_2010 %<>% rename(cod = "...1", municip = "...2") %>%
   arrange(cod)
 
 
-municip_pib_indust_2010 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/PIB/Setores/pib_mun_novo_2.xlsx", 
-                                   skip = 3, sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+municip_pib_indust_2010 <- read_excel(here("data", "raw", "data_municipality",
+                                           "pib", "sectors", "pib_mun_novo_2.xlsx"), 
+                                   skip = 3, sheet = 1, col_names = TRUE,
+                                   na = c("NA","N/A","", "...", "-", "..", "X"))
 
 municip_pib_indust_2010 %<>% rename(cod = "...1", municip = "...2") %>%
   slice(-(n())) %>%
@@ -79,8 +90,10 @@ municip_pib_indust_2010 %<>% rename(cod = "...1", municip = "...2") %>%
   arrange(cod)
 
 
-municip_pib_serv1_2010 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/PIB/Setores/pib_mun_novo_2.xlsx", 
-                                     skip = 3, sheet = 2, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+municip_pib_serv1_2010 <- read_excel(here("data", "raw", "data_municipality",
+                                          "pib", "sectors", "pib_mun_novo_2.xlsx"), 
+                                     skip = 3, sheet = 2, col_names = TRUE,
+                                     na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
 municip_pib_serv1_2010 %<>% rename(cod = "...1", municip = "...2") %>%
@@ -90,7 +103,8 @@ municip_pib_serv1_2010 %<>% rename(cod = "...1", municip = "...2") %>%
   arrange(cod)
 
 
-municip_pib_serv2_2010 <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/PIB/Setores/pib_mun_novo_3.xlsx", 
+municip_pib_serv2_2010 <- read_excel(here("data", "raw", "data_municipality",
+                                          "pib", "sectors", "pib_mun_novo_3.xlsx"), 
            skip = 3, sheet = 1, col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 municip_pib_serv2_2010 %<>% rename(cod = "...1", municip = "...2") %>%
@@ -147,7 +161,7 @@ municip_pib <- full_join(municip_pib, municip_pib_serv, by = c("cod", "year", "m
 ## Deflating
 
 # Reads IPCA for deflation
-ipca <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Prices/ipca_anual.xls",
+ipca <- read_excel(here("data", "raw", "prices", "ipca_anual.xls"),
                    sheet = "Séries", col_names = TRUE, na = "")
 
 ipca <- ipca %>% filter(Date >= 1999 & Date <= 2017)
@@ -167,11 +181,11 @@ municip_pib_final <- municip_pib_real %>% filter(year >= 2000 & year <= 2015) %>
   filter(cod>1)
 
 save(municip_pib_final,
-     file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/municip_pib_real.Rdata")
+     file = here("data", "output", "final", "municip_pib_real.RData"))
 
 
 
-######### 2. GDP Shares Graph  #################################################
+######################### 2. GDP Shares Graph  #################################
 
 
 gdp_shares <- municip_pib_real %>% filter (cod==1) %>% 
@@ -212,6 +226,8 @@ sh_graph <- ggplot(gdp_shares, aes(x=year)) +
         legend.box.background = element_blank(), legend.title = element_blank())
 
 sh_graph
+
+
 ggsave(filename = "empshares.png", plot = sh_graph, 
        path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
 

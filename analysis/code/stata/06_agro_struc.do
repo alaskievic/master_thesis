@@ -17,11 +17,16 @@ bysort cod: replace women_labor_share = women_labor_share[_n-1] if women_labor_s
 
 keep if year == 2017 | year == 2006 | year == 1995
 
-gen codreg = 1 if codstate < 20
+gen codreg     = 1 if codstate < 20
 replace codreg = 2 if codstate < 30 & codstate >= 20
 replace codreg = 3 if codstate < 40 & codstate >= 30
 replace codreg = 4 if codstate < 50 & codstate >= 40
 replace codreg = 5 if codstate >= 50
+
+
+
+gen log_workers = log(n_workers)
+
 
 
 
@@ -64,6 +69,8 @@ gen dfao_baseline  = sum_fao[_n-1] - sum_fao[_n-2] if year == 2017 & cod == cod[
 gen dfao_baselinecat95  = sum_fao_cattle_1995[_n-1] - sum_fao_cattle_1995[_n-2] if year == 2017 & cod == cod[_n-1]
 gen dfao_baselinecatact  = sum_fao_cattle_actual[_n-1] - sum_fao_cattle_actual[_n-2] if year == 2017 & cod == cod[_n-1]
 gen dfaochigh = sum_fao_cattle_high_1995[_n-1] - sum_fao_cattle_high_1995[_n-2] if year == 2017 & cod == cod[_n-1]
+gen dfao_diff = dfaochigh - dfao_baselinecat95
+gen dfao_placebo = sum_fao_placebo_1985 - sum_fao_placebo_1985[_n-1] if year == 2017 & cod == cod[_n-1]
 
 *** Land Inequality ***
 gen dgini_land_baseline = gini_land - gini_land[_n-1] if year == 2017 & cod == cod[_n-1]
@@ -111,14 +118,25 @@ gen dproparapp_shtot_short = proparapp_shtot[_n-1 ] - proparapp_shtot[_n-2] if y
 gen dproparapp_shtot_long = proparapp_shtot - proparapp_shtot[_n-2] if year == 2017 & cod == cod[_n-1]
 
 
+
+
+gen dlog_workers_baseline 	= log_workers - log_workers[_n-1] 	if year == 2017 & cod == cod[_n-1]
+gen dlog_workers_long 		= log_workers - log_workers[_n-2] 	if year == 2017 & cod == cod[_n-1]
+
+
+gen dl_inten_baseline 	= l_inten - l_inten[_n-1] 	if year == 2017 & cod == cod[_n-1]
+gen dl_inten_long 		= l_inten - l_inten[_n-2] 	if year == 2017 & cod == cod[_n-1]
+
+
 * Openness
 gen dopen_exp   = open_exp[_n-1] - open_exp[_n-2] 		if year == 2017 & cod == cod[_n-1]
 gen dopen_imp   = open_imp[_n-1] - open_imp[_n-2] 		if year == 2017 & cod == cod[_n-1]
 gen dopen_total = open_total[_n-1] - open_total[_n-2] 	if year == 2017 & cod == cod[_n-1]
 
 
-** Proprietários
-*Area is not homogeneous
+** Residence
+gen dresidence   = share_resid_not_farm - share_resid_not_farm[_n-1] 		if year == 2017 & cod == cod[_n-1]
+
 
 
 * Difference between 2015-2010 exposure
@@ -282,6 +300,7 @@ summarize  dfarmland dlmaq dtransarea dagrotox dgini_land_baseline dgini_land_lo
 
 summarize darapp2_baseline dnapp2_baseline darapp2_long dnapp2_long
 
+summarize dreside
 
 ********************************************************************************
 
@@ -370,32 +389,108 @@ di "Inference assessment = `summ'"
 end	
 
 
-/***************************************************
-This part of the code simply creates a random dataset to use the program.
-
-You should replace that with your dataset
-
-***************************************************/
-
-* set seed 1
-
-* set obs 100 
-
-* gen Y = rnormal() // outcome variable
-
-* gen D =_n<=5 // covariate of interest (we want to assess inference about this variable)
-
-* gen X = rnormal() // other control variables
 
 
-/***************************************************
-Run the regression, and then the assessment 
 
-***************************************************/
 
-* reg Y D X , robust // Regression you want to run. In this case, you want to check whether inference based on t=_b[D]/_se[D] using 1.96 as critical value is reliable.
 
-* assessment "reg" "D" "X , robust"
+
+
+
+
+
+
+**************************
+
+
+eststo clear
+foreach v in dlog_workers_baseline dlog_workers_baseline dl_inten_baseline dl_inten_long{
+eststo: qui reg `v' dfao_baselinecat95, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
+*********** Remainig tables
+
+eststo clear
+foreach v in dresidence{
+eststo: qui reg `v' dfao_baselinecat95, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dresidence{
+eststo: qui reg `v' dfao_baselinecat95 agr_sh_1991, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dresidence{
+eststo: qui reg `v' dfao_baselinecat95 agr_sh_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dresidence{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
+
+
+
+
+* Baseline
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* Placebo
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_placebo log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_placebo) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+* Difference
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_diff log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_diff) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
+
+
+eststo clear
+foreach v in dresidence{
+eststo: qui reg `v' dfao_diff log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_diff) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
+
+
+
 
 
 
@@ -417,10 +512,35 @@ assessment reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_19
 }
 
 
+* Baseline
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_diff log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_diff) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfaochigh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaochigh) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 
+*****************************************************************
 
+
+
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long dresidence{
+eststo: qui reg `v' dfao_baselinecat95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+replace share_resid_other_mun = share_resid_other_mun[_n-1] if missing(share_resid_other_mun)
 
 
 
@@ -594,6 +714,15 @@ esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_baselinecat95) star(* 
 
 
 
+***************************************************************
+
+
+* Baseline
+eststo clear
+foreach v in dfarmland dlmaq dtransarea dgini_land_baseline dgini_land_long{
+eststo: qui reg `v' dfao_placeb log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_placebo) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 

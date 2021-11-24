@@ -1,7 +1,7 @@
 # Set Working Directory
 setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts")
 
-#Load packaages
+#Load packages
 source("./00_load_packages.R")
 
 ######### 1. Reads and plots Land Gini Inequality data calculated in Stata ###################################################################################
@@ -87,7 +87,8 @@ mean(gini_land_2006$gini_2006)
 
 # Plotting
 map_land_2006 <- tm_shape(shp_ibge_gini_2006) +
-  tm_polygons(col = "gini_2006",  style = "fisher", palette = "YlOrRd", border.col = "black", border.alpha = .3, showNA = TRUE, 
+  tm_polygons(col = "gini_2006",  style = "fisher", palette = "YlOrRd",
+              border.col = "black", border.alpha = .3, showNA = TRUE, 
               textNA="No Data",
               title = "Land Gini in 2006") +
   tm_shape(shp_ufs) +

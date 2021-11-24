@@ -1,7 +1,4 @@
-# Set Working Directory
-setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
-
-#Load packaages
+# Load packages
 source("./00_load_packages.R")
 
 ######### 1. Reads and cleans data from Agricultural Census  ###################
@@ -1188,4 +1185,80 @@ ocup_sidra <- bind_rows(ocup_2000, ocup_2010)
 
 save(ocup_sidra,
      file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Final Datasets/ocup_sidra.RData")
+
+
+####################### 4. Residence of Farmowners #############################
+
+# 2006
+residence_owner_2006 <- read_excel(here("data", "raw", "data_municipality", "censo_agro",
+                                   "2006", "residence", "tabela3348.xlsx"),
+                                   skip = 7, sheet = 1, col_names = FALSE,
+                                   na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+residence_owner_2006 %<>% set_names(c("cod", "municip", "x", "residence", "y",
+                                      "total")) %>%
+  dplyr::select(c("cod", "municip", "residence", "total"))
+
+# Fills NA values only in the municip column
+residence_owner_2006[1] <- na.locf(residence_owner_2006[1], fromLast = FALSE)
+
+residence_owner_2006[2] <- na.locf(residence_owner_2006[2], fromLast = FALSE)
+
+
+residence_owner_2006 %<>% pivot_wider(values_from = "total", names_from = "residence") %>%
+  slice(-5571) %>% dplyr::select(-"NA")
+
+residence_owner_2006[is.na(residence_owner_2006)] = 0
+
+residence_owner_2006 %<>% set_names(c("cod", "municip", "tot_num", "resid_farm",
+                                      "resid_mun_urb", "resid_mun_rur",
+                                      "resid_other_mun_urb", "resid_other_mun_rur")) %>%
+                                        mutate(cod = as.integer(cod))
+
+residence_owner_2006 %<>% mutate(share_resid_farm = resid_farm/tot_num) %>%
+      mutate(share_resid_mun = (resid_mun_urb + resid_mun_rur)/tot_num) %>%
+      mutate(share_resid_other_mun = (resid_other_mun_urb + resid_other_mun_rur)/tot_num) %>%
+      mutate(share_resid_not_farm = 1-share_resid_farm) %>%
+      mutate(year = 2006)
+
+
+# 2017
+residence_owner_2017 <- read_excel(here("data", "raw", "data_municipality", "censo_agro",
+                                        "2017", "residence", "tabela6778.xlsx"),
+                                   skip = 7, sheet = 1, col_names = FALSE,
+                                   na = c("NA","N/A","", "...", "-", "..", "X"))
+
+
+
+residence_owner_2017 %<>% set_names(c("cod", "municip", "residence", "x", "y",
+                                      "total")) %>%
+  dplyr::select(c("cod", "municip", "residence", "total"))
+
+# Fills NA values only in the municip column
+residence_owner_2017[1] <- na.locf(residence_owner_2017[1], fromLast = FALSE)
+
+residence_owner_2017[2] <- na.locf(residence_owner_2017[2], fromLast = FALSE)
+
+
+residence_owner_2017 %<>% pivot_wider(values_from = "total", names_from = "residence") %>%
+  slice(-5571) %>% dplyr::select(-"NA")
+
+residence_owner_2017[is.na(residence_owner_2017)] = 0
+
+residence_owner_2017 %<>% set_names(c("cod", "municip", "tot_num", "resid_farm",
+                                      "resid_not_farm")) %>%
+  mutate(cod = as.integer(cod))
+
+residence_owner_2017 %<>% mutate(share_resid_not_farm = resid_not_farm/tot_num) %>%
+  mutate(year = 2017)
+
+# Joining
+residence_agro  <- bind_rows(residence_owner_2006, residence_owner_2017)
+
+residence_agro %<>% dplyr::select(-c("municip", "tot_num"))
+
+# Saving
+save(residence_agro, file = here("data", "output", "final", "residence_agro.RData"))
+
 

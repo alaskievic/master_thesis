@@ -10,6 +10,8 @@ use "./pop_struc.dta"
 **** Preparing Data
 gsort +cod +year
 
+drop codstate
+gen codstate = int(cod/100000)
 
 gen codreg = 1 if codstate < 20
 replace codreg = 2 if codstate < 30 & codstate >= 20
@@ -20,6 +22,9 @@ replace codreg = 5 if codstate >= 50
 
 replace P_AGRO   = agrish_1991 if year == 1991
 replace P_INDUST = manush_1991 if year == 1991
+
+
+
 
 replace P_AGRO = P_AGRO/100 if year == 2000 | year == 2010
 replace P_SERV = P_SERV/100 if year == 2000 | year == 2010
@@ -89,8 +94,12 @@ gen sagro_gold = agro_gold/tot_trab
 gen sindust_gold = indust_gold/tot_trab
 
 
+gen open_exp_2000 = .
+replace open_exp_2000 = open_exp if year == 2000
+replace open_exp_2000 = open_exp_2000[_n-1] if year == 2010 & cod == cod[_n-1]
 
 
+gen fao_diff = sum_fao_cattle_high_1995 - sum_fao_cattle_1995
 
 ******************* Differences ************************************************
 
@@ -98,16 +107,19 @@ gen sindust_gold = indust_gold/tot_trab
 *egen zsum_fao_cattle_1995 = std(sum_fao_cattle_1995)
 
 * Measures
-gen dfao  = sum_fao - sum_fao[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dshares  = pq_sum  - pq_sum[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dfaoc95 = sum_fao_cattle_1995 - sum_fao_cattle_1995[_n-1] if year == 2010 & cod == cod[_n-1]
-gen dfaocact = sum_fao_cattle_actual - sum_fao_cattle_actual[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dfao      = sum_fao - sum_fao[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dshares   = pq_sum  - pq_sum[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dfaoc95   = sum_fao_cattle_1995 - sum_fao_cattle_1995[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dfaocact  = sum_fao_cattle_actual - sum_fao_cattle_actual[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dfaochigh = sum_fao_cattle_high_1995 - sum_fao_cattle_high_1995[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dfao_diff = fao_diff - fao_diff[_n-1] if year == 2010 & cod == cod[_n-1]
+
+gen dfao_placebo_1985 = sum_fao_placebo_1985 - sum_fao_placebo_1985[_n-1] if year == 2010 & cod == cod[_n-1]
 
 *gen dzfaoc95 = zsum_fao_cattle_1995 - zsum_fao_cattle_1995[_n-1] if year == 2010 & cod == cod[_n-1]
 
 
-
+gen dresid_not_farm = share_resid_not_farm - share_resid_not_farm[_n-1] if year == 2010 & cod == cod[_n-1]
 
 * Shares - PNUD
 gen dagro_sh = P_AGRO - P_AGRO[_n-1] if year == 2010 & cod == cod[_n-1]
@@ -118,7 +130,8 @@ gen dlog_agro_sh     = log_P_AGRO - log_P_AGRO[_n-1] if year == 2010 & cod == co
 replace dlog_agro_sh = log_P_AGRO - log_P_AGRO[_n-1] if year == 2000 & cod == cod[_n-1]
 
 
-gen dserv_sh = P_SERV - P_SERV[_n-1] if year == 2010 & cod == cod[_n-1]
+gen dserv_sh     = P_SERV - P_SERV[_n-1] if year == 2010 & cod == cod[_n-1]
+replace dserv_sh = P_SERV - P_SERV[_n-1] if year == 2000 & cod == cod[_n-1]
 
 
 gen dcom_sh = P_COM - P_COM[_n-1] if year == 2010 & cod == cod[_n-1]
@@ -137,7 +150,12 @@ replace dlog_indust_sh     = log_P_INDUST - log_P_INDUST[_n-1] if year == 2000 &
 
 
 gen dtrab_sh = sharepop - sharepop[_n-1] if year == 2010 & cod == cod[_n-1]
+
 gen durbsh = urbsh - urbsh[_n-1] if year == 2010 & cod == cod[_n-1]
+replace durbsh = urbsh - urbsh[_n-1] if year == 2000 & cod == cod[_n-1]
+
+
+
 gen wtot_sh = totsh[_n-1] if year == 2010 & cod == cod[_n-1]
 gen didh = IDHM - IDHM[_n-1] if year == 2010 & cod == cod[_n-1]
 gen deduc = IDHM_E - IDHM_E[_n-1] if year == 2010 & cod == cod[_n-1]
@@ -172,6 +190,12 @@ gen dlog_wagro = log_wagro- log_wagro[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dlog_windust = log_windust- log_windust[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dlog_wtrans = log_wagro- log_wtrans[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dlog_wserv = log_wagro- log_wserv[_n-1] if year == 2010 & cod == cod[_n-1]
+
+replace dlog_wagro = log_wagro- log_wagro[_n-1] if year == 2000 & cod == cod[_n-1]
+replace dlog_windust = log_windust- log_windust[_n-1] if year == 2000 & cod == cod[_n-1]
+replace dlog_wserv = log_wagro- log_wserv[_n-1] if year == 2000 & cod == cod[_n-1]
+
+
 
 
 * Openness
@@ -247,6 +271,13 @@ summarize dagro_sh dindust_sh  dserv_sh dlog_wagro dlog_windust dlog_wserv durbs
 summarize dlog_tot_trab dlog_agro_ns dlog_indust_ns dlog_agro_gn dlog_indust_gn dlog_agro_os dlog_indust_os dlog_agro_gold dlog_indust_gold
 
 
+format banana_1995 %4.2f
+format banana_1995-wheat_1995
+summarize banana_1995-wheat_1995
+
+keep if year == 2000
+drop if banana_1995 == .
+tabstat banana_1995-wheat_1995, s(mean sd min max) format(%10.3fc)
 
 gen dlog_tot_trab = log_tot_trab - log_tot_trab[_n-1] if year == 2010 & cod == cod[_n-1]
 gen dlog_agro_gn = log_agro_gn - log_agro_gn[_n-1] if year == 2010 & cod == cod[_n-1]
@@ -356,30 +387,310 @@ prefoot("\noalign{\vskip 0.1cm}" "\noalign{\vskip 0.3cm}" "\hline" "\noalign{\vs
 postfoot("\hline" "\end{tabular}" "\label{tab::empshares}" "\begin{tablenotes}[flushleft]" "\setlength{\itemindent}{-2.49997pt}" "\item \textit{Notes:} See \Cref{sec:defsource} for variable definition and sources. The table presents estimates of \Cref{eqn:maindiff}. The dependent variable is the 2000-2010 change in the listed outcomes. Column (1) reports the estimates without any control.  Columns (2)-(4) extend the set of controls by including the share of population living in the rural area; region fixed effect for the 5 macroregions of Brazil; log income per capita; log population density; and illiteracy rate. All municipalities controls are from the population census of 1991. The means and standard deviations (in parentheses) of the dependent variables in panels A, B and C are -0.068 (0.081), 0.002 (0.055), and 0.008 (0.055). \Cref{tab::mainallcoeff} reports the coefficient for all the controls. Robust standard errors reported in parentheses. *** Significant at the 1\% level; ** Significant at the 5\% level; * Significant at the 10\% level." "\end{tablenotes}" "\end{threeparttable}" "\end{adjustbox}" "\end{table}")
 
 
+********************************************************************************
+
+
+
+
+
+
+
+
+
+
+* Employment Shares
+
+
+eststo clear
+eststo: qui reg dagro_sh dfao_diff, vce (cluster cod)
+eststo: qui reg dagro_sh dfao_diff agr_sh_1991, vce (cluster cod)
+eststo: qui reg dagro_sh dfao_diff agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dagro_sh dfao_diff log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/master_thesis/analysis/output/tables/empsh.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(r2_a, labels("Adj. $ R^{2} $") fmt(3)) keep(dfaoc95) replace f noabbrev varlabels (dfaoc95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) title(The Effect of the Commodity Shock on Employment Shares and Wages - Productivity Gaps) collabels(none) eqlabels(none) mlabels(none) mgroups(none) nolines prehead("\begin{table}[h]" "\centering" "\begin{adjustbox}{max width=\textwidth}" "\begin{threeparttable}" "\caption{@title}" "\begin{tabular}{l* {8}S[table-format = 1.6]}" ///
+"\hline \hline" "\noalign{\vskip 0.2cm}") ///
+posthead("\noalign{\vskip 0.1cm}" "\hline" "\noalign{\vskip 0.1cm}" "\textbf{Panel A.} & \multicolumn{4}{c}{$\Delta$ Employment Share in Agriculture}\\" "\noalign{\vskip 0.1cm}")
+
+
+
+eststo clear
+eststo: qui reg dindust_sh dfao_diff, vce (cluster cod)
+eststo: qui reg dindust_sh dfao_diff agr_sh_1991, vce (cluster cod)
+eststo: qui reg dindust_sh dfao_diff agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dindust_sh dfao_diff log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/master_thesis/analysis/output/tables/empsh.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(r2_a, labels("Adj. $ R^{2} $") fmt(3)) keep(dfaoc95) append f noabbrev varlabels (dfaoc95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) collabels(none) eqlabels(none) mlabels(none) mgroups(none) plain prehead("\noalign{\vskip 0.25cm}") ///
+posthead("\textbf{Panel B.} & \multicolumn{4}{c}{$\Delta$ Employment Share in Manufacturing}\\" "\noalign{\vskip 0.1cm}") ///
+
+
+
+eststo clear
+eststo: qui reg dserv_sh dfaoc95, vce (cluster cod)
+eststo: qui reg dserv_sh dfaoc95 agr_sh_1991, vce (cluster cod)
+eststo: qui reg dserv_sh dfaoc95 agr_sh_1991 i.codreg, vce (cluster cod)
+eststo: qui reg dserv_sh dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+
+
+esttab * using C:/Users/Andrei/Desktop/Dissertation/master_thesis/analysis/output/tables/empsh.tex, style(tex) label notype cells((b(star fmt(%9.3f))) (se(fmt(%9.3f)par))) stats(N r2_a, labels("Observations" "Adj. $ R^{2} $") fmt(%12.0fc 3)) keep(dfaoc95) append f noabbrev varlabels (dfaoc95 "$\Delta$ CE") starlevels(* 0.10 ** 0.05 *** 0.01) collabels(none) eqlabels(none) mlabels(none) mgroups(none) plain prehead("\noalign{\vskip 0.25cm}") ///
+posthead("\textbf{Panel C.} & \multicolumn{4}{c}{$\Delta$ Employment Share in Services}\\" "\noalign{\vskip 0.1cm}") ///
+prefoot("\noalign{\vskip 0.1cm}" "\noalign{\vskip 0.3cm}" "\hline" "\noalign{\vskip 0.1cm}" "Rural Share in 1991 & \multicolumn{1}{c}{} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark}\\" ///
+"Region FE  & & & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark}\\" ///
+"Baseline Controls & & & & \multicolumn{1}{c}{\checkmark}\\") ///
+postfoot("\hline" "\end{tabular}" "\label{tab::empshares}" "\begin{tablenotes}[flushleft]" "\setlength{\itemindent}{-2.49997pt}" "\item \textit{Notes:} See \Cref{sec:defsource} for variable definition and sources. The table presents estimates of \Cref{eqn:maindiff}. The dependent variable is the 2000-2010 change in the listed outcomes. Column (1) reports the estimates without any control.  Columns (2)-(4) extend the set of controls by including the share of population living in the rural area; region fixed effect for the 5 macroregions of Brazil; log income per capita; log population density; and illiteracy rate. All municipalities controls are from the population census of 1991. The means and standard deviations (in parentheses) of the dependent variables in panels A, B and C are -0.068 (0.081), 0.002 (0.055), and 0.008 (0.055). \Cref{tab::mainallcoeff} reports the coefficient for all the controls. Robust standard errors reported in parentheses. *** Significant at the 1\% level; ** Significant at the 5\% level; * Significant at the 10\% level." "\end{tablenotes}" "\end{threeparttable}" "\end{adjustbox}" "\end{table}")
+
+
+
+
+
+
+
+
+
+
+
+
+* Baseline
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfao_diff log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_diff) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 ********************************************************************************
+replace share_resid_other_mun = share_resid_other_mun[_n-1] if missing(share_resid_other_mun)
 
+gen resid = dfaoc95*share_resid_other_mun
+
+gen teste = dfaoc95 * (1-share_resid_other_mun)
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95  log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+foreach var of varlist dfaoc95 dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv {
+summ `var'
+gen `var'std = `var'/r(sd)
+}
+
+
+eststo clear
+foreach v in dagro_shstd dindust_shstd dserv_shstd durbshstd dlog_wagrostd dlog_winduststd dlog_wservstd{
+eststo: qui reg `v' dfaoc95std  log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95std) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 resid share_resid_other_mun  log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 resid share_resid_other_mun) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 teste  log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 teste) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+
+
+
+gen share_resid_inside_2006 = share_resid_farm + share_resid_mun
+
+replace share_resid_inside_2006 = share_resid_inside_2006[_n-1] if missing(share_resid_inside_2006)
+
+gen fao_resid = dfaoc95 * share_resid_inside_2006
+
+gsort +share_resid_inside_2006
+
+keep if year == 2010
+
+gen dfao_resid = dfaoc95 * dresid_not_farm
+
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' fao_resid log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(fao_resid) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 fao_resid log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 fao_resid) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 dfao_resid dresid_not_farm log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 dfao_resid dresid_not_farm) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+*******************************
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 fao_resid share_resid_inside_2006, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 fao_resid share_resid_inside_2006) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 fao_resid share_resid_inside_2006 agr_sh_1991, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 fao_resid share_resid_inside_2006) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 fao_resid share_resid_inside_2006 agr_sh_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 fao_resid share_resid_inside_2006) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 fao_resid share_resid_inside_2006 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 fao_resid share_resid_inside_2006) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+*********** Remainig tables
+keep if year == 2010
+
+
+
+* Baseline
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+* Baseline
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfao_placebo_1985 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_placebo_1985) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+gen dfao_diff_2 = dfaochigh - dfaoc95
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaochigh log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaochigh) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfao_diff_2 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_diff_2) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+******************************* Pre trends *************************************
+********************************************************************************
 bysort cod: gen time = _n
 
 tsset cod time
 
 
+**** PLACEBO
+
+gen dfaoc95_placebo = dfaoc95[_n+1] if year == 2000
+gen placebao = dfao_placebo_1985[_n+1]  if year == 2000
+
+* Baseline
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfao_placebo_1985 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg if year == 2010, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_placebo_1985) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh{
+eststo: qui reg `v' placebao l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult i.codreg if year == 2000, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(placebao) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh{
+eststo: qui reg `v' dfaoc95_placebo log_income_1991 log_popdens_1991 analf_1991 agr_sh_1991 i.codreg   if year == 2000, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95_placebo) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95_2010 dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult y2010 i.codreg if pre == 1, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95_2010 dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+
+* Baseline without Region Fixed Effects and rural share
 eststo clear
 foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
 eststo: qui reg `v' dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult   if year == 2010, vce (cluster cod)
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
-
+* Baseline new controls
 eststo clear
 foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
 eststo: qui reg `v' dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult i.codreg  if year == 2010, vce (cluster cod)
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
-
+* Baseline
 eststo clear
 foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
 eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg if year == 2010, vce (cluster cod)
@@ -388,14 +699,23 @@ esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.0
 
 
 gen agrish_r1991 = P_AGRO if year == 1991
-
 bysort cod: replace agrish_r1991 = agrish_r1991[_n-2] if year == 2010
+
+
 
 eststo clear
 foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
-eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 agrish_r1991 i.codreg   if year == 2010, vce (cluster cod)
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 analf_1991 agrish_r1991 i.codreg   if year == 2010, vce (cluster cod)
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult i.codreg   if year == 2010, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
 
 
 
@@ -412,10 +732,10 @@ reg dagro_sh dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult
 reg dindust_sh dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult i.codreg  if year == 2010
 
 
-* Pre trends
-
+**************************** Pre trends ****************************************
+ 
 gen dfaoc95_2010 = dfaoc95 if year == 2010
-gen faodt_2010 = faodt10 if year == 2010
+gen faodt_2010   = faodt10 if year == 2010
 gen faotmed_2010 = faotmed if year == 2010
 
 
@@ -442,9 +762,21 @@ replace log_popdens_r = log_popdens_1991    if year == 1991
 replace log_popdens_r = log_pop_area 	    if year == 1980
 
 
-reg dagro_sh dfaoc95_2010 dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult y2010 if pre == 1, vce (cluster cod)
-reg dindust_sh dfaoc95_2010 dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult y2010 if pre == 1, vce (cluster cod)
 
+
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95_2010 dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult y2010 i.codreg if pre == 1, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95_2010 dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+reg dagro_sh   dfaoc95_2010 dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult y2010 i.codreg if pre == 1, vce (cluster cod)
+reg dindust_sh dfaoc95_2010 dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult y2010 i.codreg if pre == 1, vce (cluster cod)
+reg dserv_sh   dfaoc95_2010 dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult y2010 i.codreg if pre == 1, vce (cluster cod)
 
 reg dagro_sh dfaoc95_2010 dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult y2010 i.codreg   if pre == 1, vce (cluster cod)
 reg dindust_sh dfaoc95_2010 dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adult y2010 i.codreg if pre == 1, vce (cluster cod)
@@ -468,6 +800,9 @@ reg dindust_sh dfaoc95 l2.rural_adult l2.log_y_pc_r l2.log_pop_area l2.alpha_adu
 
 ****************************** Openness ****************************************
 
+gen fao_open = dfaoc95 * open_exp_2000
+
+
 
 * Baseline
 eststo clear
@@ -475,6 +810,33 @@ foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_ws
 eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 fao_open open_exp_2000 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 fao_open open_exp_2000) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+
+gen dfao_diff_2 = dfaochigh - dfaoc95
+
+gsort -dfao_diff_2
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfao_diff log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_diff) star(* 0.10 ** 0.05 *** 0.01) compress
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfao_diff_2 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfao_diff_2) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 
@@ -506,7 +868,7 @@ gen fao_open_tot = dfaoc95 * open_total_mean
 gen dfao_open_exp = dfaoc95 * dopen_exp
 gen dfao_open_tot = dfaoc95 * dopen_total
 
-
+gen fao_open_exp_2000 = dfaoc95 * open_exp_2000
 
 * As explanatory variable
 eststo clear
@@ -520,6 +882,15 @@ foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_ws
 eststo: qui reg `v' dopen_total log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dopen_total) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95  fao_open_exp_2000 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95  fao_open_exp_2000) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
 
 
 * Interactions
@@ -547,6 +918,20 @@ foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_ws
 eststo: qui reg `v' dfaoc95 dopen_total dfao_open_tot log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
 }
 esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 dopen_total dfao_open_tot) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 open_exp_2000 fao_open_exp_2000 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 open_exp_2000 fao_open_exp_2000) star(* 0.10 ** 0.05 *** 0.01) compress
+
+
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 open_exp_2000 fao_open_exp_2000 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 capital_dummy dist_federal dist_state i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95 open_exp_2000 fao_open_exp_2000) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 
@@ -2221,52 +2606,38 @@ c.temp_daniel#i.year c.rain_daniel#i.year i.year, fe vce (cluster cod)
 
 
 
-********************************************************************************
-
-
-*** TESTS ************
-
-******Difference between xtreg and reg without differences
-xtset cod year, delta(10)
-tsset cod year, delta(10)
 
 
 
-reg dagro_sh dshares, vce (cluster cod)
-
-
-reg P_AGRO pq_sum i.year i.cod, vce (cluster cod)
-
-* No Controls ***** Como conseguir o mesmo com reg???
+* Baseline
 eststo clear
-
-eststo: qui xtreg P_AGRO pq_sum, fe vce (cluster cod)
-eststo: qui xtreg P_INDUST pq_sum, fe vce (cluster cod)
-eststo: qui xtreg P_SERV pq_sum, fe vce (cluster cod)
-eststo: qui xtreg log_wagro pq_sum, fe vce (cluster cod)
-eststo: qui xtreg log_windust pq_sum, fe vce (cluster cod)
-
-esttab, se ar2 stat (r2_a N) keep(pq_sum) compress
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' dfaoc95 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(dfaoc95) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
-
-
-
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' sum_faocact_avg log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(sum_faocact_avg) star(* 0.10 ** 0.05 *** 0.01) compress
 
 
 
 
 
 
+* Sensitivity
+ssc install sensemakr
 
 
 
+sensemakr dagro_sh faodt10 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, treat(faodt10) benchmark(agr_sh_1991)
 
 
-
-
-
-
-
-
-
+eststo clear
+foreach v in dagro_sh dindust_sh dserv_sh durbsh dlog_wagro dlog_windust dlog_wserv{
+eststo: qui reg `v' faodt10 log_income_1991 log_popdens_1991 agr_sh_1991 analf_1991 i.codreg, vce (cluster cod)
+}
+esttab, se(3) ar2 stat (r2_a N, fmt(3 %12.0fc)) keep(faodt10) star(* 0.10 ** 0.05 *** 0.01) compress

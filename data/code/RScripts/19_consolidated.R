@@ -103,9 +103,16 @@ load(here("data", "output", "final",  "groupa_prop.Rdata"))
 load(here("data", "output", "final",  "final_measures_faohigh.Rdata"))
 load(here("data", "output", "final",  "amc_full.Rdata"))
 load(here("data", "output", "final",  "openness.Rdata"))
-
+load(here("data", "output", "final",  "residence_agro.Rdata"))
+load(here("data", "output", "final",  "measure_placebo_1985.RData"))
 
 pop_struc <- read_dta(file = here("analysis", "code", "stata", "pop_struc_r.dta"))
+
+
+
+fao_final_placebo_1985 %<>% filter(year == 1990| year == 2000) %>%
+  mutate(year = ifelse(year == 1990, 2006, 2017))
+
 
 final_measures %<>% filter(year == 2000| year == 2010 | year == 2015)
 
@@ -140,7 +147,9 @@ agro_struc <- full_join(agro_struc, dplyr::select(final_measures, -"municip"),
   full_join(., groupa_prop, by = c("cod", "year")) %>%
   full_join(., amc_full, by = c("cod", "year")) %>%
   full_join(., pop_struc, by = c("cod", "year")) %>%
-  full_join(., openness, by = c("cod", "year"))
+  full_join(., openness, by = c("cod", "year")) %>%
+  full_join(., residence_agro, by = c("cod", "year")) %>%
+  full_join(., fao_final_placebo_1985, by = c("cod", "year"))
 
 agro_struc %<>% dplyr::select(-c("municip.x", "municip.y"))
 
@@ -159,17 +168,29 @@ load(here("data", "output", "final", "final_measures_faohigh.Rdata"))
 load(here("data", "output", "final", "amc_full.Rdata"))
 load(here("data", "output", "final", "past_share.Rdata"))
 load(here("data", "output", "final", "openness.Rdata"))
+load(here("data", "output", "final", "measure_placebo_1985.RData"))
+load(here("data", "output", "final","residence_agro.Rdata"))
 
 
 
 
-final_measures %<>% filter(year == 2000| year == 2010)
+residence_agro %<>% mutate(year = ifelse(year == 2006, 2000, 2010))
+
+
+final_measures %<>% filter(year <= 2010) %>% group_by(cod) %>%
+  mutate(sum_faoc95_avg = mean(sum_fao_cattle_1995)) %>%
+  mutate(sum_faocact_avg = mean(sum_fao_cattle_actual)) %>%
+  filter(year == 2000| year == 2010)
+
 
 pop_sidra %<>% filter(year == 2000| year == 2010)
 
 fao_final_cattle_1995 %<>% filter(year == 2000| year == 2010)
 
 openness %<>% filter(year == 2000| year == 2010) %>% dplyr::select(-"municip")
+
+fao_final_placebo_1985 %<>% filter(year == 1990| year == 2000) %>%
+  mutate(year = ifelse(year == 1990, 2000, 2010))
 
 
 # Joining
@@ -185,9 +206,11 @@ pop_struc <- full_join(popstruc_pres, dplyr::select(final_measures, -"municip"),
             by = c("cod", "year")) %>%
   full_join(., dplyr::select(pop_sidra, -"municip"), 
             by = c("cod", "year")) %>%
-  full_join(., amc_full, by = c("cod", "year")) %>%
-  full_join(., past_share, by = c("cod", "year")) %>%
-  full_join(., openness, by = c("cod", "year"))
+  full_join(., amc_full,   by   = c("cod", "year")) %>%
+  full_join(., past_share, by   = c("cod", "year")) %>%
+  full_join(., openness,   by   = c("cod", "year")) %>%
+  full_join(., fao_final_placebo_1985,   by   = c("cod", "year")) %>%
+  full_join(., residence_agro,   by   = c("cod", "year"))
 
 
 pop_struc %<>% dplyr::select(-c("municip.y.x", "municip.y.y", 

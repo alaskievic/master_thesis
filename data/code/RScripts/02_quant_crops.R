@@ -1,9 +1,5 @@
-
-# Set Working Directory
-setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
-
-#Load packaages
-source("./0_load_packages.R")
+# Load packages
+source("./00_load_packages.R")
 
 ########## 1. Clean and caculate the mean quantities for each crop in each municipality between 1995-1999. To be used as the "share" in the Bartik Instrument
 
@@ -303,6 +299,10 @@ save(shares_fao_1995,
 
 save(shares_fao_actual,
      file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/shares_fao_actual_cattle.Rdata")
+
+
+
+
 
 
 

@@ -383,37 +383,7 @@ write_xlsx(pq_final_longer_log, 'C:/Users/Andrei/Desktop/Dissertation/Dados/pq_d
 
 
 
-# ######### Merging
-# df_pivot <- function(x){
-#   x %>% pivot_longer(-municip, names_to = "year", values_to = "pq")
-#   }
-# 
-# 
-# a <-list(pq_banana, pq_barley, pq_cocoa, pq_coffee_arabic, pq_cotton, pq_indiantea, pq_maize, pq_orange, pq_rice_05,
-#     pq_rubber, pq_sorghum, pq_soy, pq_sugarcane, pq_tobacco, pq_wheat_soft, pq_yerbamate)
-# 
-# 
-# pqzada_map <- map(.x = a, .f = df_pivot)
-# 
-# pqzada_2 <- reduce(pqzada_map, merge, by = c("municip")
-# 
-# 
-# pqzada_2 <- Reduce(inner_join, pqzada_map)
-# 
-# pqzada <- Reduce(inner_join, list(pq_banana, pq_barley, pq_cocoa, pq_coffee_arabic, pq_cotton, pq_indiantea, pq_maize, pq_orange, pq_rice_05,
-#                      pq_rubber, pq_sorghum, pq_soy, pq_sugarcane, pq_tobacco, pq_wheat_soft, pq_yerbamate))
-#  
-# 
-# pq_final <- pqzada %>% mutate(sum_pq = select(., banana:yerbamate) %>% 
-#                   rowSums(na.rm = TRUE)) %>%
-#                   select(municip, year, sum_pq)
-# 
-# pq_final_wider <- pq_final %>% pivot_wider(names_from = "year", values_from = "sum_pq", names_repair = "minimal")
-           
-
-
-
-########################### 2. Doing it again for the shares #####################################################
+############## 2. Doing it again for the shares ################
 
 #banana
 pq_banana <- NULL

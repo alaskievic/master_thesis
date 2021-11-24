@@ -15,12 +15,12 @@ comm_names <- c("...1", "COCOA", "COFFEE_ARABIC", "COFFEE_ROBUS", "TEA_AVG",
 # Reads BRL(R$)/US$ exchange rate data
 cambio <- read_excel(here("data", "raw", "prices", "cambio_nominal.xls"),
                           sheet = "Séries", col_names = TRUE, na = "") %>%
-  filter(Date >= 1990 &  Date <= 2015)
+  filter(Date >= 1990 &  Date <= 2019)
 
 # Reads Brazilian IPCA inflation data with 1990 = 100
 ipca <- read_excel(here("data", "raw", "prices", "IPCA_anual.xls"), 
                    sheet = "Séries", col_names = TRUE, na = "") %>%
-  filter(Date >= 1990 &  Date <= 2015)
+  filter(Date >= 1990 &  Date <= 2019)
 
 
 # Reds CPI data with 1990 = 100
@@ -28,7 +28,7 @@ cpi <- read_excel(here("data", "raw", "prices", "cpi_annual.xls"), sheet = "FRED
                   col_names = TRUE, na = "")
 
 cpi$Date <- year(cpi$Date)
-cpi      <- cpi %>% filter (Date >= 1990 & Date <= 2015)
+cpi      <- cpi %>% filter (Date >= 1990 & Date <= 2019)
 
 
 # Reads the Pink Sheet prices
@@ -73,7 +73,7 @@ pink_prices <- pink_prices %>%
   mutate (Years = format(Month, "%Y"))
 
 
-# Calculates the price for each commodity in each year by averaging wihtin 12 months
+# Calculates the price for each commodity in each year by averaging within 12 months
 pink_prices_avg <- aggregate(Price~Commodity+Years, pink_prices, mean)
 
 
@@ -125,11 +125,6 @@ graph_1 <- ggplot(indexes, aes(x=Years)) +
   scale_x_discrete(breaks = c("1990", "1995", "2000", "2005", "2010", "2015")) +
   ggtitle("Individual Commodity Prices")
 
-graph_1
-# Saving the graph
-# ggsave(filename = "com_prices_1.eps", plot = graph_1,
-# path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/Figures")
-
 
 # Taking out rubber
 indexes_norubber <- filter(indexes, Commodity != "Rubber")
@@ -141,13 +136,6 @@ graph_2 <- ggplot(indexes_norubber, aes(x=Years)) +
   labs(x = "Year", y="Price Index (1990=100)") +
   scale_x_discrete(breaks = c("1990", "1995", "2000", "2005", "2010", "2015")) +
   ggtitle("Individual Commodity Prices")
-
-graph_2
-
-#ggsave(filename = "com_prices_2_norubber.eps", plot = graph_2, path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/Figures")
-
-
-
 
 # Trying another palette
 c25 <- c(
@@ -177,10 +165,6 @@ graph_3 <- ggplot(indexes, aes(x=Years)) +
   scale_x_discrete(breaks = c("1990", "1995", "2000", "2005", "2010", "2015")) +
   ggtitle("Individual Commodity Prices")
 
-graph_3
-#ggsave(filename = "com_prices_3.eps", plot = graph_3, path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/Figures")
-
-
 graph_4 <- ggplot(indexes_norubber, aes(x=Years)) +
   geom_line(data = indexes_norubber, aes(y=Index, color = Commodity, group = Commodity))+
   scale_color_manual(values=c25)+
@@ -188,13 +172,6 @@ graph_4 <- ggplot(indexes_norubber, aes(x=Years)) +
   labs(x = "Year", y="Price Index (1990=100)") +
   scale_x_discrete(breaks = c("1990", "1995", "2000", "2005", "2010", "2015")) +
   ggtitle("Individual Commodity Prices")
-
-graph_4
-# ggsave(filename = "com_prices_4_norubber.eps", plot = graph_2,
-# path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/Figures")
-
-
-
 
 
 
@@ -229,7 +206,7 @@ pink_prices_final <- pink_prices_avg %>%
 
 
 # Using CPI to deflate the series with 1990=100
-pink_prices_final <- pink_prices_final %>% filter(Years >=1990 & Years<=2015)
+pink_prices_final <- pink_prices_final %>% filter(Years >=1990 & Years<=2019)
 cpi_prices <- (pink_prices_final[-1]/(cpi$Index/100))
 
 cpi_prices <- add_column(cpi_prices, Years = pink_prices_final[[1]], .before = "Banana") %>%
@@ -292,7 +269,6 @@ graph_5 <- ggplot(index_real_br_prices, aes(x=Years)) +
   scale_x_discrete(breaks = c("1990", "1995", "2000", "2005", "2010", "2015")) + 
   ggtitle("Individual Commodity Prices")
 
-graph_5
 
 
 # Plot the deflated prices in US$ 1990=100
@@ -312,13 +288,12 @@ graph_6 <- ggplot(prices_graph1, aes(x=Years)) +
   scale_x_discrete(breaks = c("1990", "1995", "2000", "2005", "2010", "2015")) + 
   ggtitle("Individual Commodity Prices")
 
-graph_6
 
 #Saving prices dataset
-save(pink_prices_final, file = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/prices_nominal_bartik.Rdata")
-save(cpi_prices, file ="C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/prices_real_bartik.Rdata")
-save(cpi_prices_2010, file ="C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/prices_real_bartik_2010.Rdata")
-
+# save(pink_prices_final, 
+# save(cpi_prices, file
+save(cpi_prices_2010, file = here("data", "output", "prices", "prices_real_bartik_2010.Rdata"))
+       
 # Plot the deflated prices in US$ with 2010=100
 # final graph
 load("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/prices_real_bartik_2010.Rdata")
@@ -395,11 +370,3 @@ prices_plot
  ggsave(filename = "prices_plot.png", 
         plot = prices_plot, 
         path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
-# 
-# 
-# prices_plot <- ggplot(data = com_graph, aes(x = date, y = agro)) + 
-#   geom_line(lwd = 1, color = "blue") +
-#   labs(title = "Commodity Price Index (Agricultural Sector in US$)",
-#        y = "Agricultural Price Index (2016=100)", x = "Year") +
-#   scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
-#   theme_bw(base_size = 13)

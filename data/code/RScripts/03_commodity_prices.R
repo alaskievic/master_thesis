@@ -89,7 +89,8 @@ comm_names <- comm_names[-1]
 # Create indexes for all commodity prices with 1990 = 100
 indexes <- lmap(pink_prices_avg[-1], ~{.x/ .x[[1]][1]*100}) %>%
   dplyr::select_if(~ !any(is.na(.))) %>%
-  dplyr::select(-c("TEA_COLOMBO", "TEA_MOMBASA", "TEA_KOLKATA", "RICE_25", "SUGAR_EU", "SUGAR_US")) %>%
+  dplyr::select(-c("TEA_COLOMBO", "TEA_MOMBASA", "TEA_KOLKATA", "RICE_25",
+                   "SUGAR_EU", "SUGAR_US")) %>%
   add_column (Years = pink_prices_avg[[1]], .before = "BANANA_US")
 
 
@@ -216,7 +217,8 @@ cpi_prices <- add_column(cpi_prices, Years = pink_prices_final[[1]], .before = "
 # Using CPI to deflate the series with 2010=100
 cpi_prices_2010 <- (pink_prices_final[-1]/(cpi$Index_2/100))
 
-cpi_prices_2010 <- add_column(cpi_prices_2010, Years = pink_prices_final[[1]], .before = "Banana") %>%
+cpi_prices_2010 <- add_column(cpi_prices_2010, Years = pink_prices_final[[1]],
+                              .before = "Banana") %>%
   as_tibble()
 
 
@@ -320,8 +322,10 @@ graph_7 <- ggplot(prices_graph2, aes(x=Years)) +
 
 graph_7
 
-ggsave(filename = "com_prices.eps", plot = graph_7, path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
-ggsave(filename = "com_prices.png", plot = graph_7, path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
+ggsave(filename = "com_prices.eps", plot = graph_7,
+       path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
+ggsave(filename = "com_prices.png", plot = graph_7,
+       path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/Figures")
 
 
 

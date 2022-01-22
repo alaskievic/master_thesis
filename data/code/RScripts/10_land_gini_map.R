@@ -1,10 +1,7 @@
-# Set Working Directory
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts")
-
 #Load packages
 source("./00_load_packages.R")
 
-######### 1. Reads and plots Land Gini Inequality data calculated in Stata ###################################################################################
+######### 1. Reads and plots Land Gini Inequality data calculated in Stata #####
 
 
 ### Increase RAM usage

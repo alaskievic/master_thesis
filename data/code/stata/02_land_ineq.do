@@ -16,7 +16,7 @@ foreach i of local levels{
 */
 
 * censo 2006 correto(?)
-import excel "../../raw/data_municipality/censo_agro/2006/tabela837_area_def_2006.xlsx", clear
+import excel "../../raw/data_municipality/censo_agro/2006/land_area/tabela837_area_def_2006.xlsx", clear
 
 drop in 1/6
 drop in -1

@@ -4,9 +4,62 @@ source("./00_load_packages.R")
 ######### 1. Reads and plots Land Gini Inequality data calculated in Stata #####
 
 
-### Increase RAM usage
-memory.limit(size = NA)
-memory.limit(size = 50000)
+### 1920 ###
+
+# 1920 Shapefile
+shp_1920 <- st_read(here("data", "raw", "shapefiles", "municip_1920",
+                         "05-malha_municipal_1920.shp"))
+
+# Plotting Borders
+state_1920 <- st_read(here("data", "raw", "shapefiles", "state_1920",
+                           "04-limite estadual 1920.shp"))
+
+# plot(st_geometry(shp_1920))
+# plot(st_geometry(state_1920))
+
+
+# Reads from Stata
+land_ineq_1920 <- read_dta(here("data", "raw", "historical", "land_gini_1920.dta")) %>%
+  rename(codigo = code2010)
+
+# Merging with IBGE data
+shp_ibge_gini_1920 <- full_join(shp_1920, land_ineq_1920, by = "codigo")
+
+# Just to analyze the average
+mean(shp_ibge_gini_1920$land_gini_1920, na.rm = TRUE)
+
+
+shp_ibge_gini_1920 %<>% filter(!is.na(land_gini_1920)) %>% filter(!is.na(codigo)) %>% 
+  filter(!is.na(nome))
+
+
+# Plotting
+map_land_1920 <- tm_shape(shp_ibge_gini_1920) +
+  tm_polygons(col = "land_gini_1920", style = "fisher", palette = "YlOrRd",
+              border.col = "black", border.alpha = .3, showNA = TRUE, 
+              textNA="No Data",
+              title = "Land Gini in 1920") +
+  tm_shape(state_1920) +
+  tm_borders(lwd = 1.5, col = "black", alpha = .5) +
+  tm_layout(legend.text.size=1.25,
+            legend.title.size=1.55,
+            legend.position = c("left","bottom"), 
+            legend.height=1.0,
+            frame = FALSE) +
+  tm_compass(position = c("right", "bottom")) +
+  tm_scale_bar(position = c("right", "bottom"), text.size = 1) 
+
+
+map_land_1920
+
+
+# Saving
+tmap_save(map_land_1920, here("analysis", "output", "figures",
+                              "gini_land_2017.png"))
+
+
+
+
 
 # Reads IBGE's 2019 shapefile containing 5570 municipalities
 shp_ibge <-  readOGR("C:/Users/Andrei/Desktop/Dissertation/Dados/Shapefiles/br_municipios_2019", "BR_Municipios_2019", stringsAsFactors = F)
@@ -62,7 +115,7 @@ tmap_save(map_land_1995, "C:/Users/Andrei/Desktop/teste.png")
 
 
 
-######### 2006
+### 2006 ###
 
 # Reads from Stata
 stata_agro_2006 <- read.dta13("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/StataFiles/agro_2006.dta")
@@ -248,39 +301,7 @@ save(map_land_diff3, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_t
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-######### 2. Make maps for Income Gini #####################################################################################################################
+###################### 2. Make maps for Income Gini ############################
 
 ###### 1991
 # Sets up Gini data for each year
@@ -373,7 +394,7 @@ gini_income_2010
 tmap_save(gini_income_2010, "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/Figures/gini_income_2010.png")
 
 
-######### 3. Plotting Income Gini with equal bracket sizes #################################################################################################
+############### 3. Plotting Income Gini with equal bracket sizes ###############
 
 # Plotting
 gini_income_1991_brack <- tm_shape(shp_ibge_gini_1991) +

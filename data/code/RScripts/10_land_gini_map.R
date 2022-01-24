@@ -8,7 +8,8 @@ source("./00_load_packages.R")
 
 # 1920 Shapefile
 shp_1920 <- st_read(here("data", "raw", "shapefiles", "municip_1920",
-                         "05-malha_municipal_1920.shp"))
+                         "05-malha_municipal_1920.shp")) %>% 
+  rename(code_shp = codigo)
 
 # Plotting Borders
 state_1920 <- st_read(here("data", "raw", "shapefiles", "state_1920",
@@ -17,20 +18,26 @@ state_1920 <- st_read(here("data", "raw", "shapefiles", "state_1920",
 # plot(st_geometry(shp_1920))
 # plot(st_geometry(state_1920))
 
+cross_1920 <- read_dta(here("data", "raw", "shapefiles", "municip_1920", 
+                            "shp_crosswalk_mun.dta"))
 
-# Reads from Stata
-land_ineq_1920 <- read_dta(here("data", "raw", "historical", "land_gini_1920.dta")) %>%
-  rename(codigo = code2010)
+cross_map_1920 <- full_join(shp_1920, cross_1920, by = "code_shp") %>%
+  mutate(code2010 = ifelse(is.na(code2010), code_shp, code2010))
+
+
+# Read from Stata
+land_ineq_1920 <- read_dta(here("data", "raw", "historical", "land_gini_1920.dta"))
+
 
 # Merging with IBGE data
-shp_ibge_gini_1920 <- full_join(shp_1920, land_ineq_1920, by = "codigo")
+shp_ibge_gini_1920 <- full_join(cross_map_1920, land_ineq_1920, by = "code2010")
+
+# Drop missing polygons
+shp_ibge_gini_1920 %<>% filter(!is.na(code_shp))
+
 
 # Just to analyze the average
 mean(shp_ibge_gini_1920$land_gini_1920, na.rm = TRUE)
-
-
-shp_ibge_gini_1920 %<>% filter(!is.na(land_gini_1920)) %>% filter(!is.na(codigo)) %>% 
-  filter(!is.na(nome))
 
 
 # Plotting
@@ -55,10 +62,7 @@ map_land_1920
 
 # Saving
 tmap_save(map_land_1920, here("analysis", "output", "figures",
-                              "gini_land_2017.png"))
-
-
-
+                              "gini_land_1920.png"))
 
 
 # Reads IBGE's 2019 shapefile containing 5570 municipalities

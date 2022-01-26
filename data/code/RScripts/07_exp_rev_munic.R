@@ -1,11 +1,8 @@
-# Set Working Directory
-setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts")
-
-#Load packaages
+#Load packages
 source("./00_load_packages.R")
 
 
-######### 1. Reads municipalities expenditure data from IPEA and constructs a data set ##########################################################################
+############# 1. Reads municipalities expenditure data from IPEA ###############
 
 # Changes working directory to apply purr::map
 setwd("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/Despesas")
@@ -17,13 +14,14 @@ file.list_1 <- list.files(pattern='*.xls')
 df_list_map_1 <- map(file.list_1, read_excel, sheet = "Séries", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 # Reads Brazilian IPCA inflation data with 2010 = 100
-ipca <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Prices/ipca_anual.xls", 
+ipca <- read_excel(here("data", "raw", "prices", "IPCA_anual.xls"), 
                    sheet = "Séries", col_names = TRUE, na = "") %>%
   filter(Date >= 2000 &  Date <= 2010)
 
 
 # Set expenditures names
-exp_names <- c("agro", "comunic", "corrente", "corrente_outras", "educ", "energia", "func_total", "habit", "indcomsev", "judic", "legis", 
+exp_names <- c("agro", "comunic", "corrente", "corrente_outras", "educ",
+               "energia", "func_total", "habit", "indcomsev", "judic", "legis", 
                "orcam", "prev", "saude", "seguran", "transp")
 
 # Function for some cleanup
@@ -109,14 +107,16 @@ rev_real <- mutate_all(rev_nominal[4:15], deflate) %>%
 
 
 
-######### 3. Reads and cleans ITR revenue data from Receita Federal ####################################################################################################
+######### 3. Reads and cleans ITR revenue data from Receita Federal ############
 
 # Reads ITR data
-itr <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/IPEA/arrecadacao_itr.xlsx",
-                     skip = 8, sheet = "Plan1", col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
+itr <- read_excel(here("data", "raw", "data_municipality", "itr", "arrecadacao_itr.xlsx"),
+                     skip = 8, sheet = "Plan1", col_names = TRUE,
+                     na = c("NA","N/A","", "...", "-", "..", "X"))
 
 # Reads municipalities codes from IBGE
-mun_codes <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/Código Municípios/cod_ibge/RELATORIO_DTB_BRASIL_MUNICIPIO_itr.xls",
+mun_codes <- read_excel(here("data", "raw", "data_municipality", "code_mun",
+                             "cod_ibge", "RELATORIO_DTB_BRASIL_MUNICIPIO_itr.xls"),
                         col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 
@@ -138,7 +138,8 @@ rev_itr[5526, 1] <- "palmas(to)"
 
 
 # Change mun codes strings
-teste_codes <- mun_codes %>% mutate(new_names = ifelse(Nome_UF == "Rondônia",  paste0(Nome_Município[-length(Nome_Município)], '(RO)'),
+teste_codes <- mun_codes %>% mutate(new_names = ifelse(Nome_UF == "Rondônia",
+                                                       paste0(Nome_Município[-length(Nome_Município)], '(RO)'),
                                                  ifelse(Nome_UF == "Acre",  paste0(Nome_Município[-length(Nome_Município)], '(AC)'),    
                                                  ifelse(Nome_UF == "Amazonas",  paste0(Nome_Município[-length(Nome_Município)], '(AM)'),                
                                                  ifelse(Nome_UF == "Roraima",  paste0(Nome_Município[-length(Nome_Município)], '(RR)'),                                                       
@@ -175,15 +176,19 @@ teste_codes$new_names  <- gsub(" ", "", teste_codes$new_names)
 rev_itr$municip <- gsub(" ", "", rev_itr$municip)
 
 #Remove special characters
-teste_codes <- teste_codes %>% mutate(new_names = stri_trans_general(str = teste_codes$new_names, id = "Latin-ASCII"))
-rev_itr <- rev_itr %>% mutate(municip = stri_trans_general(str = rev_itr$municip, id = "Latin-ASCII"))
+teste_codes <- teste_codes %>% 
+  mutate(new_names = stri_trans_general(str = teste_codes$new_names, id = "Latin-ASCII"))
+
+rev_itr <- rev_itr %>% 
+  mutate(municip = stri_trans_general(str = rev_itr$municip, id = "Latin-ASCII"))
 
 # transfrom all names to lowercase
 teste_codes <- teste_codes %>% mutate(new_names = tolower(new_names))
 
 
 #Select
-teste_codes <- teste_codes %>% dplyr::select(c("new_names", "Nome_Município", "Nome_UF", "Código Município Completo")) %>%
+teste_codes <- teste_codes %>% dplyr::select(c("new_names", "Nome_Município",
+                                               "Nome_UF", "Código Município Completo")) %>%
   rename(municip = "new_names", cod = "Código Município Completo")
 
 
@@ -193,7 +198,8 @@ itr_final <- full_join(teste_codes, rev_itr, by = "municip") %>%
 
 
 # Deflates ITR data
-itr_long <- pivot_longer(itr_final, -c("municip", "Nome_Município", "Nome_UF", "cod"), values_to = "exp_itr", names_to = "year")
+itr_long <- pivot_longer(itr_final, -c("municip", "Nome_Município", "Nome_UF",
+                                       "cod"), values_to = "exp_itr", names_to = "year")
 
 
 itr_real <- mutate_all(itr_long[6], deflate) %>%
@@ -203,16 +209,15 @@ itr_real <- mutate_all(itr_long[6], deflate) %>%
   replace(is.na(.), 0)
 
 # Real Final Join
-
 rev_final <- left_join(itr_real, rev_real, by = c("cod", "year"))
 rev_final_2 <- full_join(rev_real, itr_real, by = c("cod", "year"))
 
 
 # Saving
-save(rev_final, file = "C:/Users/Andrei/Desktop/Dissertation/Dados/master_thesis/RScripts/rev_final.RData")
+save(rev_final, file = here("data", "output", "misc", "rev_final.RData"))
 
 # Saving in excel
-#write_xlsx(itr_final, "C:/Users/Andrei/Desktop/Dissertation/Dados/Dados Municípios/AMS/match_names.xlsx")
+#write_xlsx(itr_final, match_names.xlsx")
 
 
 # Identifying duplicates for future correction

@@ -185,7 +185,54 @@ save(municip_pib_final,
 
 
 
-######################### 2. GDP Shares Graph  #################################
+###################### 2. Aggregating at AMC level  ############################
+
+
+# Load final dataset at the municipality level
+load(here("data", "output", "final", "municip_pib_real.RData"))
+
+municip_pib_final %<>% rename(code2010  = cod)
+
+# Load crosswalks
+amc_1980 <- read_dta(file = here("data", "raw", "data_municipality", "code_mun", 
+                                 "amc", "_Crosswalk_final_1980_2010.dta")) %>%
+  dplyr::select(final_name, amc, code2010)
+  
+amc_1991 <- read_dta(file = here("data", "raw", "data_municipality", "code_mun", 
+                                 "amc", "_Crosswalk_final_1991_2010.dta")) %>%
+  dplyr::select(final_name, amc, code2010)
+
+
+# Merge
+amc_1980 %<>% full_join(municip_pib_final, amc_1980, by =  "code2010")
+amc_1991 %<>% full_join(municip_pib_final, amc_1991, by =  "code2010")
+
+
+# Collapse
+amc_1980 %<>% group_by(amc, year) %>% summarise(pib_tot = sum(pib_tot, na.rm = TRUE), 
+                                                pib_agro = sum(pib_agro, na.rm = TRUE), 
+                                                pib_indust = sum(pib_indust, na.rm = TRUE), 
+                                                pib_serv = sum(pib_serv, na.rm = TRUE)) %>%
+  ungroup()
+
+amc_1991 %<>% group_by(amc, year) %>% summarise(pib_tot = sum(pib_tot, na.rm = TRUE), 
+                                                pib_agro = sum(pib_agro, na.rm = TRUE), 
+                                                pib_indust = sum(pib_indust, na.rm = TRUE), 
+                                                pib_serv = sum(pib_serv, na.rm = TRUE)) %>%
+  ungroup()
+
+
+# Saving
+save(amc_1980,
+     file = here("data", "output", "final", "amc1980_pib_real.RData"))
+
+save(amc_1991,
+     file = here("data", "output", "final", "amc1991_pib_real.RData"))
+
+
+
+
+######################### 3. GDP Shares Graph  #################################
 
 
 gdp_shares <- municip_pib_real %>% filter (cod==1) %>% 

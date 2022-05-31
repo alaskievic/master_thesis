@@ -1,26 +1,20 @@
-# Set Working Directory
-setwd("C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RScripts")
-
-#Load packages
+# Load packages
 source("./00_load_packages.R")
-
-memory.limit(size = NA)
-memory.limit(size = 50000)
 
 
 ######### 1. Reads cleaned RAIS Data for Municipalities and Calculates Shares ##
 
-# PASSO 1: criar usuário e projeto no BigQuery
+# PASSO 1: criar usu?rio e projeto no BigQuery
 
 # PASSO 2: criar arquivo de credenciais e salvar numa pasta
 # https://console.cloud.google.com/apis/credentials/serviceaccountkey?project=<project_id>
 # service account name: admin
 # role: project owner
 
-# Apontar a autenticação para o arquivo json
+# Apontar a autentica??o para o arquivo json
 bq_auth(path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RAIS SQL/RAIS-66fc2cf2df60.json")
 
-# Criar conexão com o BigQuery
+# Criar conex?o com o BigQuery
 con <- dbConnect(
   bigrquery::bigquery(),
   billing = "rais-301720",
@@ -125,7 +119,7 @@ teste_rais = dbGetQuery(con, query)
 # Observe that teste_rais equals the excel file below after filtering for year >= 1994
 
 
-rais <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/RAIS/rais_municip.xlsx", 
+rais <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Munic?pios/RAIS/rais_municip.xlsx", 
                        col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
 rais %<>% dplyr::select(c("id_municipio", "ano", "total_emp", "agriculture", 
@@ -139,10 +133,10 @@ rais[is.na(rais)] <- 0
 
 
 # Merging with municipalities names
-mun_codes <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Municípios/Código Municípios/cod_ibge/RELATORIO_DTB_BRASIL_MUNICIPIO.xlsx", 
+mun_codes <- read_excel("C:/Users/Andrei/Desktop/Dissertation/Analysis/Dados Munic?pios/C?digo Munic?pios/cod_ibge/RELATORIO_DTB_BRASIL_MUNICIPIO.xlsx", 
                    col_names = TRUE, na = c("NA","N/A","", "...", "-", "..", "X"))
 
-mun_codes %<>% rename(municip = "Nome_Município", cod = "Código Município Completo") %>%
+mun_codes %<>% rename(municip = "Nome_Munic?pio", cod = "C?digo Munic?pio Completo") %>%
   dplyr::select(c(cod, municip)) %>% mutate(cod = as.integer(cod))
 
 
@@ -225,10 +219,10 @@ ggsave(filename = "empshares_rais.png", plot = rais_graph,
 
 ######### 2. Employment Shares for Agroindustry ################################
 
-# Apontar a autenticação para o arquivo json
+# Apontar a autentica??o para o arquivo json
 bq_auth(path = "C:/Users/Andrei/Desktop/Dissertation/Analysis/master_thesis/RAIS SQL/RAIS-66fc2cf2df60.json")
 
-# Criar conexão com o BigQuery
+# Criar conex?o com o BigQuery
 con <- dbConnect(
   bigrquery::bigquery(),
   billing = "rais-301720",

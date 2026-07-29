@@ -10,8 +10,8 @@ options(stringsAsFactors = FALSE)
 if (!require("pacman")) install.packages("pacman")
 
 list.of.packages <- c("rgdal", "sf", "data.table", "tidyverse", "readxl", 
-                      "tmap", "fabricatr", "raster", "rgeos", "arrow", 
-                      "RColorBrewer", "broom", "sp", "ggthemes", "viridis", "grid", "broom",
+                      "tmap", "fabricatr", "raster", "rgeos", "arrow", "broom",
+                      "RColorBrewer", "broom", "sp", "ggthemes", "viridis", "grid",
                       "viridis", "lubridate", "plm", "haven", "RColorBrewer",
                       "writexl", "foreign", "knitr", "stargazer", "glue",
                       "zoo", "stringi", "devtools", "Rdpack", "installr", "magrittr", 

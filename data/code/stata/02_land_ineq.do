@@ -57,7 +57,6 @@ qui levelsof mun_group, local(levels)
 foreach i of local levels{
 	ineqdec0 avg [w = num] if mun_group == `i'
 	replace gini_2006_corr = r(gini) if mun_group == `i'
-
 }
 
 
